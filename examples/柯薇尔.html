@@ -276,7 +276,7 @@ details summary:hover{color:var(--accent)}
     },
     "background": "贵族",
     "inspiration": false,
-    "charId": "柯薇尔-78314683"
+    "charId": "柯薇尔-78367809"
   },
   "abilities": {
     "str": {
@@ -1696,9 +1696,10 @@ function showSpellDialog(spell){
   if(!isCantrip){
     const opts=[];
     for(let lv=spell.lvl;lv<=9;lv++){
-      const s=sc.slots[lv]||{cur:0,max:0};
+      const s=sc.slots[lv]||{max:0,used:[]};
       if(s.max===0)continue;
-      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${s.cur===0?'disabled':''}>${lv}环 (${s.cur}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
+      const remaining=(s.used||[]).filter(x=>!x).length;
+      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${remaining===0?'disabled':''}>${lv}环 (${remaining}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
     }
     slotOpts=opts.join('')||'<option disabled>无可用法术位</option>';
   }
@@ -1736,12 +1737,14 @@ function showSpellDialog(spell){
       const sel=document.getElementById('slot-sel');
       if(!sel.value){alert('无可用法术位');return}
       const lv=parseInt(sel.value);
-      if(sc.slots[lv].cur>0){
-        sc.slots[lv].cur-=1;
-        saveChar();renderSpells();
-        pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
-        closeModal();
-      }else alert('该环没可用法术位');
+      const s=sc.slots[lv];
+      if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+      const idx=s.used.indexOf(false);
+      if(idx===-1){alert('该环没可用法术位');return}
+      s.used[idx]=true;
+      saveChar();renderSpells();
+      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
+      closeModal();
     });
   }
 }

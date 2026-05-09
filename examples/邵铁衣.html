@@ -138,6 +138,22 @@ details summary:hover{color:var(--accent)}
 .features-list .src{font-size:10px;color:var(--text-dim)}
 .features-list .name{font-weight:bold;color:var(--gold)}
 .features-list .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.special-roll-row{padding:8px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;background:var(--panel-hi)}
+.special-roll-row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.special-roll-row .label{font-weight:bold;color:var(--gold);flex:1}
+.special-roll-row .die-tag{font-size:11px;color:var(--text-dim);padding:2px 6px;background:var(--bg);border-radius:2px}
+.special-roll-row button.roll-btn{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:bold}
+.special-roll-row button.roll-btn:hover{filter:brightness(1.15)}
+.special-roll-row .desc{font-size:12px;color:var(--text-dim);margin-top:6px}
+.surge-result .range{color:var(--gold);font-weight:bold;font-size:14px;margin-bottom:6px}
+.surge-result .effect{padding:10px;background:var(--panel-hi);border-radius:4px;line-height:1.55;margin-bottom:8px}
+.surge-result .sub-roll{padding:8px;border-left:3px solid var(--accent);background:var(--bg);margin-top:8px}
+.surge-result .sub-roll .sub-label{font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.surge-table-modal{max-height:70vh;overflow-y:auto}
+.surge-table-modal table{width:100%;border-collapse:collapse;font-size:12px}
+.surge-table-modal td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:top}
+.surge-table-modal tr.hit{background:rgba(200,160,50,.18)}
+.surge-table-modal td.range{white-space:nowrap;color:var(--gold);font-weight:bold;width:60px}
 .hidden{display:none!important}
 </style>
 </head>
@@ -211,6 +227,11 @@ details summary:hover{color:var(--accent)}
     <div id="resource-list"></div>
   </section>
 
+  <section class="panel hidden" id="special-rolls-panel">
+    <h2>特殊投骰 <span class="sub">点击按钮投骰并查表</span></h2>
+    <div id="special-rolls-list"></div>
+  </section>
+
   <section class="panel">
     <h2>装备 <span class="sub" id="weight-display">—</span></h2>
     <div id="armor-info"></div>
@@ -255,7 +276,7 @@ details summary:hover{color:var(--accent)}
     },
     "background": "士兵",
     "inspiration": false,
-    "charId": "邵铁衣-78313074"
+    "charId": "邵铁衣-78367809"
   },
   "abilities": {
     "str": {
@@ -854,6 +875,7 @@ const DEFAULT_CHAR={
   classResources:[
     {key:'arcaneRecovery',label:'奥术恢复',resetType:'longRest',max:1,used:[false],desc:'短休时使用，恢复总环阶数 ≤ 半角色等级（向上取整）的法术位（不含6环及以上）。'}
   ],
+  specialRolls:[],
   equipment:{
     armor:{name:'法师铠护身(法术)',ac:13,dexLimit:null,weight:0,attuned:false,equipped:true},
     shield:{name:'',ac:0,weight:0,attuned:false,equipped:false},
@@ -940,6 +962,23 @@ function saveChar(){
 /* === 计算 === */
 function totalLevel(c){return c.meta.classes.reduce((s,x)=>s+(x.level||0),0)}
 function profBonus(c){return RULES.proficiencyByLevel[totalLevel(c)]||2}
+function classHdGroups(c){
+  const map=new Map();
+  for(const cls of c.meta.classes||[]){
+    const hd=RULES.classes[cls.name]?.hd||8;
+    if(!map.has(hd))map.set(hd,{hd,levels:0,names:[]});
+    const g=map.get(hd);
+    g.levels+=cls.level||0;
+    g.names.push(cls.name);
+  }
+  return Array.from(map.values()).sort((a,b)=>b.hd-a.hd);
+}
+function hdSummary(c){
+  const groups=classHdGroups(c);
+  if(!groups.length)return 'd8';
+  if(groups.length===1)return 'd'+groups[0].hd;
+  return groups.map(g=>`d${g.hd}×${g.levels}`).join(' + ');
+}
 function abMod(s){return Math.floor((s-10)/2)}
 function fmt(n){return(n>=0?'+':'')+n}
 function saveBonus(c,ab){const a=c.abilities[ab];let b=abMod(a.score);if(a.saveProf)b+=profBonus(c);return b+(a.saveBonus||0)}
@@ -977,7 +1016,7 @@ function closeModal(){document.getElementById('modal-overlay').classList.add('hi
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal()});
 
 /* === 渲染 === */
-function render(){renderHeader();renderCombat();renderStatus();renderAbilities();renderSkills();renderAttacks();renderSpells();renderResources();renderEquipment();renderFeatures();renderNotes()}
+function render(){renderHeader();renderCombat();renderStatus();renderAbilities();renderSkills();renderAttacks();renderSpells();renderResources();renderSpecialRolls();renderEquipment();renderFeatures();renderNotes()}
 
 function renderHeader(){
   document.getElementById('char-name').textContent=char.meta.name||'未命名';
@@ -1005,9 +1044,7 @@ function renderCombat(){
   document.getElementById('pp-val').textContent=passivePerception(char);
   document.getElementById('hd-cur').textContent=char.combat.hdCur;
   document.getElementById('hd-max').textContent=char.combat.hdMax;
-  const c0=char.meta.classes[0];
-  const hd=c0&&RULES.classes[c0.name]?RULES.classes[c0.name].hd:8;
-  document.getElementById('hd-size').textContent='d'+hd;
+  document.getElementById('hd-size').textContent=hdSummary(char);
 }
 
 function renderStatus(){
@@ -1123,6 +1160,102 @@ function renderResources(){
       <span class="num" style="min-width:40px;text-align:right">${remaining}/${r.max}</span>
     </div>`;
   }).join('');
+}
+
+/* === 特殊投骰（如混沌施法 d100 法力狂潮）=== */
+function renderSpecialRolls(){
+  const panel=document.getElementById('special-rolls-panel');
+  const list=document.getElementById('special-rolls-list');
+  const items=char.specialRolls||[];
+  if(!items.length){panel.classList.add('hidden');return}
+  panel.classList.remove('hidden');
+  list.innerHTML=items.map((r,i)=>{
+    const die=r.die||'d100';
+    const desc=r.desc?`<div class="desc">${r.desc}</div>`:'';
+    return `<div class="special-roll-row">
+      <div class="top">
+        <span class="label">${r.label||'特殊投骰'}</span>
+        <span class="die-tag">${die}</span>
+        <button class="roll-btn" data-special-roll="${i}">投${die}</button>
+        <button data-special-table="${i}">查表</button>
+      </div>
+      ${desc}
+    </div>`;
+  }).join('');
+}
+
+function findSurgeRow(table,roll){
+  for(const row of table||[]){if(roll>=row.min&&roll<=row.max)return row}
+  return null;
+}
+
+function rollSubOption(sub){
+  if(!sub)return null;
+  const m=String(sub.die||'d4').match(/^d(\d+)$/i);
+  if(!m)return null;
+  const sides=+m[1];
+  const r=rollDie(sides);
+  const opts=sub.options||[];
+  const text=opts[r-1]||'(表外)';
+  return {die:`d${sides}`,roll:r,text};
+}
+
+function showSpecialRollResult(spec,roll,row){
+  const die=spec.die||'d100';
+  const label=spec.label||'特殊投骰';
+  let body=`<h3>${label}</h3>
+    <div class="surge-result">
+      <div class="roll-result"><div>${die} 结果</div><div class="total">${roll}</div></div>`;
+  if(!row){
+    body+=`<div class="effect">未在表上找到匹配区间。</div>`;
+  }else{
+    body+=`<div class="range">区间 ${row.min}–${row.max}</div>
+      <div class="effect">${row.effect||'(无文字)'}</div>`;
+    if(row.subRoll){
+      const sub=rollSubOption(row.subRoll);
+      if(sub){
+        body+=`<div class="sub-roll">
+          <div class="sub-label">附加 ${sub.die} = <strong style="color:var(--accent)">${sub.roll}</strong></div>
+          <div>${sub.text}</div>
+        </div>`;
+        pushHistory(`${label} ${die}+${sub.die}`,roll,`${roll} → ${row.min}-${row.max}；${sub.die}=${sub.roll}：${sub.text}`);
+      }else{
+        pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+      }
+    }else{
+      pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+    }
+  }
+  body+=`</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`;
+  openModal(body);
+}
+
+function triggerSpecialRoll(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const m=String(spec.die||'d100').match(/^d(\d+)$/i);
+  const sides=m?+m[1]:100;
+  const roll=rollDie(sides);
+  const row=findSurgeRow(spec.table,roll);
+  showSpecialRollResult(spec,roll,row);
+}
+
+function showSpecialRollTable(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const die=spec.die||'d100';
+  const rows=(spec.table||[]).map(r=>`<tr>
+    <td class="range">${r.min}–${r.max}</td>
+    <td>${r.effect||''}${r.subRoll?`<div style="margin-top:4px;font-size:11px;color:var(--text-dim)">附加 ${r.subRoll.die}：${(r.subRoll.options||[]).map((o,k)=>`<span style="display:inline-block;margin-right:8px"><strong>${k+1}</strong>=${o}</span>`).join('')}</div>`:''}</td>
+  </tr>`).join('');
+  openModal(`<h3>${spec.label||'特殊投骰'}（${die} 全表）</h3>
+    <div class="surge-table-modal"><table>${rows||'<tr><td>(空表)</td></tr>'}</table></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`);
 }
 
 function renderEquipment(){
@@ -1270,9 +1403,10 @@ function showSpellDialog(spell){
   if(!isCantrip){
     const opts=[];
     for(let lv=spell.lvl;lv<=9;lv++){
-      const s=sc.slots[lv]||{cur:0,max:0};
+      const s=sc.slots[lv]||{max:0,used:[]};
       if(s.max===0)continue;
-      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${s.cur===0?'disabled':''}>${lv}环 (${s.cur}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
+      const remaining=(s.used||[]).filter(x=>!x).length;
+      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${remaining===0?'disabled':''}>${lv}环 (${remaining}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
     }
     slotOpts=opts.join('')||'<option disabled>无可用法术位</option>';
   }
@@ -1310,12 +1444,14 @@ function showSpellDialog(spell){
       const sel=document.getElementById('slot-sel');
       if(!sel.value){alert('无可用法术位');return}
       const lv=parseInt(sel.value);
-      if(sc.slots[lv].cur>0){
-        sc.slots[lv].cur-=1;
-        saveChar();renderSpells();
-        pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
-        closeModal();
-      }else alert('该环没可用法术位');
+      const s=sc.slots[lv];
+      if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+      const idx=s.used.indexOf(false);
+      if(idx===-1){alert('该环没可用法术位');return}
+      s.used[idx]=true;
+      saveChar();renderSpells();
+      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
+      closeModal();
     });
   }
 }
@@ -1465,6 +1601,8 @@ document.addEventListener('click',e=>{
     showSpellDialog(sp);return;
   }
   if(t.closest('#hp-bar')){showHPDialog();return}
+  if(t.matches('[data-special-roll]')){triggerSpecialRoll(parseInt(t.dataset.specialRoll));return}
+  if(t.matches('[data-special-table]')){showSpecialRollTable(parseInt(t.dataset.specialTable));return}
 });
 
 document.addEventListener('change',e=>{
@@ -1479,21 +1617,52 @@ document.addEventListener('change',e=>{
 });
 
 /* === 短休 === */
+function consumeHdInteractive(){
+  const groups=classHdGroups(char);
+  const conMod=abMod(char.abilities.con.score);
+  let totalSpent=0,totalRecover=0;
+  const detail=[];
+  let remaining=char.combat.hdCur;
+  if(remaining<=0){alert('无可用 HD');return}
+  if(groups.length<=1){
+    const g=groups[0]||{hd:8,names:['']};
+    const v=parseInt(prompt(`要消耗几个 HD？（当前 ${char.combat.hdCur}/${char.combat.hdMax}，每个回 d${g.hd} + 体调 ${fmt(conMod)}）`,'0'))||0;
+    if(v<=0)return;
+    const useN=Math.min(v,remaining);
+    let sub=0;const rolls=[];
+    for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+    sub=Math.max(useN,sub);
+    totalSpent=useN;totalRecover=sub;
+    detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]+${conMod}×${useN}`);
+  }else{
+    for(const g of groups){
+      if(remaining<=0)break;
+      const cap=Math.min(g.levels,remaining);
+      if(cap<=0)continue;
+      const v=parseInt(prompt(`【${g.names.join('/')} d${g.hd}】消耗几个？\n该职业等级 ${g.levels}，HD 总池剩 ${remaining}，可消耗至多 ${cap}。`,'0'))||0;
+      if(v<=0)continue;
+      const useN=Math.min(v,cap);
+      let sub=0;const rolls=[];
+      for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+      sub=Math.max(useN,sub);
+      totalSpent+=useN;
+      totalRecover+=sub;
+      detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]`);
+      remaining-=useN;
+    }
+    if(totalSpent>0)detail.push(`+${conMod}×${totalSpent}`);
+  }
+  if(totalSpent===0)return;
+  char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+totalRecover);
+  char.combat.hdCur-=totalSpent;
+  pushHistory('短休HD',totalRecover,detail.join(' '));
+  alert(`恢复 ${totalRecover} HP`);
+}
+
 function shortRest(){
   if(!confirm('短休 1 小时？\n- 可消耗 HD 恢复 HP\n- 恢复短休资源（激发、神力引导、专注点、契约位等）'))return;
   for(const r of char.classResources||[]){if(r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
-  const useHd=parseInt(prompt(`要消耗几个 HD？（当前 ${char.combat.hdCur}/${char.combat.hdMax}，每个回 d${RULES.classes[char.meta.classes[0].name]?.hd||8} + 体调 ${fmt(abMod(char.abilities.con.score))}）`,'0'))||0;
-  if(useHd>0&&useHd<=char.combat.hdCur){
-    const hdSize=RULES.classes[char.meta.classes[0].name]?.hd||8;
-    const conMod=abMod(char.abilities.con.score);
-    let total=0;const rolls=[];
-    for(let i=0;i<useHd;i++){const r=rollDie(hdSize);rolls.push(r);total+=r+conMod}
-    total=Math.max(useHd,total);
-    char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+total);
-    char.combat.hdCur-=useHd;
-    pushHistory('短休HD',total,`${useHd}d${hdSize}+${conMod}×${useHd}: [${rolls.join(',')}]`);
-    alert(`恢复 ${total} HP`);
-  }
+  consumeHdInteractive();
   saveChar();render();
 }
 
