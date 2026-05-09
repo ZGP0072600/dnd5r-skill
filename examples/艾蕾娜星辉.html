@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>苏婉颜 - DnD 5r</title>
+<title>艾蕾娜·星辉 - DnD 5r</title>
 <style>
 :root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
 [data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
@@ -263,31 +263,26 @@ details summary:hover{color:var(--accent)}
 <script id="character-data" type="application/json">
 {
   "meta": {
-    "name": "苏婉颜",
-    "player": "测试者",
-    "alignment": "混乱善良",
-    "faith": "",
-    "xp": 6500,
-    "notes": "测试卡 #3：兼职混合 HD 验证（吟游诗人 d8 + 术士 d6）。\n\n职业进度：\n  - 1 级出身：吟游诗人 → 享有吟核心特质（豁免敏/魅、轻甲、简易武器、诗人激励、3 项自选技能、3 项乐器熟练）\n  - 兼职 1 级术士（角色总等级 4）：取术核心特质表的 d6 HD + 术 1 级特性（施法、先天术法）\n  - 升术 2 级（角色总等级 5）：获得魔力泉涌（2 术法点）+ 超魔法（2 选项）\n\n法术位：吟游诗人和术士都是「全施法者」，按兼职施法位规则总等级 5 → 4×1环 / 3×2环 / 2×3环（共享池）。\n戏法/准备法术分别按各自职业等级算（吟3：戏法 2、备法术 6；术2：戏法 4、备法术 4）。\n施法属性同为魅力，DC/攻击共用一套。\n\n子职状态：\n  - 逸闻学院（吟3）已解锁：3 项附赠熟练 + 语出惊人\n  - 狂野术法（术2）未解锁：狂野魔法浪涌、混乱之潮要术士 3 级才有；当前 specialRolls 留空。再升 1 术士级即可启用 d100 表。\n\n短休时记得：先点 d8 那栏（吟游诗人）输入要消耗几个，再点 d6 那栏（术士）。",
+    "name": "艾蕾娜·星辉",
+    "player": "",
+    "alignment": "守序中立",
+    "faith": "蜜丽尔（梦语者）",
+    "xp": 900,
+    "notes": "高等精灵·月血脉。坎德弥兰图书馆第七环阶学徒。十五年来在哈伯老师傅麾下抄录残卷以换取阅书权，终于在 116 岁时领得自己的第一本法术书与一根铜环长棍。痴迷塑能学派——她坚信「精确控制下的破坏」才是魔法最高的礼仪。出神冥想时常梦见星辰碎裂的声音。",
     "classes": [
       {
-        "name": "吟游诗人",
-        "subclass": "逸闻学院",
+        "name": "法师",
+        "subclass": "塑能师",
         "level": 3
-      },
-      {
-        "name": "术士",
-        "subclass": "狂野术法（未解锁，3 级才生效）",
-        "level": 2
       }
     ],
     "race": {
-      "name": "人类",
-      "subrace": ""
+      "name": "精灵",
+      "subrace": "高等精灵"
     },
-    "background": "艺人",
+    "background": "智者",
     "inspiration": false,
-    "charId": "苏婉颜-78368586"
+    "charId": "艾蕾娜·星辉-78149398"
   },
   "abilities": {
     "str": {
@@ -296,8 +291,8 @@ details summary:hover{color:var(--accent)}
       "saveBonus": 0
     },
     "dex": {
-      "score": 15,
-      "saveProf": true,
+      "score": 14,
+      "saveProf": false,
       "saveBonus": 0
     },
     "con": {
@@ -306,28 +301,28 @@ details summary:hover{color:var(--accent)}
       "saveBonus": 0
     },
     "int": {
-      "score": 8,
-      "saveProf": false,
+      "score": 17,
+      "saveProf": true,
       "saveBonus": 0
     },
     "wis": {
-      "score": 12,
-      "saveProf": false,
+      "score": 14,
+      "saveProf": true,
       "saveBonus": 0
     },
     "cha": {
-      "score": 17,
-      "saveProf": true,
+      "score": 10,
+      "saveProf": false,
       "saveBonus": 0
     }
   },
   "combat": {
-    "hpMax": 46,
-    "hpCur": 46,
+    "hpMax": 20,
+    "hpCur": 20,
     "hpTemp": 0,
-    "hdMax": 5,
-    "hdCur": 5,
-    "acBase": 13,
+    "hdMax": 3,
+    "hdCur": 3,
+    "acBase": 15,
     "acBonus": 0,
     "speed": 30,
     "size": "中型",
@@ -346,32 +341,12 @@ details summary:hover{color:var(--accent)}
     },
     "resistance": "",
     "immunity": "",
-    "advantage": "",
+    "advantage": "豁免抗魅惑（妖精血统）；魔法无法迫使睡眠。",
     "statusEffects": []
   },
   "skills": {
-    "deception": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "persuasion": {
-      "prof": "expert",
-      "bonus": 0
-    },
-    "insight": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "acrobatics": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "performance": {
-      "prof": "expert",
-      "bonus": 0
-    },
     "arcana": {
-      "prof": "prof",
+      "prof": "expert",
       "bonus": 0
     },
     "history": {
@@ -382,50 +357,54 @@ details summary:hover{color:var(--accent)}
       "prof": "prof",
       "bonus": 0
     },
+    "insight": {
+      "prof": "prof",
+      "bonus": 0
+    },
     "perception": {
       "prof": "prof",
       "bonus": 0
     },
     "globalBonus": 0,
-    "jackOfAllTrades": true
+    "jackOfAllTrades": false
   },
   "attacks": [
     {
-      "name": "匕首",
+      "name": "长棍（双手）",
+      "ability": "str",
+      "attackBonus": 0,
+      "damage": "1d8",
+      "damageBonus": 0,
+      "damageType": "钝击",
+      "properties": "多用(1d6/1d8)，奥术法器",
+      "mastery": "突刺",
+      "attuned": false
+    },
+    {
+      "name": "匕首（投掷）",
       "ability": "dex",
       "attackBonus": 0,
       "damage": "1d4",
       "damageBonus": 0,
       "damageType": "穿刺",
-      "properties": "灵巧, 投掷(20/60)",
-      "mastery": "虚招 Nick",
+      "properties": "灵巧, 投掷(20/60), 轻型",
+      "mastery": "虚招",
       "attuned": false
     },
     {
-      "name": "短弓",
-      "ability": "dex",
+      "name": "冷冻射线（戏法）",
+      "ability": "int",
       "attackBonus": 0,
-      "damage": "1d6",
+      "damage": "1d8",
       "damageBonus": 0,
-      "damageType": "穿刺",
-      "properties": "弹药(80/320), 双手",
-      "mastery": "缓速 Slow",
-      "attuned": false
-    },
-    {
-      "name": "法术攻击",
-      "ability": "cha",
-      "attackBonus": 0,
-      "damage": "1d10",
-      "damageBonus": 0,
-      "damageType": "—",
-      "properties": "法术攻击：+6 / DC 14；先天术法激活时 DC 15 且术士法术攻击具有优势",
-      "mastery": "—",
+      "damageType": "寒冷",
+      "properties": "60尺，远程法术攻击；命中后目标速度 -10 至我下回合",
+      "mastery": "",
       "attuned": false
     }
   ],
   "spellcasting": {
-    "castingAbility": "cha",
+    "castingAbility": "int",
     "extraDcBonus": 0,
     "extraAttackBonus": 0,
     "slots": {
@@ -439,19 +418,15 @@ details summary:hover{color:var(--accent)}
         ]
       },
       "2": {
-        "max": 3,
-        "used": [
-          false,
-          false,
-          false
-        ]
-      },
-      "3": {
         "max": 2,
         "used": [
           false,
           false
         ]
+      },
+      "3": {
+        "max": 0,
+        "used": []
       },
       "4": {
         "max": 0,
@@ -480,148 +455,126 @@ details summary:hover{color:var(--accent)}
     },
     "cantrips": [
       {
-        "name": "恶言相加",
-        "school": "附魔（吟）",
+        "name": "冷冻射线",
+        "school": "塑能",
         "ct": "1动作",
         "range": "60尺",
-        "comp": "V",
-        "dur": "瞬间",
-        "damage": "1d6",
-        "desc": "目标感知豁免，败则受 1d6 灵能伤害（5/11/17 级 +1d6），且其下一次攻击检定具有劣势。"
-      },
-      {
-        "name": "舞光术",
-        "school": "唤法（吟）",
-        "ct": "1动作",
-        "range": "120尺",
-        "comp": "V,S,M",
-        "dur": "专注1分钟",
-        "desc": "造成 4 个光球，可独立移动 60 尺。"
-      },
-      {
-        "name": "术法爆发",
-        "school": "唤法（术）",
-        "ct": "1动作",
-        "range": "120尺",
         "comp": "V,S",
         "dur": "瞬间",
         "damage": "1d8",
-        "desc": "远程法术攻击，1d8 自选类型伤害（5/11/17 级 +1d8）；命中骰最高数累加另 1d8。"
+        "desc": "远程法术攻击。命中：1d8 寒冷伤害，目标速度 -10 尺至我下回合开始。"
       },
       {
-        "name": "火焰矢",
-        "school": "唤法（术）",
+        "name": "光亮术",
+        "school": "塑能",
         "ct": "1动作",
-        "range": "120尺",
-        "comp": "V,S",
-        "dur": "瞬间",
-        "damage": "1d10",
-        "desc": "远程法术攻击，1d10 火焰伤害。"
+        "range": "触碰",
+        "comp": "V,M",
+        "dur": "1小时",
+        "desc": "触碰一物件使其发出 20 尺明亮 + 20 尺微光光照。被不透明物完全遮盖时光照阻断。再次施展终止。"
       },
       {
-        "name": "电爪",
-        "school": "唤法（术）",
+        "name": "法师之手",
+        "school": "咒法",
         "ct": "1动作",
-        "range": "触及",
+        "range": "30尺",
         "comp": "V,S",
-        "dur": "瞬间",
-        "damage": "1d8",
-        "desc": "近战法术攻击：1d8 闪电；命中后下次目标对你的攻击劣势。"
+        "dur": "1分钟",
+        "desc": "创造一只飘浮魔法手，可移动 30 尺并操作至多 10 磅物件。仅可用于交互、不可攻击。"
       },
       {
         "name": "魔法伎俩",
-        "school": "变化（术）",
+        "school": "变化",
         "ct": "1动作",
         "range": "10尺",
         "comp": "V,S",
-        "dur": "最长1小时",
-        "desc": "造成微小魔法效果。"
+        "dur": "至多1小时",
+        "desc": "（高精灵血脉额外）小魔法效果：声响/风/调味/清洁/冰镇/点燃/灭火/小印记/小物件等。每次长休可换为另一道法师戏法。"
+      },
+      {
+        "name": "心灵之楔",
+        "school": "惑控",
+        "ct": "1动作",
+        "range": "60尺",
+        "comp": "V",
+        "dur": "1轮",
+        "damage": "1d6",
+        "desc": "（魔法学徒）目标 INT 豁免（DC 13），失败：1d6 心灵 + 下次豁免 -1d4。"
+      },
+      {
+        "name": "电爪",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "触碰",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "damage": "1d8",
+        "desc": "（魔法学徒）近战法术攻击。命中：1d8 闪电；穿戴金属甲的目标，攻击具优势，且无法在其下回合前进行反应。"
       }
     ],
     "spells": [
       {
         "lvl": 1,
-        "name": "治愈真言（吟）",
-        "school": "防护",
-        "ct": "1附赠动作",
-        "range": "60尺",
-        "comp": "V",
-        "dur": "瞬间",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "damage": "1d4+3",
-        "desc": "目标恢复 1d4+3 HP（不能用于濒死）。升环每环 +1d4。"
-      },
-      {
-        "lvl": 1,
-        "name": "不谐低语（吟）",
-        "school": "附魔",
-        "ct": "1动作",
-        "range": "60尺",
-        "comp": "V",
-        "dur": "瞬间",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "damage": "3d6",
-        "desc": "目标智力豁免，败则受 3d6 灵能并立刻反应远离你；豁免成功仅减半且不远离。升环 +1d6。"
-      },
-      {
-        "lvl": 1,
-        "name": "魅惑类人（吟）",
-        "school": "附魔",
-        "ct": "1动作",
-        "range": "30尺",
+        "name": "侦测魔法",
+        "school": "预言",
+        "ct": "1动作或仪式",
+        "range": "自身(30尺)",
         "comp": "V,S",
-        "dur": "1小时",
+        "dur": "专注，至多10分钟",
         "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "desc": "目标类人智力豁免，败则被你魅惑 1 小时，对你及你同伴有利的属性检定具有优势。攻击其本人即破除。"
+        "ritual": true,
+        "conc": true,
+        "desc": "感知 30 尺内任何被施法的物件/生物的存在与学派（视线穿过 1 尺石/3 尺木土/1 寸金属阻断）。【高精灵血脉始终准备：每长休可不消耗法术位施展 1 次；亦可仪式或法术位施展。】"
       },
       {
         "lvl": 1,
-        "name": "七彩喷射（吟）",
-        "school": "幻术",
-        "ct": "1动作",
-        "range": "自身(15尺锥)",
+        "name": "鉴定术",
+        "school": "预言",
+        "ct": "1分钟或仪式",
+        "range": "触碰",
         "comp": "V,S,M",
-        "dur": "瞬间",
+        "dur": "立即",
+        "prepared": true,
+        "ritual": true,
+        "conc": false,
+        "material": {
+          "desc": "一颗价值 100 GP+ 的珍珠",
+          "gp": 100,
+          "consumed": false,
+          "focusable": false
+        },
+        "desc": "鉴定一件魔法物品的属性、用法、是否需要同调；或鉴定生物身上的法术效应。"
+      },
+      {
+        "lvl": 1,
+        "name": "油腻术",
+        "school": "咒法",
+        "ct": "1动作",
+        "range": "60尺",
+        "comp": "V,S,M",
+        "dur": "1分钟",
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "desc": "6d10 HP 之内的可见生物（按当前 HP 升序）目盲到下个回合结束。"
+        "material": "一点猪油或黄油（普通材料，可由法器替代）",
+        "desc": "10 尺方区域变困难地形。出现时及进入/在内回合结束的生物 DEX 豁免（DC 13）失败则倒地。【魔法学徒-法师 始终准备：每长休不消耗法术位 1 次；也可法术位施展。】"
       },
       {
-        "lvl": 2,
-        "name": "援助术（吟）",
+        "lvl": 1,
+        "name": "法师护甲",
         "school": "防护",
         "ct": "1动作",
-        "range": "30尺",
+        "range": "触碰",
         "comp": "V,S,M",
         "dur": "8小时",
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "desc": "3 名目标 HP 上限和 HP 各 +5。升环每环 +5。"
-      },
-      {
-        "lvl": 2,
-        "name": "镜影术（吟）",
-        "school": "幻术",
-        "ct": "1动作",
-        "range": "自身",
-        "comp": "V,S",
-        "dur": "1分钟",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "desc": "3 个分身吸引攻击。"
+        "desc": "目标无甲时基础 AC 变 13+DEX。穿甲则法术终止。每天起手自施于自己（13+2 = 15）。"
       },
       {
         "lvl": 1,
-        "name": "护盾（术）",
+        "name": "护盾术",
         "school": "防护",
         "ct": "反应",
         "range": "自身",
@@ -630,26 +583,26 @@ details summary:hover{color:var(--accent)}
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "desc": "反应：被攻击或魔法飞弹时 AC+5 至下回合开始，免疫魔法飞弹。"
+        "desc": "被攻击命中或成为魔法飞弹目标时触发。AC +5（对触发攻击同样生效），并免疫魔法飞弹，至下回合开始。"
       },
       {
         "lvl": 1,
-        "name": "魔法飞弹（术）",
-        "school": "唤法",
+        "name": "魔法飞弹",
+        "school": "塑能",
         "ct": "1动作",
         "range": "120尺",
         "comp": "V,S",
         "dur": "瞬间",
-        "prepared": true,
+        "prepared": false,
         "ritual": false,
         "conc": false,
-        "damage": "3d4+3",
-        "desc": "3 支飞弹各 1d4+1 力场伤害自动命中。升环 +1 支。"
+        "damage": "3·(1d4+1)",
+        "desc": "三枚力场飞镖自动命中，每镖 1d4+1 力场。可分配多目标。升环每环 +1 镖。【护盾术免疫此法术。】"
       },
       {
         "lvl": 1,
-        "name": "燃烧之手（术）",
-        "school": "唤法",
+        "name": "燃烧之手",
+        "school": "塑能",
         "ct": "1动作",
         "range": "自身(15尺锥)",
         "comp": "V,S",
@@ -658,20 +611,107 @@ details summary:hover{color:var(--accent)}
         "ritual": false,
         "conc": false,
         "damage": "3d6",
-        "desc": "15 尺锥内 3d6 火焰，敏豁减半。升环 +1d6。"
+        "desc": "15 尺锥内生物 DEX 豁免（DC 13）：失败 3d6 火焰，成功半减。区域内未着装易燃物起燃。升环每环 +1d6。"
       },
       {
         "lvl": 1,
-        "name": "伪装术（术）",
+        "name": "繁彩球",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "90尺",
+        "comp": "V,S,M",
+        "dur": "瞬间",
+        "prepared": false,
+        "ritual": false,
+        "conc": false,
+        "damage": "3d8",
+        "desc": "（塑能学者赠书）选元素（酸/寒/火/电/毒/雷），远程法术攻击。命中：3d8。两枚以上 d8 同点 → 跳到 30 尺内另一目标（升环可多次跳）。"
+      },
+      {
+        "lvl": 1,
+        "name": "睡眠术",
+        "school": "惑控",
+        "ct": "1动作",
+        "range": "60尺",
+        "comp": "V,S,M",
+        "dur": "专注，至多1分钟",
+        "prepared": false,
+        "ritual": false,
+        "conc": true,
+        "desc": "5 尺半径球内每个所选生物 WIS 豁免（DC 13）失败则失能至其下回合结束；若再次失败陷入昏迷。受伤或被摇醒则解除。精灵 / 免力竭生物自动豁免。"
+      },
+      {
+        "lvl": 1,
+        "name": "雷鸣波",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "自身(15尺立方)",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "prepared": false,
+        "ritual": false,
+        "conc": false,
+        "damage": "2d8",
+        "desc": "15 尺立方内生物 CON 豁免（DC 13）：失败 2d8 雷鸣 + 推 10 尺，成功半减。300 尺外可闻雷响。升环每环 +1d8。"
+      },
+      {
+        "lvl": 1,
+        "name": "羽落术",
+        "school": "变化",
+        "ct": "反应",
+        "range": "60尺",
+        "comp": "V,M",
+        "dur": "1分钟",
+        "prepared": false,
+        "ritual": false,
+        "conc": false,
+        "desc": "你或 60 尺内可见生物坠落时反应触发。最多 5 个目标。坠落速度降至 60 尺/回合，落地不受坠落伤害。"
+      },
+      {
+        "lvl": 2,
+        "name": "灼热射线",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "120尺",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "damage": "3·2d6",
+        "desc": "（塑能学者赠书）射出 3 道射线，可分目标。每道独立远程法术攻击；命中 2d6 火焰。升环每环 +1 道。"
+      },
+      {
+        "lvl": 2,
+        "name": "不灭明焰",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "触碰",
+        "comp": "V,S,M",
+        "dur": "直至被解除",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "material": {
+          "desc": "价值 50 GP+ 的红宝石尘",
+          "gp": 50,
+          "consumed": true,
+          "focusable": false
+        },
+        "desc": "在所触碰的物件上点燃永恒之火（半径 20 尺明亮 + 20 尺微光），不发热也不需燃料；可遮蔽但无法被熄灭。"
+      },
+      {
+        "lvl": 2,
+        "name": "镜影术",
         "school": "幻术",
         "ct": "1动作",
         "range": "自身",
         "comp": "V,S",
-        "dur": "1小时",
+        "dur": "1分钟",
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "desc": "改变外貌（衣物/容貌等），不能改变体型。"
+        "desc": "产生 3 道幻象分身。每次被命中：投 d6（每个分身一次），≥3 则该分身代你受击随后被毁。盲视 / 真实视觉的生物无效。"
       }
     ],
     "spellPoints": {
@@ -681,47 +721,42 @@ details summary:hover{color:var(--accent)}
   },
   "classResources": [
     {
-      "key": "bardicInspiration",
-      "label": "诗人激励 1d6",
+      "key": "arcaneRecovery",
+      "label": "奥术回想",
       "resetType": "longRest",
-      "max": 3,
+      "max": 1,
       "used": [
-        false,
-        false,
         false
       ],
-      "desc": "附赠动作：60 尺内一名能听见/看见你的盟友获得 1 枚诗人激励骰，1 小时内可在一次失败 d20 检定后投掷加进结果。同时也是「语出惊人」反应消耗的资源。每长休 3 次（魅+3）。5 级时升为 d8 + 短休也恢复（激励之源）。"
+      "desc": "短休时使用：恢复总环阶 ≤ 2（向上取整 ⌈3/2⌉）的法术位（不含 6 环及以上）。例：1 个 2 环位，或 2 个 1 环位。"
     },
     {
-      "key": "innateSorcery",
-      "label": "先天术法（每次1分钟）",
+      "key": "highElfDetectMagic",
+      "label": "侦测魔法（血脉）",
       "resetType": "longRest",
-      "max": 2,
+      "max": 1,
       "used": [
-        false,
         false
       ],
-      "desc": "附赠动作激活 1 分钟：术士法术 DC +1（→15），术士法术攻击检定具有优势。每长休 2 次。注意：仅作用于术士法术，吟游诗人法术不受益。"
+      "desc": "高精灵 3 级血脉特性：每长休可不消耗法术位施展《侦测魔法》一次。亦可仪式或正常法术位施展。"
     },
     {
-      "key": "sorceryPoints",
-      "label": "术法点",
+      "key": "magicInitiateGrease",
+      "label": "油腻术（学徒）",
       "resetType": "longRest",
-      "max": 2,
+      "max": 1,
       "used": [
-        false,
         false
       ],
-      "desc": "魔力泉涌：1 法术位 → 等环位术法点；附赠动作消耗术法点造法术位（1环=2点；2环=3点）。也用于驱动超魔法。"
+      "desc": "起源专长《魔法学徒-法师》：每长休可不消耗法术位施展《油腻术》一次。亦可正常法术位施展。"
     }
   ],
-  "specialRolls": [],
   "equipment": {
     "armor": {
-      "name": "皮甲",
-      "ac": 11,
+      "name": "无甲（已自施法师护甲：AC 15）",
+      "ac": 15,
       "dexLimit": null,
-      "weight": 10,
+      "weight": 0,
       "attuned": false,
       "equipped": true
     },
@@ -734,67 +769,60 @@ details summary:hover{color:var(--accent)}
     },
     "items": [
       {
-        "name": "鲁特琴（施法法器）",
-        "weight": 2,
+        "name": "长棍（奥术法器）",
+        "weight": 4,
         "qty": 1,
         "attuned": false,
-        "desc": "吟游诗人施法法器；艺人乐器熟练。"
-      },
-      {
-        "name": "横笛",
-        "weight": 1,
-        "qty": 1,
-        "attuned": false,
-        "desc": "音乐家专长 3 种乐器之一。"
-      },
-      {
-        "name": "潘笛",
-        "weight": 1,
-        "qty": 1,
-        "attuned": false,
-        "desc": "音乐家专长 3 种乐器之一。"
+        "desc": "兼施法法器与近战武器；钝击 1d6 / 双手 1d8。"
       },
       {
         "name": "匕首",
         "weight": 1,
         "qty": 2,
         "attuned": false,
-        "desc": ""
+        "desc": "灵巧 / 投掷(20/60) / 轻型；穿刺 1d4。"
       },
       {
-        "name": "短弓",
-        "weight": 2,
-        "qty": 1,
-        "attuned": false,
-        "desc": ""
-      },
-      {
-        "name": "箭矢",
-        "weight": 0.05,
-        "qty": 20,
-        "attuned": false,
-        "desc": ""
-      },
-      {
-        "name": "箭袋",
-        "weight": 1,
-        "qty": 1,
-        "attuned": false,
-        "desc": ""
-      },
-      {
-        "name": "艺人套组",
-        "weight": 38,
-        "qty": 1,
-        "attuned": false,
-        "desc": "戏服×2、化妆品、香水、便携舞台道具。"
-      },
-      {
-        "name": "表演服装",
+        "name": "长袍",
         "weight": 4,
         "qty": 1,
         "attuned": false,
-        "desc": ""
+        "desc": "学者深蓝色长袍，袖口绣着第七环阶印记。"
+      },
+      {
+        "name": "法术书",
+        "weight": 3,
+        "qty": 1,
+        "attuned": false,
+        "desc": "100 页，铜环装订。当前记录 12 道法术。"
+      },
+      {
+        "name": "学者套组",
+        "weight": 5,
+        "qty": 1,
+        "attuned": false,
+        "desc": "墨水、墨水笔、写字板、小刀、抹布、10 张小型羊皮纸。"
+      },
+      {
+        "name": "书法工具",
+        "weight": 5,
+        "qty": 1,
+        "attuned": false,
+        "desc": "智者背景熟练。"
+      },
+      {
+        "name": "书籍《被遗忘者的纪年》（历史）",
+        "weight": 5,
+        "qty": 1,
+        "attuned": false,
+        "desc": "智者背景启动书。"
+      },
+      {
+        "name": "羊皮纸",
+        "weight": 0,
+        "qty": 8,
+        "attuned": false,
+        "desc": "可用于抄录法术（每环阶 2 小时 + 50 GP）。"
       }
     ]
   },
@@ -802,84 +830,79 @@ details summary:hover{color:var(--accent)}
     "cp": 0,
     "sp": 0,
     "ep": 0,
-    "gp": 19,
+    "gp": 13,
     "pp": 0
   },
   "features": [
     {
-      "source": "种族（人类）",
-      "name": "适应力 / 技能 / 多才多艺",
-      "desc": "长休获得英雄激励；自选 1 项技能熟练（已计入：察觉）；起源专长 <strong>健壮 Tough</strong>（HP 上限 +10，每升 1 级再 +2）。"
+      "source": "种族·精灵",
+      "name": "黑暗视觉",
+      "desc": "60 尺黑暗视觉。微光区视为明亮，暗区视为微光（暗区中色彩呈灰阶）。"
     },
     {
-      "source": "背景（艺人）",
-      "name": "起始专长：音乐家 Musician",
-      "desc": "3 种乐器熟练（鲁特琴、横笛、潘笛）；短休/长休时演奏可让最多 PB（=3）名盟友获得英雄激励。"
+      "source": "种族·精灵",
+      "name": "妖精血统",
+      "desc": "豁免避免或结束魅惑状态时具有优势。"
     },
     {
-      "source": "背景（艺人）",
-      "name": "技能与工具",
-      "desc": "特技、表演熟练；乐器（已含在音乐家专长内）。"
+      "source": "种族·精灵",
+      "name": "敏锐感官",
+      "desc": "察觉熟练（已选）。"
     },
     {
-      "source": "吟游诗人 1 级",
-      "name": "施法 Spellcasting（魅力）",
-      "desc": "DC <strong>14</strong> / 法术攻击 +<strong>6</strong>；施法法器：乐器；准备法术 6（一/二环组合）。"
+      "source": "种族·精灵",
+      "name": "出神",
+      "desc": "不需睡眠且魔法无法使你入睡。冥想 4 小时即完成长休（保持意识）。"
     },
     {
-      "source": "吟游诗人 1 级",
-      "name": "诗人激励 Bardic Inspiration（1d6）",
-      "desc": "附赠：60 尺内盟友获 1 枚 d6 激励骰，1 小时内可加在一次失败 d20 检定上。每长休 <strong>3 次</strong>（魅+3）。5 级升为 d8。"
+      "source": "血脉·高等精灵",
+      "name": "魔法伎俩",
+      "desc": "始终知晓戏法《魔法伎俩》。每次长休可将其替换为法师法术列表中另一戏法。"
     },
     {
-      "source": "吟游诗人 2 级",
-      "name": "专精 Expertise",
-      "desc": "两项熟练技能升专精（熟练加值 ×2）。已选：表演、游说。"
+      "source": "血脉·高等精灵(3级)",
+      "name": "侦测魔法",
+      "desc": "始终准备《侦测魔法》。每长休可不消耗法术位免费施展 1 次；亦可正常用法术位施展。施法属性：智力。"
     },
     {
-      "source": "吟游诗人 2 级",
-      "name": "万事通 Jack of All Trades",
-      "desc": "未熟练的属性检定加 ⌊PB/2⌋ = 1（已在卡上 jackOfAllTrades:true 标记，按规则手算时记得加）。"
+      "source": "职业·法师 1级",
+      "name": "施法",
+      "desc": "施法属性：智力。法术 DC 13 / 法术攻击 +5。施法法器：奥术法器（长棍）或法术书。"
     },
     {
-      "source": "逸闻学院 3 级",
-      "name": "附赠熟练 Bonus Proficiencies",
-      "desc": "3 项自选技能熟练（已计入：奥秘、历史、调查）。"
+      "source": "职业·法师 1级",
+      "name": "仪式学家",
+      "desc": "可仪式施展法术书中任何带仪式标签的法术（无需准备，但需阅读法术书）。当前可仪式：侦测魔法。"
     },
     {
-      "source": "逸闻学院 3 级",
-      "name": "语出惊人 Cutting Words",
-      "desc": "<strong>反应</strong>：60 尺内可见生物的伤害掷骰/属性检定/攻击检定<em>成功</em>后，消耗 1 枚诗人激励骰，从其结果中减去骰值（可能让其检定从成功变失败、或减少伤害）。"
+      "source": "职业·法师 1级",
+      "name": "奥术回想",
+      "desc": "短休后选择恢复消耗的法术位，环阶总和 ≤ ⌈职业等级/2⌉ = 2，且单个法术位 ≤ 5 环。每长休 1 次。"
     },
     {
-      "source": "术士 1 级（兼职）",
-      "name": "施法（魅力，与吟共池）",
-      "desc": "兼职术士 1 级：法术位与吟游诗人共享（按兼职施法位规则，全施 + 全施 = 总等级 5 → 4/3/2）；戏法和准备法术按各自职业算。"
+      "source": "职业·法师 2级",
+      "name": "学者",
+      "desc": "选择已熟练的：奥秘 / 历史 / 自然 / 宗教 之一获得专精（已选：奥秘）。"
     },
     {
-      "source": "术士 1 级（兼职）",
-      "name": "先天术法 Innate Sorcery",
-      "desc": "附赠激活 1 分钟：<em>术士法术</em> DC +1、攻击有优势（仅术士法术受益）。每长休 2 次。"
+      "source": "子职·塑能师 3级",
+      "name": "塑能学者",
+      "desc": "塑能学派 ≤2 环法术 2 道免费入书（已加：繁彩球、灼热射线）。每获得新环法术位时再免费添加一道塑能学派法术（达到该环阶上限）。"
     },
     {
-      "source": "术士 2 级",
-      "name": "魔力泉涌 Font of Magic",
-      "desc": "拥有 2 术法点。法术位 ↔ 术法点互换；附赠造法术位（1 环=2 点；2 环=3 点）。"
+      "source": "子职·塑能师 3级",
+      "name": "强力戏法",
+      "desc": "造伤戏法即使攻击未命中或目标豁免成功，仍承受一半伤害（其他效应不触发）。"
     },
     {
-      "source": "术士 2 级",
-      "name": "超魔法 Metamagic（×2）",
-      "desc": "已选：<strong>双胞法术 Twinned Spell</strong>（消耗 1+ 点：让单目标法术影响第二目标）+ <strong>谨慎法术 Careful Spell</strong>（1 点：选若干友方在伤害/控制法术中自动豁免成功）。"
+      "source": "背景·智者",
+      "name": "技能熟练",
+      "desc": "奥秘、历史；工具：书法工具。"
     },
     {
-      "source": "兼职提示",
-      "name": "<span style=\"color:var(--gold)\">⚠ 狂野术法子职未解锁</span>",
-      "desc": "<strong>狂野魔法浪涌（d100 表）</strong>和<strong>混乱之潮</strong>需要术士 3 级才解锁。再升 1 术士级（角色总等级 6）即可启用——届时把 specialRolls 的 wildSurge 配置加进 JSON 重生成 HTML 即可。"
-    },
-    {
-      "source": "兼职提示",
-      "name": "<span style=\"color:var(--gold)\">混合 HD 提示</span>",
-      "desc": "卡上「HD」显示为 <strong>d8×3 + d6×2</strong>。短休消耗时按骰型分组依次询问（先 d8 后 d6），每组上限 = min(该职业等级, 总池剩余)。"
+      "source": "背景·智者",
+      "name": "起源专长 - 魔法学徒（法师）",
+      "desc": "习得 2 道法师戏法（心灵之楔、电爪），始终准备 1 道一环法师法术（油腻术），每长休可免费施展该一环法术 1 次。施法属性：智力。每升级可换同列表同环阶法术。"
     }
   ],
   "rollHistory": []

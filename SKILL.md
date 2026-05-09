@@ -97,6 +97,21 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        ```
        卡上自动出现「特殊投骰」面板：「投 d{N}」按钮 → 投主骰 → 落入区间 → 弹窗显示 effect；带 subRoll 的行自动续投并显示对应选项；「查表」按钮浏览整张表。结果自动写入 rollHistory。
      - desc / effect / subRoll.options 字段直接通过 innerHTML 注入（不转义），可写 `<strong>/<em>/<br>` 等富文本——但避免出现 `</script>` 子串以免切断 JSON 块。
+     - **法术材料**（spell.material，可选）：D&D 5e 里材料分三类，模板按 `material` 字段自动给视觉/交互区分。spell（含 cantrips）支持：
+       ```json
+       // 普通可替代材料（奥术法器/成分包代）— 字符串简写即可
+       { "name": "油腻术", "comp": "V,S,M", "material": "一点猪油或黄油" }
+
+       // 高价不消耗（必须实物，无法替代）— 金色 💎 角标
+       { "name": "鉴定术", "comp": "V,S,M",
+         "material": {"desc": "一颗价值 100 GP+ 的珍珠", "gp": 100, "consumed": false, "focusable": false} }
+
+       // 消耗类（施一次少一份）— 红色 ⚠ 角标，施放前 confirm 弹窗
+       { "name": "不灭明焰", "comp": "V,S,M",
+         "material": {"desc": "价值 50 GP+ 的红宝石尘", "gp": 50, "consumed": true, "focusable": false} }
+       ```
+       渲染规则：法术列表行的名字旁加角标（💎/⚠ + 价值），对话框里显示带颜色的材料行；点「施放（扣位）」时若是消耗类，先弹 confirm「本次施放将消耗 XXX，确认？」，确认后扣位 + rollHistory 记录消耗。模板**不**会自动从 wealth/装备扣减——交给玩家自己管理库存。
+       **车卡时**：从《法术详述/X环.htm》原文里的「法术成分」字段读取材料描述。判断三类：原文带"价值 N GP"+"作为法术耗材"→ consumed；带"价值 N GP" 不带耗材 → valuable；纯描述（如硫磺、蝙蝠粪、一根羽毛）→ normal。
 
 如果用户跳过对话直接说"3 级武僧帮我车一张"，仍按上述顺序，但每步只列推荐 + 一句理由，最后必须执行第 10 步产出 HTML 文件。
 

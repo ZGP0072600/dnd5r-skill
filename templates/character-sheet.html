@@ -85,6 +85,12 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .spell-row .name{flex:1}
 .spell-row .school{font-size:11px;color:var(--gold)}
 .spell-row .conc{font-size:11px;color:var(--accent)}
+.spell-row .mat-consumed{color:var(--bad);font-size:11px;font-weight:bold;margin-left:2px}
+.spell-row .mat-valuable{color:var(--gold);font-size:11px;margin-left:2px}
+.material-line{padding:8px 10px;border-radius:4px;margin:8px 0;font-size:12px;line-height:1.5}
+.material-line.normal{background:var(--panel-hi);color:var(--text-dim)}
+.material-line.valuable{background:rgba(200,160,50,.12);color:var(--gold);border-left:3px solid var(--gold)}
+.material-line.consumed{background:rgba(200,50,50,.15);color:var(--accent);border-left:3px solid var(--accent);font-weight:bold}
 .res-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}
 .res-row:last-child{border-bottom:none}
 .res-row .label{flex:1}
@@ -604,6 +610,24 @@ function renderAttacks(){
   }).join('')||'<div style="color:var(--text-dim)">无武器</div>';
 }
 
+/* === 法术材料 helper ===
+   spell.material 可以是字符串（描述）或对象 {desc, gp, consumed, focusable}。
+   分类：
+   - consumed=true       → 消耗类（红色高亮 + 施放前 confirm）
+   - gp>0 && !consumed   → 高价值类（金色高亮，不消耗但 DM 会管这颗珍珠还在不在）
+   - 其余                → 普通材料（灰色小字，可被法器替代）
+*/
+function spellMaterial(spell){
+  const m=spell.material;
+  if(!m)return null;
+  if(typeof m==='string')return {desc:m,gp:0,consumed:false,focusable:true,kind:'normal'};
+  const consumed=!!m.consumed;
+  const gp=+m.gp||0;
+  const focusable=m.focusable!==false&&!consumed&&!gp;
+  const kind=consumed?'consumed':(gp>0?'valuable':'normal');
+  return {desc:m.desc||'',gp,consumed,focusable,kind};
+}
+
 function renderSpells(){
   const sc=char.spellcasting;
   const meta=document.getElementById('spell-meta');
@@ -624,13 +648,21 @@ function renderSpells(){
   for(const c of sc.cantrips||[])all.push({...c,lvl:0});
   for(const sp of sc.spells||[])all.push(sp);
   all.sort((a,b)=>a.lvl-b.lvl||a.name.localeCompare(b.name,'zh'));
-  list.innerHTML=all.map((sp,i)=>`<div class="spell-row" data-spell-i="${i}">
+  list.innerHTML=all.map((sp,i)=>{
+    const mat=spellMaterial(sp);
+    let matBadge='';
+    if(mat){
+      if(mat.kind==='consumed')matBadge=`<span class="mat-consumed" title="消耗：${mat.desc}">⚠${mat.gp?mat.gp+'gp':''}</span>`;
+      else if(mat.kind==='valuable')matBadge=`<span class="mat-valuable" title="${mat.desc}">💎${mat.gp}gp</span>`;
+    }
+    return `<div class="spell-row" data-spell-i="${i}">
     <span class="lv">${sp.lvl===0?'戏':sp.lvl+'环'}</span>
-    <span class="name">${sp.name}</span>
+    <span class="name">${sp.name}${matBadge}</span>
     <span class="school">${sp.school||''}</span>
     ${sp.conc?'<span class="conc">[专]</span>':''}
     ${sp.ritual?'<span class="conc">[仪]</span>':''}
-  </div>`).join('')||'<div style="color:var(--text-dim)">无法术</div>';
+  </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无法术</div>';
   list._allSpells=all;
 }
 
@@ -902,6 +934,13 @@ function showSpellDialog(spell){
     }
     slotOpts=opts.join('')||'<option disabled>无可用法术位</option>';
   }
+  const mat=spellMaterial(spell);
+  let matLine='';
+  if(mat){
+    if(mat.kind==='consumed')matLine=`<div class="material-line consumed">⚠ <strong>消耗材料：</strong>${mat.desc}${mat.gp?`（${mat.gp} GP）`:''}<br><span style="font-weight:normal;font-size:11px">施法即用掉一份；记得在装备里减少库存。</span></div>`;
+    else if(mat.kind==='valuable')matLine=`<div class="material-line valuable">💎 <strong>必备材料：</strong>${mat.desc}（${mat.gp} GP，不消耗）<br><span style="font-weight:normal;font-size:11px">价值高于 1 GP，奥术法器/成分包<u>无法</u>替代，需实际持有。</span></div>`;
+    else matLine=`<div class="material-line normal">材料：${mat.desc}${mat.focusable?'<span style="font-size:11px"> · 可由奥术法器/成分包替代</span>':''}</div>`;
+  }
   openModal(`<h3>${isCantrip?'戏法':spell.lvl+'环'}：${spell.name}</h3>
     <div class="modal-row" style="font-size:12px;color:var(--text-dim)">
       <span>${spell.school||''}</span><span>·</span>
@@ -912,6 +951,7 @@ function showSpellDialog(spell){
       ${spell.conc?'<span style="color:var(--accent)">·专注</span>':''}
       ${spell.ritual?'<span style="color:var(--gold)">·仪式</span>':''}
     </div>
+    ${matLine}
     <div style="margin:10px 0;font-size:13px;line-height:1.6">${spell.desc||''}</div>
     ${!isCantrip?`<div class="modal-row"><span>消耗法术位：</span><select id="slot-sel">${slotOpts}</select></div>`:''}
     <div id="cast-result"></div>
@@ -940,9 +980,15 @@ function showSpellDialog(spell){
       if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
       const idx=s.used.indexOf(false);
       if(idx===-1){alert('该环没可用法术位');return}
+      const matInfo=spellMaterial(spell);
+      let extra='';
+      if(matInfo&&matInfo.kind==='consumed'){
+        if(!confirm(`本次施放将消耗：${matInfo.desc}${matInfo.gp?`（${matInfo.gp} GP）`:''}。\n\n确认施放？\n（记得手动从装备/财产中减除该材料）`))return;
+        extra=` · 消耗 ${matInfo.desc}${matInfo.gp?` (${matInfo.gp}gp)`:''}`;
+      }
       s.used[idx]=true;
       saveChar();renderSpells();
-      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
+      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}`);
       closeModal();
     });
   }
