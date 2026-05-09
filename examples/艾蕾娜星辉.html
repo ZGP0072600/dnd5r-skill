@@ -111,6 +111,10 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .status-tag.add{background:var(--panel-hi);color:var(--text-dim);border:1px dashed var(--border)}
 .insp-toggle{padding:4px 12px;border-radius:4px;background:var(--panel-hi);border:1px solid var(--border);cursor:pointer;display:inline-block}
 .insp-toggle.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.conc-active{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:rgba(200,160,50,.18);border:1px solid var(--gold);color:var(--gold);font-size:13px}
+.conc-active .name{font-weight:bold}
+.conc-active button{padding:2px 7px;font-size:11px;min-height:24px}
+.conc-empty{color:var(--text-dim)}
 .death-saves{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .death-pip{width:18px;height:18px;border:1px solid var(--border);border-radius:50%;cursor:pointer;display:inline-block;margin:0 2px;vertical-align:middle}
 .death-pip.success{background:var(--good);border-color:var(--good)}
@@ -203,6 +207,7 @@ details summary:hover{color:var(--accent)}
     <h2>状态</h2>
     <div class="modal-row"><span>英雄激励：</span><span class="insp-toggle" id="insp-toggle">无</span></div>
     <div class="modal-row death-saves"><span>死豁：</span><span>成<span id="ds-success-pips"></span></span><span>败<span id="ds-fail-pips"></span></span></div>
+    <div class="modal-row"><span>专注：</span><span id="conc-display"></span></div>
     <div class="modal-row"><span>状态：</span><div class="status-grid" id="status-grid"></div></div>
     <div class="modal-row"><span>抗性：</span><span id="resistance" style="color:var(--text-dim)">—</span></div>
   </section>
@@ -1002,7 +1007,7 @@ const DEFAULT_CHAR={
   },
   combat:{hpMax:32,hpCur:32,hpTemp:0,hdMax:5,hdCur:5,acBase:13,acBonus:0,
     speed:30,size:'中型',initBonus:0,deathSaves:{success:[false,false,false],fail:[false,false,false]},
-    resistance:'',immunity:'',advantage:'',statusEffects:[]},
+    resistance:'',immunity:'',advantage:'',statusEffects:[],concentration:null},
   skills:{
     arcana:{prof:'prof',bonus:0},
     history:{prof:'prof',bonus:0},
@@ -1280,6 +1285,15 @@ function renderStatus(){
   const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag" data-status-rm="${s}">${s} ✕</span>`).join('');
   sg.innerHTML=tags+`<span class="status-tag add" id="add-status">+ 添加</span>`;
   document.getElementById('resistance').textContent=char.combat.resistance||'—';
+  // 专注
+  const cd=document.getElementById('conc-display');
+  const conc=char.combat.concentration;
+  if(conc&&conc.spellName){
+    const lvlText=conc.spellLvl?` (${conc.spellLvl}环)`:'';
+    cd.innerHTML=`<span class="conc-active"><span class="name">⊙ ${conc.spellName}${lvlText}</span><button id="btn-conc-save" title="受伤维持专注豁免">维持</button><button id="btn-conc-release" title="主动释放专注">释放</button></span>`;
+  }else{
+    cd.innerHTML='<span class="conc-empty">—</span>';
+  }
 }
 
 function renderAbilities(){
@@ -1680,6 +1694,7 @@ function showSpellDialog(spell){
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
       <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
+      ${!isCantrip&&spell.ritual?`<button id="btn-cast-ritual" title="花 10 分钟以仪式施展，不消耗法术位">仪式（不扣位）</button>`:''}
       ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
     </div>`);
   // 升环时按 select 当前环阶动态算 damage 表达式
@@ -1726,12 +1741,56 @@ function showSpellDialog(spell){
         if(!confirm(`本次施放将消耗：${matInfo.desc}${matInfo.gp?`（${matInfo.gp} GP）`:''}。\n\n确认施放？\n（记得手动从装备/财产中减除该材料）`))return;
         extra=` · 消耗 ${matInfo.desc}${matInfo.gp?` (${matInfo.gp}gp)`:''}`;
       }
+      // 专注追踪：先做替换确认，再扣位
+      if(spell.conc&&!setConcentration(spell,lv))return;
       s.used[idx]=true;
-      saveChar();renderSpells();
-      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}`);
+      saveChar();renderSpells();renderStatus();
+      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}${spell.conc?' · 专注':''}`);
       closeModal();
     });
+    // 仪式施法（不扣位，10 分钟）
+    const ritualBtn=document.getElementById('btn-cast-ritual');
+    if(ritualBtn){
+      ritualBtn.addEventListener('click',()=>{
+        if(spell.conc&&!setConcentration(spell,spell.lvl))return;
+        saveChar();renderStatus();
+        pushHistory(`仪式施法-${spell.name}`,spell.lvl,`花 10 分钟以仪式施展，不消耗法术位${spell.conc?' · 专注':''}`);
+        closeModal();
+      });
+    }
   }
+}
+
+/* === 专注 helpers === */
+function setConcentration(spell,castLvl){
+  const cur=char.combat.concentration;
+  if(cur&&cur.spellName){
+    if(!confirm(`你当前正在专注 ${cur.spellName}${cur.spellLvl?` (${cur.spellLvl}环)`:''}。\n施展 ${spell.name} 将取消该专注。\n\n确认？`))return false;
+  }
+  char.combat.concentration={spellName:spell.name,spellLvl:castLvl||spell.lvl||0};
+  return true;
+}
+
+function doConcentrationSave(){
+  const cur=char.combat.concentration;
+  if(!cur||!cur.spellName){alert('当前未专注任何法术');return}
+  const dmgStr=prompt(`受到的伤害是多少？\n（豁免 DC = max(10, 伤害/2)）`,'10');
+  const dmg=parseInt(dmgStr);
+  if(!dmg||dmg<=0)return;
+  const dc=Math.max(10,Math.floor(dmg/2));
+  const conSave=saveBonus(char,'con');
+  const r=rollDie(20);
+  const total=r+conSave;
+  const success=r===20||(r!==1&&total>=dc);
+  const detail=`D20: ${r} ${fmt(conSave)} = ${total} vs DC${dc} → ${success?'成功':'失败'}`;
+  pushHistory(`维持专注-${cur.spellName}`,total,`伤害 ${dmg} → ${detail}`);
+  if(!success){
+    char.combat.concentration=null;
+    alert(`💥 豁免失败！\n专注 ${cur.spellName} 已结束。\n\n${detail}`);
+  }else{
+    alert(`✓ 豁免成功，继续专注 ${cur.spellName}。\n\n${detail}`);
+  }
+  saveChar();renderStatus();
 }
 
 /* === HP 对话框 === */
@@ -1848,6 +1907,12 @@ document.addEventListener('click',e=>{
     saveChar();renderStatus();return;
   }
   if(t.id==='insp-toggle'){char.meta.inspiration=!char.meta.inspiration;saveChar();renderStatus();return}
+  if(t.id==='btn-conc-release'){
+    const c=char.combat.concentration;
+    if(c)pushHistory('释放专注',0,`主动释放对 ${c.spellName} 的专注`);
+    char.combat.concentration=null;saveChar();renderStatus();return;
+  }
+  if(t.id==='btn-conc-save'){doConcentrationSave();return}
   if(t.id==='add-status'){showStatusPicker();return}
   if(t.matches('[data-status-rm]')){
     const s=t.dataset.statusRm;

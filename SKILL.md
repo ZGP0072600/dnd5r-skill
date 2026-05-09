@@ -97,6 +97,23 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        ```
        卡上自动出现「特殊投骰」面板：「投 d{N}」按钮 → 投主骰 → 落入区间 → 弹窗显示 effect；带 subRoll 的行自动续投并显示对应选项；「查表」按钮浏览整张表。结果自动写入 rollHistory。
      - desc / effect / subRoll.options 字段直接通过 innerHTML 注入（不转义），可写 `<strong>/<em>/<br>` 等富文本——但避免出现 `</script>` 子串以免切断 JSON 块。
+     - **仪式施法**（spell.ritual:true，已有字段）：法术对话框上若 ritual=true 会**自动多出一个「仪式（不扣位）」按钮**。点击后不消耗 spell slot，历史里记一笔「仪式施法-XXX, 10 分钟」。schema 不变，只要正确填 `ritual:true` 即可。**车卡时**：法术原文页若标注「施法时间：1 分钟或仪式」/「仪式」，置 `ritual:true`。
+     - **专注追踪**（char.combat.concentration，可选；空时为 null）：
+       ```json
+       "combat": {
+         ...
+         "concentration": null
+         // 或：{"spellName": "祝福术", "spellLvl": 1}
+       }
+       ```
+       行为：
+       - 状态面板自动多出一行「专注：⊙ XX (N环) [维持] [释放]」
+       - 施放标了 `conc:true` 的法术（普通施放或仪式施法均生效）会自动写入 `concentration`
+       - 已有专注时再施新专注法术 → 弹 confirm「将取消对 OLD 的专注，确认？」；取消则**不扣位、不施法**
+       - 「释放」按钮：玩家主动取消专注，写入 rollHistory
+       - 「维持」按钮：弹 prompt 输入受到的伤害值，按 D&D 规则算 DC = max(10, ⌊dmg/2⌋)，自动投 d20 + CON 豁免（用 `saveBonus(char,'con')`）；自然 20 必成功、自然 1 必失败；失败则自动清专注
+       - HP→0 / 失能不会自动清专注（避免误操作；玩家自己点释放）。
+       - **车卡时**：法术原文页若标注「施法时间」+「专注」或「持续时间：专注，至多 N 分钟/小时」，置 `conc:true`。其他不动。
      - **伤害骰表达式语法**（spell.damage / attack.damage 字段）：
        - `8d6` / `2d8` / `3d4+3` — 单组骰
        - `3·(1d4+1)` / `3·2d6` — **重复组**：投 N 次内层表达式逐组求和（魔法飞弹的"3 镖×1d4+1"、灼热射线的"3 道×2d6"等）。分隔符 `·` `×` `*` 等价。括号可省。
