@@ -287,7 +287,7 @@ details summary:hover{color:var(--accent)}
     },
     "background": "艺人",
     "inspiration": false,
-    "charId": "苏婉颜-78368586"
+    "charId": "苏婉颜-78369905"
   },
   "abilities": {
     "str": {
@@ -1126,7 +1126,64 @@ function carryStatus(c){const w=totalWeight(c),s=c.abilities.str.score;if(w<=s*5
 function rollDie(s){return Math.floor(Math.random()*s)+1}
 function rollDice(n,s){const r=[];for(let i=0;i<n;i++)r.push(rollDie(s));return{rolls:r,total:r.reduce((a,b)=>a+b,0)}}
 function parseDice(e){const m=e.replace(/\s/g,'').match(/^(\d+)d(\d+)([+-]\d+)?$/i);if(!m)return null;return{n:+m[1],sides:+m[2],mod:m[3]?+m[3]:0}}
-function rollExpr(e){const p=parseDice(e);if(!p)return null;const r=rollDice(p.n,p.sides);return{...r,mod:p.mod,total:r.total+p.mod,expr:e}}
+/* 表达式语法：
+     1d4+1            单组骰
+     8d6 / 2d8        无 mod 单组骰
+     3·(1d4+1)        重复组：3 次 (1d4+1)，逐组求和（魔法飞弹/灼热射线等多投独立伤害的法术）
+     3·2d6            等价 3·(2d6)（括号可省）
+   分隔符 · / × / * 等价。 */
+function rollExpr(e){
+  const raw=e;
+  e=String(e).replace(/\s/g,'');
+  const repeat=e.match(/^(\d+)[·×*]\(?([^()]+)\)?$/);
+  if(repeat){
+    const n=+repeat[1];
+    const inner=parseDice(repeat[2]);
+    if(!inner)return null;
+    let total=0;
+    const allRolls=[];
+    const groups=[];
+    for(let i=0;i<n;i++){
+      const r=rollDice(inner.n,inner.sides);
+      const groupTotal=r.total+inner.mod;
+      total+=groupTotal;
+      allRolls.push(...r.rolls);
+      groups.push(`(${r.rolls.join('+')}${inner.mod?fmt(inner.mod):''}=${groupTotal})`);
+    }
+    return {rolls:allRolls,total,mod:0,expr:raw,detail:groups.join(' + ')};
+  }
+  const p=parseDice(e);
+  if(!p)return null;
+  const r=rollDice(p.n,p.sides);
+  return {...r,mod:p.mod,total:r.total+p.mod,expr:raw};
+}
+/* 升环伤害计算：
+     spell.upcast = { dice: '1d6', perLevel: 1 }       → '8d6' 升 N 环 → '(8+N)d6'
+     spell.upcast = { repeat: '1d4+1', perLevel: 1 }   → '3·(1d4+1)' 升 N 环 → '(3+N)·(1d4+1)'
+   若没 upcast 字段，返回原 damage（不变）。castLvl 可大于等于 spell.lvl。 */
+function getUpcastDamage(spell,castLvl){
+  const baseDmg=spell.damage||'';
+  const baseLvl=spell.lvl||0;
+  const extra=Math.max(0,castLvl-baseLvl);
+  if(!extra||!spell.upcast)return baseDmg;
+  const u=spell.upcast,per=u.perLevel||1;
+  if(u.dice){
+    const baseM=baseDmg.replace(/\s/g,'').match(/^(\d+)d(\d+)([+-]\d+)?$/);
+    const upM=String(u.dice).replace(/\s/g,'').match(/^(\d*)d(\d+)$/);
+    if(baseM&&upM&&baseM[2]===upM[2]){
+      const newN=+baseM[1]+extra*per*(+upM[1]||1);
+      return newN+'d'+baseM[2]+(baseM[3]||'');
+    }
+  }
+  if(u.repeat){
+    const baseR=baseDmg.replace(/\s/g,'').match(/^(\d+)[·×*]\(?([^()]+)\)?$/);
+    if(baseR&&baseR[2]===String(u.repeat).replace(/\s/g,'')){
+      const newN=+baseR[1]+extra*per;
+      return `${newN}·(${baseR[2]})`;
+    }
+  }
+  return baseDmg;
+}
 function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
 function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
 
@@ -1582,16 +1639,34 @@ function showSpellDialog(spell){
       <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
       ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
     </div>`);
+  // 升环时按 select 当前环阶动态算 damage 表达式
+  function currentDmgExpr(){
+    if(isCantrip)return spell.damage||'';
+    const sel=document.getElementById('slot-sel');
+    const lv=sel?parseInt(sel.value)||spell.lvl:spell.lvl;
+    return getUpcastDamage(spell,lv);
+  }
+  function refreshDmgBtn(){
+    const btn=document.getElementById('btn-roll-dmg');
+    const expr=currentDmgExpr();
+    btn.textContent=expr?`投 ${expr}`:'投伤害骰…';
+  }
+  if(!isCantrip){
+    const sel=document.getElementById('slot-sel');
+    if(sel)sel.addEventListener('change',refreshDmgBtn);
+    refreshDmgBtn();
+  }
   document.getElementById('btn-roll-dmg').addEventListener('click',()=>{
-    let expr=spell.damage;
+    let expr=currentDmgExpr();
     if(!expr){
-      expr=prompt('输入要投的骰子表达式（如 8d6, 3d4+3, 1d10）：','');
+      expr=prompt('输入要投的骰子表达式（如 8d6, 3d4+3, 3·(1d4+1)）：','');
       if(!expr)return;
     }
     const r=rollExpr(expr);
     if(!r){alert('解析失败：'+expr);return}
-    document.getElementById('cast-result').innerHTML=`<div class="roll-result"><div class="total">${r.total}</div><div class="roll-detail">${expr}: [${r.rolls.join(',')}] ${r.mod?fmt(r.mod):''}</div></div>`;
-    pushHistory(`${spell.name}伤害`,r.total,`${expr}: [${r.rolls.join(',')}]`);
+    const detail=r.detail||`[${r.rolls.join(',')}] ${r.mod?fmt(r.mod):''}`;
+    document.getElementById('cast-result').innerHTML=`<div class="roll-result"><div class="total">${r.total}</div><div class="roll-detail">${expr}: ${detail}</div></div>`;
+    pushHistory(`${spell.name}伤害`,r.total,`${expr}: ${detail}`);
   });
   if(!isCantrip){
     document.getElementById('btn-cast').addEventListener('click',()=>{

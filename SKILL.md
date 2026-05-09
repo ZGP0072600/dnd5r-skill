@@ -97,6 +97,22 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        ```
        卡上自动出现「特殊投骰」面板：「投 d{N}」按钮 → 投主骰 → 落入区间 → 弹窗显示 effect；带 subRoll 的行自动续投并显示对应选项；「查表」按钮浏览整张表。结果自动写入 rollHistory。
      - desc / effect / subRoll.options 字段直接通过 innerHTML 注入（不转义），可写 `<strong>/<em>/<br>` 等富文本——但避免出现 `</script>` 子串以免切断 JSON 块。
+     - **伤害骰表达式语法**（spell.damage / attack.damage 字段）：
+       - `8d6` / `2d8` / `3d4+3` — 单组骰
+       - `3·(1d4+1)` / `3·2d6` — **重复组**：投 N 次内层表达式逐组求和（魔法飞弹的"3 镖×1d4+1"、灼热射线的"3 道×2d6"等）。分隔符 `·` `×` `*` 等价。括号可省。
+       - 解析失败的表达式会让 `rollExpr` 返回 null，调用方 alert "解析失败：..."
+     - **升环施法**（spell.upcast，可选）：让模板根据玩家选择的施法环阶**自动更新伤害骰表达式 + 投骰按钮文字**。两种形式：
+       ```json
+       // 类型 A：每升一环加 N 个同骰型（火球术、雷鸣波、燃烧之手...）
+       { "lvl": 1, "damage": "2d8", "upcast": {"dice": "1d8", "perLevel": 1} }
+       // 升 2 环 → 3d8、升 3 环 → 4d8
+
+       // 类型 B：每升一环重复多一个 group（魔法飞弹、灼热射线...）
+       { "lvl": 1, "damage": "3·(1d4+1)", "upcast": {"repeat": "1d4+1", "perLevel": 1} }
+       // 升 2 环 → 4·(1d4+1)、升 3 环 → 5·(1d4+1)
+       ```
+       规则：模板的 `getUpcastDamage(spell, castLvl)` 按 `castLvl - lvl` 算 extra，再据 `dice/repeat + perLevel` 合成新表达式。法术对话框监听 `slot-sel` change 事件，select 一变就刷新「投 XdY」按钮文字。**没 upcast 字段时不变**，向后兼容。
+       **车卡时**：法术原文「升环施法」段落里有「每比一环高一环 +1d6 火焰伤害」→ `{dice:'1d6', perLevel:1}`；「每比基础环阶高一环多 1 道射线」→ `{repeat:'2d6', perLevel:1}`（或 `{repeat: 内层骰型, perLevel:1}`）。
      - **法术材料**（spell.material，可选）：D&D 5e 里材料分三类，模板按 `material` 字段自动给视觉/交互区分。spell（含 cantrips）支持：
        ```json
        // 普通可替代材料（奥术法器/成分包代）— 字符串简写即可
