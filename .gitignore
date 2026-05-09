@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Personal scratch
+.tmp/
+*.local
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Don't commit personal character JSON build inputs.
+# Generated HTML cards are fine to share (self-contained), JSON is the build source
+# and may carry personal notes / player names.
+*.json
+!**/launch.json
+
+# But DO ship example HTML cards intentionally placed under examples/
+!examples/**/*.html

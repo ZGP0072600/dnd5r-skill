@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DnD 5r 电子人物卡</title>
+<style>
+:root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
+[data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%}
+.num{font-variant-numeric:tabular-nums}
+button{cursor:pointer;background:var(--panel-hi);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:13px;font-family:inherit;min-height:32px}
+button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:active{transform:translateY(1px)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.primary:hover{filter:brightness(1.1)}
+input,select,textarea{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;padding:4px 6px;font-family:inherit;font-size:inherit;min-height:28px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+input[type=number]{width:60px;text-align:right}
+header{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:2px solid var(--accent);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1{margin:0;font-size:18px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header h1 .meta{font-weight:normal;font-size:12px;color:var(--text-dim);margin-left:8px}
+.toolbar{display:flex;gap:4px;flex-wrap:wrap}
+.toolbar button{font-size:12px;padding:4px 8px;min-height:28px}
+main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow:dense}
+@media(min-width:700px){main{grid-template-columns:1fr 1fr}.panel.full{grid-column:1/-1}}
+@media(min-width:1100px){main{grid-template-columns:1fr 1fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.panel h2{margin:0 0 8px;font-size:14px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:4px;display:flex;align-items:center;gap:6px}
+.panel h2 .sub{font-size:11px;color:var(--text-dim);font-weight:normal;margin-left:auto}
+.combat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-box{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px 4px;text-align:center;min-height:60px;position:relative}
+.stat-box[data-roll]{cursor:pointer;border-color:var(--gold)}
+.stat-box[data-roll]::after{content:'🎲';position:absolute;top:3px;right:5px;font-size:11px;opacity:.7}
+.stat-box[data-roll]:hover{border-color:var(--accent);background:var(--bg)}
+.stat-box .label{font-size:11px;color:var(--text-dim)}
+.stat-box .val{font-size:22px;font-weight:bold}
+.stat-box .sub{font-size:11px;color:var(--text-dim)}
+.hp-bar{grid-column:1/-1;background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px;cursor:pointer}
+.hp-bar .hp-num{font-size:22px;font-weight:bold}
+.hp-bar .hp-bar-bg{background:var(--bg);height:8px;border-radius:4px;overflow:hidden;margin-top:6px}
+.hp-bar .hp-bar-fg{background:var(--good);height:100%;transition:width .3s}
+.hp-bar .hp-bar-fg.low{background:var(--gold)}
+.hp-bar .hp-bar-fg.crit{background:var(--bad)}
+.hp-row{display:flex;gap:8px;align-items:baseline}
+.hp-temp{color:var(--gold)}
+.ab-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+@media(max-width:500px){.ab-grid{grid-template-columns:repeat(3,1fr)}}
+.ab-box{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px 4px;text-align:center;cursor:pointer;min-height:80px}
+.ab-box:hover{border-color:var(--accent)}
+.ab-box .label{font-size:11px;color:var(--text-dim)}
+.ab-box .mod{font-size:26px;font-weight:bold;line-height:1.1;color:var(--text)}
+.ab-box .score{font-size:16px;font-weight:bold;color:var(--gold);cursor:text;border-bottom:1px dashed var(--border);padding:1px 6px;display:inline-block;margin-top:3px}
+.ab-box .score:hover{border-color:var(--accent)}
+.ab-box .save{font-size:11px;color:var(--text-dim);margin-top:4px}
+.ab-box .save.prof{color:var(--good);font-weight:bold}
+.skill-list{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+@media(max-width:500px){.skill-list{grid-template-columns:1fr}}
+.skill-row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:3px;cursor:pointer;min-height:32px}
+.skill-row:hover{background:var(--panel-hi)}
+.skill-row .prof-toggle{width:20px;height:20px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;background:var(--bg)}
+.skill-row .prof-toggle.prof{background:var(--good);border-color:var(--good);color:#fff}
+.skill-row .prof-toggle.expert{background:var(--gold);border-color:var(--gold);color:#fff}
+.skill-row .prof-toggle.half{background:var(--text-dim);border-color:var(--text-dim);color:#fff}
+.skill-row .skill-name{flex:1}
+.skill-row .skill-ability{font-size:11px;color:var(--text-dim);width:18px}
+.skill-row .skill-bonus{font-weight:bold;min-width:30px;text-align:right}
+.attack-row{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px;margin-bottom:6px;cursor:pointer}
+.attack-row:hover{border-color:var(--accent)}
+.attack-row .name{font-weight:bold}
+.attack-row .stats{font-size:12px;color:var(--text-dim);display:flex;gap:12px;flex-wrap:wrap;margin-top:2px}
+.attack-row .mastery{color:var(--gold)}
+.slot-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px}
+.slot-col{text-align:center}
+.slot-col .level{font-size:10px;color:var(--text-dim)}
+.slot-col .slots{display:flex;flex-direction:column-reverse;align-items:center;gap:2px;min-height:20px}
+.slot-pip{width:16px;height:16px;border:1px solid var(--border);border-radius:2px;cursor:pointer;background:var(--bg)}
+.slot-pip.full{background:var(--accent);border-color:var(--accent)}
+.spell-list{max-height:400px;overflow-y:auto}
+.spell-row{padding:6px;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.spell-row:hover{background:var(--panel-hi)}
+.spell-row .lv{font-size:11px;color:var(--text-dim);width:24px;flex-shrink:0;text-align:center}
+.spell-row .name{flex:1}
+.spell-row .school{font-size:11px;color:var(--gold)}
+.spell-row .conc{font-size:11px;color:var(--accent)}
+.res-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}
+.res-row:last-child{border-bottom:none}
+.res-row .label{flex:1}
+.res-row .reset-tag{font-size:10px;color:var(--text-dim);padding:2px 6px;background:var(--panel-hi);border-radius:2px}
+.res-row .pips{display:flex;gap:3px}
+.res-row .pip{width:16px;height:16px;border:1px solid var(--border);border-radius:2px;cursor:pointer;background:var(--bg)}
+.res-row .pip.full{background:var(--gold);border-color:var(--gold)}
+.item-row{display:flex;gap:6px;padding:6px 4px;border-bottom:1px dashed var(--border);align-items:center}
+.item-row:last-child{border:none}
+.item-row .name{flex:1}
+.item-row .qty,.item-row .weight{color:var(--text-dim);font-size:12px}
+.wealth-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.coin-box{text-align:center;background:var(--panel-hi);border:1px solid var(--border);border-radius:3px;padding:4px}
+.coin-box .label{font-size:10px;color:var(--text-dim)}
+.coin-box input{width:100%;text-align:center}
+.status-grid{display:flex;flex-wrap:wrap;gap:4px}
+.status-tag{padding:4px 10px;background:var(--bad);color:#fff;border-radius:12px;font-size:12px;cursor:pointer}
+.status-tag.add{background:var(--panel-hi);color:var(--text-dim);border:1px dashed var(--border)}
+.insp-toggle{padding:4px 12px;border-radius:4px;background:var(--panel-hi);border:1px solid var(--border);cursor:pointer;display:inline-block}
+.insp-toggle.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.death-saves{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.death-pip{width:18px;height:18px;border:1px solid var(--border);border-radius:50%;cursor:pointer;display:inline-block;margin:0 2px;vertical-align:middle}
+.death-pip.success{background:var(--good);border-color:var(--good)}
+.death-pip.fail{background:var(--bad);border-color:var(--bad)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px var(--shadow)}
+.modal h3{margin:0 0 10px;color:var(--accent)}
+.modal-row{margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.roll-result{font-size:24px;text-align:center;padding:14px;background:var(--panel-hi);border-radius:4px;margin:10px 0}
+.roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
+.roll-result .nat20{color:var(--good)}
+.roll-result .nat1{color:var(--bad)}
+.roll-detail{font-size:12px;color:var(--text-dim);margin-top:6px}
+.adv-toggle{display:flex;gap:4px;flex:1}
+.adv-toggle button{flex:1}
+.adv-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.history-list{max-height:400px;overflow-y:auto}
+.history-item{padding:8px;border-bottom:1px solid var(--border);font-size:12px}
+.history-item .label{color:var(--gold)}
+.history-item .val{float:right;font-weight:bold;font-size:14px}
+textarea.notes{width:100%;min-height:120px;resize:vertical}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+details summary{cursor:pointer;padding:4px 0;color:var(--text-dim)}
+details summary:hover{color:var(--accent)}
+.features-list .feature{padding:8px 4px;border-bottom:1px solid var(--border)}
+.features-list .feature:last-child{border:none}
+.features-list .src{font-size:10px;color:var(--text-dim)}
+.features-list .name{font-weight:bold;color:var(--gold)}
+.features-list .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.special-roll-row{padding:8px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;background:var(--panel-hi)}
+.special-roll-row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.special-roll-row .label{font-weight:bold;color:var(--gold);flex:1}
+.special-roll-row .die-tag{font-size:11px;color:var(--text-dim);padding:2px 6px;background:var(--bg);border-radius:2px}
+.special-roll-row button.roll-btn{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:bold}
+.special-roll-row button.roll-btn:hover{filter:brightness(1.15)}
+.special-roll-row .desc{font-size:12px;color:var(--text-dim);margin-top:6px}
+.surge-result .range{color:var(--gold);font-weight:bold;font-size:14px;margin-bottom:6px}
+.surge-result .effect{padding:10px;background:var(--panel-hi);border-radius:4px;line-height:1.55;margin-bottom:8px}
+.surge-result .sub-roll{padding:8px;border-left:3px solid var(--accent);background:var(--bg);margin-top:8px}
+.surge-result .sub-roll .sub-label{font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.surge-table-modal{max-height:70vh;overflow-y:auto}
+.surge-table-modal table{width:100%;border-collapse:collapse;font-size:12px}
+.surge-table-modal td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:top}
+.surge-table-modal tr.hit{background:rgba(200,160,50,.18)}
+.surge-table-modal td.range{white-space:nowrap;color:var(--gold);font-weight:bold;width:60px}
+.hidden{display:none!important}
+</style>
+</head>
+<body data-theme="dark">
+
+<header>
+  <h1><span id="char-name" data-edit-name="1" title="点击改名" style="cursor:pointer;border-bottom:1px dashed var(--border)">悲灵</span> <span class="meta" id="char-meta"></span></h1>
+  <div class="toolbar">
+    <button id="btn-rest-short">短休</button>
+    <button id="btn-rest-long">长休</button>
+    <button id="btn-history">骰史</button>
+    <button id="btn-dice-cmd">骰娘</button>
+    <button id="btn-theme">主题</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>战斗 <span class="sub" id="prof-display">熟练 +0</span></h2>
+    <div class="combat-grid">
+      <div class="hp-bar" id="hp-bar">
+        <div class="hp-row">
+          <div>
+            <div style="font-size:11px;color:var(--text-dim);">HP</div>
+            <div><span class="hp-num num"><span id="hp-cur">0</span>/<span id="hp-max">0</span></span> <span class="hp-temp" id="hp-temp"></span></div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;color:var(--text-dim);">点击编辑/受伤治疗</div>
+        </div>
+        <div class="hp-bar-bg"><div class="hp-bar-fg" id="hp-bar-fg" style="width:100%"></div></div>
+      </div>
+      <div class="stat-box" data-roll="initiative"><div class="label">先攻</div><div class="val num" id="init-val">+0</div></div>
+      <div class="stat-box"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
+      <div class="stat-box"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
+      <div class="stat-box"><div class="label">速度</div><div class="val num" id="speed-val">30</div><div class="sub" id="size-val">中型</div></div>
+      <div class="stat-box" data-roll="perception"><div class="label">被动察觉</div><div class="val num" id="pp-val">10</div></div>
+      <div class="stat-box"><div class="label">HD</div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>状态</h2>
+    <div class="modal-row"><span>英雄激励：</span><span class="insp-toggle" id="insp-toggle">无</span></div>
+    <div class="modal-row death-saves"><span>死豁：</span><span>成<span id="ds-success-pips"></span></span><span>败<span id="ds-fail-pips"></span></span></div>
+    <div class="modal-row"><span>状态：</span><div class="status-grid" id="status-grid"></div></div>
+    <div class="modal-row"><span>抗性：</span><span id="resistance" style="color:var(--text-dim)">—</span></div>
+  </section>
+
+  <section class="panel full">
+    <h2>属性</h2>
+    <div class="ab-grid" id="ab-grid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>技能 <span class="sub">点击投骰，方块切熟练</span></h2>
+    <div class="skill-list" id="skill-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>攻击 <span class="sub">点击投攻击+伤害</span></h2>
+    <div id="attack-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>法术 <span class="sub" id="spell-meta">—</span></h2>
+    <div class="slot-grid" id="slot-grid"></div>
+    <div class="spell-list" id="spell-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>职业资源</h2>
+    <div id="resource-list"></div>
+  </section>
+
+  <section class="panel hidden" id="special-rolls-panel">
+    <h2>特殊投骰 <span class="sub">点击按钮投骰并查表</span></h2>
+    <div id="special-rolls-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>装备 <span class="sub" id="weight-display">—</span></h2>
+    <div id="armor-info"></div>
+    <details open>
+      <summary>物品 (<span id="item-count">0</span>)</summary>
+      <div id="item-list"></div>
+    </details>
+    <h2 style="margin-top:12px">财产 <span class="sub" id="wealth-total">0 GP</span></h2>
+    <div class="wealth-grid" id="wealth-grid"></div>
+  </section>
+
+  <section class="panel full">
+    <h2>特性、专长、子职</h2>
+    <div class="features-list" id="features-list"></div>
+  </section>
+
+  <section class="panel full">
+    <h2>笔记</h2>
+    <textarea class="notes" id="notes-input"></textarea>
+  </section>
+</main>
+
+<script id="character-data" type="application/json">
+{}
+</script>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+/* === 5e 2024 规则常量 === */
+const RULES={
+  proficiencyByLevel:[0,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6],
+  abilities:['str','dex','con','int','wis','cha'],
+  abilityNames:{str:'力量',dex:'敏捷',con:'体质',int:'智力',wis:'感知',cha:'魅力'},
+  skills:[
+    {key:'athletics',name:'运动',ability:'str'},
+    {key:'acrobatics',name:'特技',ability:'dex'},
+    {key:'sleightOfHand',name:'巧手',ability:'dex'},
+    {key:'stealth',name:'隐匿',ability:'dex'},
+    {key:'arcana',name:'奥秘',ability:'int'},
+    {key:'history',name:'历史',ability:'int'},
+    {key:'investigation',name:'调查',ability:'int'},
+    {key:'nature',name:'自然',ability:'int'},
+    {key:'religion',name:'宗教',ability:'int'},
+    {key:'animalHandling',name:'驯兽',ability:'wis'},
+    {key:'insight',name:'洞悉',ability:'wis'},
+    {key:'medicine',name:'医药',ability:'wis'},
+    {key:'perception',name:'察觉',ability:'wis'},
+    {key:'survival',name:'求生',ability:'wis'},
+    {key:'deception',name:'欺瞒',ability:'cha'},
+    {key:'intimidation',name:'威吓',ability:'cha'},
+    {key:'performance',name:'表演',ability:'cha'},
+    {key:'persuasion',name:'游说',ability:'cha'}
+  ],
+  weaponMastery:{
+    '虚招':'Vex：若该武器击中目标，至下回合结束，对该目标的攻击具有优势。',
+    '削减':'Sap：若该武器击中目标，目标的下次攻击具有劣势（持续到下回合开始）。',
+    '慢化':'Slow：若击中目标且其速度>0，目标速度-10尺至下回合结束。',
+    '推开':'Push：若击中目标，将体型不大于大型的目标推开10尺。',
+    '裂砍':'Cleave：若近战命中，对相邻另一目标做一次伤害骰（不加加值）。',
+    '突刺':'Topple：若击中，目标做体质豁免（DC=8+熟练+攻击属性），失败则俯卧。',
+    '出鞘':'Nick：用副手轻型武器的额外攻击作为同一动作（而非附赠动作）。',
+    '强击':'Graze：若攻击未命中，仍造成等于关键属性调整值的同类型伤害。',
+    '弹道':'Topple/类似——见原文'
+  },
+  conditions:['失明','魅惑','聋哑','失能','惊恐','被擒抱','麻痹','石化','中毒','俯卧','束缚','震慑','昏迷','濒死','虚弱','隐形','蒙蔽','晕眩'],
+  classes:{
+    '法师':{hd:6,primary:['int'],casterType:'full'},
+    '术士':{hd:6,primary:['cha'],casterType:'full'},
+    '吟游诗人':{hd:8,primary:['cha'],casterType:'full'},
+    '牧师':{hd:8,primary:['wis'],casterType:'full'},
+    '德鲁伊':{hd:8,primary:['wis'],casterType:'full'},
+    '圣武士':{hd:10,primary:['str','cha'],casterType:'half'},
+    '游侠':{hd:10,primary:['dex','wis'],casterType:'half'},
+    '战士':{hd:10,primary:['str','dex'],casterType:'none'},
+    '野蛮人':{hd:12,primary:['str'],casterType:'none'},
+    '武僧':{hd:8,primary:['dex','wis'],casterType:'none'},
+    '游荡者':{hd:8,primary:['dex'],casterType:'none'},
+    '魔契师':{hd:8,primary:['cha'],casterType:'pact'}
+  }
+};
+
+/* === 测试角色：5 级人类法师 - 唤起学派 === */
+const DEFAULT_CHAR={
+  meta:{name:'悲灵',charId:'default-beilin',player:'',alignment:'中立善良',faith:'',xp:6500,notes:'',
+    classes:[{name:'法师',subclass:'唤起学派',level:5}],
+    race:{name:'人类',subrace:''},background:'学者',inspiration:false},
+  abilities:{
+    str:{score:8,saveProf:false,saveBonus:0},
+    dex:{score:14,saveProf:false,saveBonus:0},
+    con:{score:14,saveProf:false,saveBonus:0},
+    int:{score:16,saveProf:true,saveBonus:0},
+    wis:{score:12,saveProf:true,saveBonus:0},
+    cha:{score:10,saveProf:false,saveBonus:0}
+  },
+  combat:{hpMax:32,hpCur:32,hpTemp:0,hdMax:5,hdCur:5,acBase:13,acBonus:0,
+    speed:30,size:'中型',initBonus:0,deathSaves:{success:[false,false,false],fail:[false,false,false]},
+    resistance:'',immunity:'',advantage:'',statusEffects:[]},
+  skills:{
+    arcana:{prof:'prof',bonus:0},
+    history:{prof:'prof',bonus:0},
+    investigation:{prof:'prof',bonus:0},
+    insight:{prof:'prof',bonus:0},
+    globalBonus:0,jackOfAllTrades:false
+  },
+  attacks:[
+    {name:'匕首',ability:'dex',attackBonus:0,damage:'1d4',damageBonus:0,damageType:'穿刺',properties:'灵巧, 投掷(20/60)',mastery:'虚招',attuned:false},
+    {name:'轻弩',ability:'dex',attackBonus:0,damage:'1d8',damageBonus:0,damageType:'穿刺',properties:'装填, 双手, 弹药(80/320)',mastery:'慢化',attuned:false}
+  ],
+  spellcasting:{
+    castingAbility:'int',extraDcBonus:0,extraAttackBonus:0,
+    slots:{1:{max:4,used:[false,false,false,false]},2:{max:3,used:[false,false,false]},3:{max:2,used:[false,false]},4:{max:0,used:[]},5:{max:0,used:[]},6:{max:0,used:[]},7:{max:0,used:[]},8:{max:0,used:[]},9:{max:0,used:[]}},
+    cantrips:[
+      {name:'火焰矢',school:'唤法',ct:'1动作',range:'120尺',comp:'V,S',dur:'瞬间',damage:'2d10',desc:'远程法术攻击。命中造成 1d10 火焰伤害，5/11/17 级各+1d10（5级=2d10）。'},
+      {name:'魔法伎俩',school:'变化',ct:'1动作',range:'10尺',comp:'V,S',dur:'最长1小时',desc:'造成微小魔法效果（声响/风/调味/清洁/冰镇/点燃/灭火/小印记/小物件）。'},
+      {name:'防护',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',desc:'反应：让一次攻击者投出劣势。'}
+    ],
+    spells:[
+      {lvl:1,name:'魔法飞弹',school:'唤法',ct:'1动作',range:'120尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'3d4+3',desc:'产生3支飞弹，每支1d4+1力场伤害自动命中。升环每环+1支（升4环投4d4+4，依此类推；当前按钮按基础3环投）。'},
+      {lvl:1,name:'护盾',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',prepared:true,ritual:false,conc:false,desc:'反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。'},
+      {lvl:1,name:'医疗',school:'防护',ct:'1动作',range:'60尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'1d8+3',desc:'治疗目标 1d8+施法属性(INT 3) HP。升环每环+1d8。'},
+      {lvl:1,name:'感知敌意',school:'占卜',ct:'1动作',range:'自身(30尺)',comp:'V,S',dur:'专注10分钟',prepared:true,ritual:false,conc:true,desc:'察觉范围内每个生物的敌意意图（不确定理由）。'},
+      {lvl:2,name:'雾步',school:'咒法',ct:'1附赠动作',range:'自身',comp:'V',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'传送至30尺内可见地点。'},
+      {lvl:2,name:'镜影术',school:'幻术',ct:'1动作',range:'自身',comp:'V,S',dur:'1分钟',prepared:true,ritual:false,conc:false,desc:'产生3个分身，攻击者随机命中分身（DC基于复制数）。'},
+      {lvl:2,name:'看不见的仆役',school:'咒法',ct:'1动作',range:'60尺',comp:'V,S,M',dur:'1小时',prepared:true,ritual:true,conc:false,desc:'召唤无形仆役执行简单任务。'},
+      {lvl:3,name:'火球术',school:'唤法',ct:'1动作',range:'150尺',comp:'V,S,M',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'8d6',desc:'150尺远某点，20尺半径球内每个生物受 8d6 火焰伤害，敏捷豁免减半。升环每环+1d6。'},
+      {lvl:3,name:'反制法术',school:'防护',ct:'反应',range:'60尺',comp:'S',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'反应：使一个目标的施法尝试失败（3环及以下自动；更高环要 DC10+环数 法术能力检定）。'}
+    ],
+    spellPoints:{cur:0,max:0}
+  },
+  classResources:[
+    {key:'arcaneRecovery',label:'奥术恢复',resetType:'longRest',max:1,used:[false],desc:'短休时使用，恢复总环阶数 ≤ 半角色等级（向上取整）的法术位（不含6环及以上）。'}
+  ],
+  specialRolls:[],
+  equipment:{
+    armor:{name:'法师铠护身(法术)',ac:13,dexLimit:null,weight:0,attuned:false,equipped:true},
+    shield:{name:'',ac:0,weight:0,attuned:false,equipped:false},
+    items:[
+      {name:'法术书',weight:3,qty:1,attuned:false,desc:'记录已知法术'},
+      {name:'奥术法器(水晶)',weight:1,qty:1,attuned:false,desc:'施法材料替代'},
+      {name:'探险包',weight:59,qty:1,attuned:false,desc:'背包/睡袋/口粮/水袋等'},
+      {name:'匕首',weight:1,qty:1,attuned:false,desc:''},
+      {name:'轻弩',weight:5,qty:1,attuned:false,desc:''},
+      {name:'弩矢×20',weight:1.5,qty:1,attuned:false,desc:''}
+    ]
+  },
+  wealth:{cp:0,sp:0,ep:0,gp:120,pp:0},
+  features:[
+    {source:'种族',name:'人类多面手',desc:'1级时获得一项起始专长。'},
+    {source:'职业(1级)',name:'法术施放',desc:'使用智力作为施法关键属性。'},
+    {source:'职业(1级)',name:'奥术恢复',desc:'短休时恢复一些法术位（每长休一次）。'},
+    {source:'子职(2级)',name:'唤起学派 - 法术雕琢',desc:'施放伤害性唤法法术时，可选择半角色等级（向上取整）个目标自动豁免成功（不受伤害）。'},
+    {source:'专长',name:'学究',desc:'两项智力检定（你选择）熟练；进行知识检定时若不熟练也加调整值。'},
+    {source:'背景',name:'学者',desc:'获得奥秘+历史熟练，并可在24小时研究中获取一段相关知识。'}
+  ],
+  rollHistory:[]
+};
+
+/* === 状态管理 === */
+let char=null;
+function getEmbeddedChar(){
+  try{
+    const txt=document.getElementById('character-data').textContent.trim();
+    if(txt&&txt!=='{}')return JSON.parse(txt);
+  }catch(e){console.warn('character-data parse failed',e)}
+  return JSON.parse(JSON.stringify(DEFAULT_CHAR));
+}
+function ensureCharId(c){
+  if(!c.meta)c.meta={};
+  if(!c.meta.charId)c.meta.charId='char-'+Math.random().toString(36).slice(2,10);
+  return c.meta.charId;
+}
+// 把 cur 数字字段转成 used 布尔数组（pip 独立 toggle）。兼容老数据。
+function normalize(c){
+  const sc=c.spellcasting||{};
+  const slots=sc.slots||{};
+  for(const lv in slots){
+    const s=slots[lv];
+    if(Array.isArray(s.used))continue;
+    const mx=s.max|0,cur=(s.cur==null?mx:s.cur)|0;
+    const usedN=Math.max(0,mx-cur);
+    s.used=Array(mx).fill(false);
+    for(let i=0;i<usedN;i++){if(mx-1-i>=0)s.used[mx-1-i]=true}
+    delete s.cur;
+  }
+  for(const r of c.classResources||[]){
+    if(Array.isArray(r.used))continue;
+    const mx=r.max|0,cur=(r.cur==null?mx:r.cur)|0;
+    const usedN=Math.max(0,mx-cur);
+    r.used=Array(mx).fill(false);
+    for(let i=0;i<usedN;i++){if(mx-1-i>=0)r.used[mx-1-i]=true}
+    delete r.cur;
+  }
+  const ds=c.combat&&c.combat.deathSaves;
+  if(ds){
+    for(const k of ['success','fail']){
+      if(Array.isArray(ds[k]))continue;
+      const n=ds[k]|0;
+      ds[k]=[0,1,2].map(i=>i<n);
+    }
+  }
+  return c;
+}
+function loadChar(){
+  const initial=getEmbeddedChar();
+  const charId=ensureCharId(initial);
+  let c=initial;
+  try{
+    const s=localStorage.getItem('dnd5r-char:'+charId);
+    if(s)c=JSON.parse(s);
+  }catch(e){}
+  return normalize(c);
+}
+function saveChar(){
+  try{localStorage.setItem('dnd5r-char:'+ensureCharId(char),JSON.stringify(char))}catch(e){}
+}
+
+/* === 计算 === */
+function totalLevel(c){return c.meta.classes.reduce((s,x)=>s+(x.level||0),0)}
+function profBonus(c){return RULES.proficiencyByLevel[totalLevel(c)]||2}
+function classHdGroups(c){
+  const map=new Map();
+  for(const cls of c.meta.classes||[]){
+    const hd=RULES.classes[cls.name]?.hd||8;
+    if(!map.has(hd))map.set(hd,{hd,levels:0,names:[]});
+    const g=map.get(hd);
+    g.levels+=cls.level||0;
+    g.names.push(cls.name);
+  }
+  return Array.from(map.values()).sort((a,b)=>b.hd-a.hd);
+}
+function hdSummary(c){
+  const groups=classHdGroups(c);
+  if(!groups.length)return 'd8';
+  if(groups.length===1)return 'd'+groups[0].hd;
+  return groups.map(g=>`d${g.hd}×${g.levels}`).join(' + ');
+}
+function abMod(s){return Math.floor((s-10)/2)}
+function fmt(n){return(n>=0?'+':'')+n}
+function saveBonus(c,ab){const a=c.abilities[ab];let b=abMod(a.score);if(a.saveProf)b+=profBonus(c);return b+(a.saveBonus||0)}
+function skillBonus(c,sk){
+  const s=RULES.skills.find(x=>x.key===sk);
+  const d=c.skills[sk]||{prof:'none',bonus:0};
+  let b=abMod(c.abilities[s.ability].score);
+  const pb=profBonus(c);
+  if(d.prof==='prof')b+=pb;
+  else if(d.prof==='expert')b+=pb*2;
+  else if(d.prof==='half')b+=Math.floor(pb/2);
+  else if(c.skills.jackOfAllTrades)b+=Math.floor(pb/2);
+  return b+(d.bonus||0)+(c.skills.globalBonus||0)
+}
+function ac(c){let a=c.combat.acBase+(c.combat.acBonus||0);const sh=c.equipment.shield;if(sh&&sh.equipped&&sh.ac)a+=sh.ac;return a}
+function spellDC(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return 8+profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraDcBonus||0)}
+function spellAttack(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraAttackBonus||0)}
+function passivePerception(c){return 10+skillBonus(c,'perception')}
+function initiative(c){return abMod(c.abilities.dex.score)+(c.combat.initBonus||0)}
+function totalGP(c){const w=c.wealth;return Math.round((w.cp/100+w.sp/10+w.ep/2+w.gp+w.pp*10)*100)/100}
+function totalWeight(c){let w=0;const a=c.equipment.armor;if(a&&a.weight)w+=a.weight;const sh=c.equipment.shield;if(sh&&sh.weight)w+=sh.weight;for(const it of c.equipment.items||[])w+=(it.weight||0)*(it.qty||1);return w}
+function carryStatus(c){const w=totalWeight(c),s=c.abilities.str.score;if(w<=s*5)return{label:'轻载',color:'var(--good)'};if(w<=s*10)return{label:'重载',color:'var(--gold)'};if(w<=s*15)return{label:'超载',color:'var(--bad)'};return{label:'超重',color:'var(--bad)'}}
+
+/* === 投骰原子 === */
+function rollDie(s){return Math.floor(Math.random()*s)+1}
+function rollDice(n,s){const r=[];for(let i=0;i<n;i++)r.push(rollDie(s));return{rolls:r,total:r.reduce((a,b)=>a+b,0)}}
+function parseDice(e){const m=e.replace(/\s/g,'').match(/^(\d+)d(\d+)([+-]\d+)?$/i);if(!m)return null;return{n:+m[1],sides:+m[2],mod:m[3]?+m[3]:0}}
+function rollExpr(e){const p=parseDice(e);if(!p)return null;const r=rollDice(p.n,p.sides);return{...r,mod:p.mod,total:r.total+p.mod,expr:e}}
+function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
+function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
+
+/* === 模态框 === */
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-overlay').classList.remove('hidden')}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden')}
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal()});
+
+/* === 渲染 === */
+function render(){renderHeader();renderCombat();renderStatus();renderAbilities();renderSkills();renderAttacks();renderSpells();renderResources();renderSpecialRolls();renderEquipment();renderFeatures();renderNotes()}
+
+function renderHeader(){
+  document.getElementById('char-name').textContent=char.meta.name||'未命名';
+  const cls=char.meta.classes.map(c=>`${c.name}${c.subclass?'·'+c.subclass:''} ${c.level}级`).join(' / ');
+  const race=char.meta.race.name+(char.meta.race.subrace?'/'+char.meta.race.subrace:'');
+  document.getElementById('char-meta').textContent=`${race} · ${cls} · ${char.meta.background||''}`;
+  document.getElementById('prof-display').textContent=`熟练 ${fmt(profBonus(char))}`;
+  document.title=`${char.meta.name||'人物卡'} — DnD 5r`;
+}
+
+function renderCombat(){
+  document.getElementById('hp-cur').textContent=char.combat.hpCur;
+  document.getElementById('hp-max').textContent=char.combat.hpMax;
+  document.getElementById('hp-temp').textContent=char.combat.hpTemp?`(+${char.combat.hpTemp})`:'';
+  const pct=char.combat.hpMax>0?Math.max(0,char.combat.hpCur/char.combat.hpMax*100):0;
+  const bar=document.getElementById('hp-bar-fg');
+  bar.style.width=pct+'%';
+  bar.className='hp-bar-fg'+(pct<25?' crit':pct<50?' low':'');
+  document.getElementById('init-val').textContent=fmt(initiative(char));
+  document.getElementById('ac-val').textContent=ac(char);
+  const dc=spellDC(char);
+  document.getElementById('dc-val').textContent=dc!=null?dc:'—';
+  document.getElementById('speed-val').textContent=char.combat.speed;
+  document.getElementById('size-val').textContent=char.combat.size;
+  document.getElementById('pp-val').textContent=passivePerception(char);
+  document.getElementById('hd-cur').textContent=char.combat.hdCur;
+  document.getElementById('hd-max').textContent=char.combat.hdMax;
+  document.getElementById('hd-size').textContent=hdSummary(char);
+}
+
+function renderStatus(){
+  const it=document.getElementById('insp-toggle');
+  it.textContent=char.meta.inspiration?'有 ⭐':'无';
+  it.className='insp-toggle'+(char.meta.inspiration?' on':'');
+  const ds=char.combat.deathSaves;
+  if(!Array.isArray(ds.success))ds.success=[false,false,false];
+  if(!Array.isArray(ds.fail))ds.fail=[false,false,false];
+  document.getElementById('ds-success-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.success[i]?' success':''}" data-ds="success" data-i="${i}"></span>`).join('');
+  document.getElementById('ds-fail-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.fail[i]?' fail':''}" data-ds="fail" data-i="${i}"></span>`).join('');
+  const sg=document.getElementById('status-grid');
+  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag" data-status-rm="${s}">${s} ✕</span>`).join('');
+  sg.innerHTML=tags+`<span class="status-tag add" id="add-status">+ 添加</span>`;
+  document.getElementById('resistance').textContent=char.combat.resistance||'—';
+}
+
+function renderAbilities(){
+  const grid=document.getElementById('ab-grid');
+  grid.innerHTML=RULES.abilities.map(ab=>{
+    const a=char.abilities[ab],m=abMod(a.score),sb=saveBonus(char,ab);
+    return `<div class="ab-box" data-roll="ability" data-ab="${ab}">
+      <div class="label">${RULES.abilityNames[ab]}</div>
+      <div class="mod num">${fmt(m)}</div>
+      <div class="score num" data-edit-ab="${ab}">${a.score}</div>
+      <div class="save${a.saveProf?' prof':''} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSkills(){
+  const list=document.getElementById('skill-list');
+  list.innerHTML=RULES.skills.map(s=>{
+    const d=char.skills[s.key]||{prof:'none',bonus:0};
+    let mark='',cls='';
+    if(d.prof==='prof'){mark='●';cls='prof'}
+    else if(d.prof==='expert'){mark='◆';cls='expert'}
+    else if(d.prof==='half'){mark='◐';cls='half'}
+    return `<div class="skill-row" data-roll="skill" data-skill="${s.key}">
+      <span class="prof-toggle ${cls}" data-toggle-prof="${s.key}">${mark}</span>
+      <span class="skill-name">${s.name}</span>
+      <span class="skill-ability">${RULES.abilityNames[s.ability].slice(0,1)}</span>
+      <span class="skill-bonus num">${fmt(skillBonus(char,s.key))}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderAttacks(){
+  const list=document.getElementById('attack-list');
+  const pb=profBonus(char);
+  list.innerHTML=(char.attacks||[]).map((a,i)=>{
+    const m=abMod(char.abilities[a.ability].score);
+    const atk=m+pb+(a.attackBonus||0);
+    const dmgMod=m+(a.damageBonus||0);
+    const dmg=`${a.damage}${dmgMod?fmt(dmgMod):''}`;
+    return `<div class="attack-row" data-roll="attack" data-i="${i}">
+      <div class="name">${a.name}${a.attuned?' ✦':''}</div>
+      <div class="stats">
+        <span>命中 <strong>${fmt(atk)}</strong></span>
+        <span>伤害 <strong>${dmg}</strong> ${a.damageType}</span>
+        ${a.mastery?`<span class="mastery">精通：${a.mastery}</span>`:''}
+      </div>
+      <div class="stats" style="font-size:11px">${a.properties||''}</div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无武器</div>';
+}
+
+function renderSpells(){
+  const sc=char.spellcasting;
+  const meta=document.getElementById('spell-meta');
+  const sg=document.getElementById('slot-grid');
+  const list=document.getElementById('spell-list');
+  if(!sc||!sc.castingAbility){meta.textContent='此角色无施法能力';sg.innerHTML='';list.innerHTML='';return}
+  meta.textContent=`DC ${spellDC(char)} · 攻 ${fmt(spellAttack(char))} (${RULES.abilityNames[sc.castingAbility]})`;
+  sg.innerHTML=[1,2,3,4,5,6,7,8,9].map(lv=>{
+    const s=sc.slots[lv]||{used:[],max:0};
+    if(s.max===0)return `<div class="slot-col"><div class="level">${lv}</div><div class="slots" style="opacity:.3">—</div></div>`;
+    if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+    const pips=[];
+    for(let i=0;i<s.max;i++)pips.push(`<div class="slot-pip ${s.used[i]?'':'full'}" data-slot="${lv}" data-i="${i}"></div>`);
+    const remaining=s.used.filter(x=>!x).length;
+    return `<div class="slot-col"><div class="level">${lv}环</div><div class="slots">${pips.join('')}</div><div class="level num">${remaining}/${s.max}</div></div>`;
+  }).join('');
+  const all=[];
+  for(const c of sc.cantrips||[])all.push({...c,lvl:0});
+  for(const sp of sc.spells||[])all.push(sp);
+  all.sort((a,b)=>a.lvl-b.lvl||a.name.localeCompare(b.name,'zh'));
+  list.innerHTML=all.map((sp,i)=>`<div class="spell-row" data-spell-i="${i}">
+    <span class="lv">${sp.lvl===0?'戏':sp.lvl+'环'}</span>
+    <span class="name">${sp.name}</span>
+    <span class="school">${sp.school||''}</span>
+    ${sp.conc?'<span class="conc">[专]</span>':''}
+    ${sp.ritual?'<span class="conc">[仪]</span>':''}
+  </div>`).join('')||'<div style="color:var(--text-dim)">无法术</div>';
+  list._allSpells=all;
+}
+
+function renderResources(){
+  const list=document.getElementById('resource-list');
+  const items=[...(char.classResources||[])];
+  if(!items.length){list.innerHTML='<div style="color:var(--text-dim)">无职业资源</div>';return}
+  list.innerHTML=items.map((r,i)=>{
+    if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
+    const pips=[];
+    const max=Math.min(r.max,12);
+    for(let j=0;j<max;j++)pips.push(`<div class="pip ${r.used[j]?'':'full'}" data-res="${i}" data-i="${j}"></div>`);
+    const tag=r.resetType==='shortRest'?'短休':r.resetType==='longRest'?'长休':'其它';
+    const remaining=r.used.filter(x=>!x).length;
+    return `<div class="res-row" title="${(r.desc||'').replace(/"/g,'&quot;')}">
+      <span class="label">${r.label}</span>
+      <span class="reset-tag">${tag}</span>
+      <span class="pips">${pips.join('')}</span>
+      <span class="num" style="min-width:40px;text-align:right">${remaining}/${r.max}</span>
+    </div>`;
+  }).join('');
+}
+
+/* === 特殊投骰（如混沌施法 d100 法力狂潮）=== */
+function renderSpecialRolls(){
+  const panel=document.getElementById('special-rolls-panel');
+  const list=document.getElementById('special-rolls-list');
+  const items=char.specialRolls||[];
+  if(!items.length){panel.classList.add('hidden');return}
+  panel.classList.remove('hidden');
+  list.innerHTML=items.map((r,i)=>{
+    const die=r.die||'d100';
+    const desc=r.desc?`<div class="desc">${r.desc}</div>`:'';
+    return `<div class="special-roll-row">
+      <div class="top">
+        <span class="label">${r.label||'特殊投骰'}</span>
+        <span class="die-tag">${die}</span>
+        <button class="roll-btn" data-special-roll="${i}">投${die}</button>
+        <button data-special-table="${i}">查表</button>
+      </div>
+      ${desc}
+    </div>`;
+  }).join('');
+}
+
+function findSurgeRow(table,roll){
+  for(const row of table||[]){if(roll>=row.min&&roll<=row.max)return row}
+  return null;
+}
+
+function rollSubOption(sub){
+  if(!sub)return null;
+  const m=String(sub.die||'d4').match(/^d(\d+)$/i);
+  if(!m)return null;
+  const sides=+m[1];
+  const r=rollDie(sides);
+  const opts=sub.options||[];
+  const text=opts[r-1]||'(表外)';
+  return {die:`d${sides}`,roll:r,text};
+}
+
+function showSpecialRollResult(spec,roll,row){
+  const die=spec.die||'d100';
+  const label=spec.label||'特殊投骰';
+  let body=`<h3>${label}</h3>
+    <div class="surge-result">
+      <div class="roll-result"><div>${die} 结果</div><div class="total">${roll}</div></div>`;
+  if(!row){
+    body+=`<div class="effect">未在表上找到匹配区间。</div>`;
+  }else{
+    body+=`<div class="range">区间 ${row.min}–${row.max}</div>
+      <div class="effect">${row.effect||'(无文字)'}</div>`;
+    if(row.subRoll){
+      const sub=rollSubOption(row.subRoll);
+      if(sub){
+        body+=`<div class="sub-roll">
+          <div class="sub-label">附加 ${sub.die} = <strong style="color:var(--accent)">${sub.roll}</strong></div>
+          <div>${sub.text}</div>
+        </div>`;
+        pushHistory(`${label} ${die}+${sub.die}`,roll,`${roll} → ${row.min}-${row.max}；${sub.die}=${sub.roll}：${sub.text}`);
+      }else{
+        pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+      }
+    }else{
+      pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+    }
+  }
+  body+=`</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`;
+  openModal(body);
+}
+
+function triggerSpecialRoll(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const m=String(spec.die||'d100').match(/^d(\d+)$/i);
+  const sides=m?+m[1]:100;
+  const roll=rollDie(sides);
+  const row=findSurgeRow(spec.table,roll);
+  showSpecialRollResult(spec,roll,row);
+}
+
+function showSpecialRollTable(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const die=spec.die||'d100';
+  const rows=(spec.table||[]).map(r=>`<tr>
+    <td class="range">${r.min}–${r.max}</td>
+    <td>${r.effect||''}${r.subRoll?`<div style="margin-top:4px;font-size:11px;color:var(--text-dim)">附加 ${r.subRoll.die}：${(r.subRoll.options||[]).map((o,k)=>`<span style="display:inline-block;margin-right:8px"><strong>${k+1}</strong>=${o}</span>`).join('')}</div>`:''}</td>
+  </tr>`).join('');
+  openModal(`<h3>${spec.label||'特殊投骰'}（${die} 全表）</h3>
+    <div class="surge-table-modal"><table>${rows||'<tr><td>(空表)</td></tr>'}</table></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`);
+}
+
+function renderEquipment(){
+  const arm=char.equipment.armor,sh=char.equipment.shield;
+  let html='';
+  if(arm&&arm.name)html+=`<div class="item-row"><span class="name">护甲：${arm.name} (AC ${arm.ac})${arm.attuned?' ✦':''}</span><span class="weight">${arm.weight||0}磅</span></div>`;
+  if(sh&&sh.name)html+=`<div class="item-row"><span class="name">盾牌：${sh.name} (+${sh.ac} AC) ${sh.equipped?'装备中':''}${sh.attuned?' ✦':''}</span><span class="weight">${sh.weight||0}磅</span></div>`;
+  document.getElementById('armor-info').innerHTML=html;
+  const items=char.equipment.items||[];
+  document.getElementById('item-count').textContent=items.length;
+  document.getElementById('item-list').innerHTML=items.map(it=>`<div class="item-row">
+    <span class="name">${it.name}${it.attuned?' ✦':''}</span>
+    <span class="qty">×${it.qty||1}</span>
+    <span class="weight">${((it.weight||0)*(it.qty||1)).toFixed(1)}磅</span>
+  </div>`).join('')||'<div style="color:var(--text-dim)">无</div>';
+  const w=totalWeight(char);
+  const cs=carryStatus(char);
+  document.getElementById('weight-display').innerHTML=`<span style="color:${cs.color}">${cs.label}</span> · ${w.toFixed(1)}/${char.abilities.str.score*15}磅`;
+  const wg=document.getElementById('wealth-grid');
+  const labels={cp:'CP 铜',sp:'SP 银',ep:'EP 琥',gp:'GP 金',pp:'PP 铂'};
+  wg.innerHTML=['cp','sp','ep','gp','pp'].map(c=>`<div class="coin-box">
+    <div class="label">${labels[c]}</div>
+    <input type="number" min="0" data-coin="${c}" value="${char.wealth[c]||0}">
+  </div>`).join('');
+  document.getElementById('wealth-total').textContent=totalGP(char)+' GP';
+}
+
+function renderFeatures(){
+  const list=document.getElementById('features-list');
+  list.innerHTML=(char.features||[]).map(f=>`<div class="feature">
+    <div class="src">[${f.source}]</div>
+    <div class="name">${f.name}</div>
+    <div class="desc">${f.desc}</div>
+  </div>`).join('')||'<div style="color:var(--text-dim)">无</div>';
+}
+
+function renderNotes(){
+  document.getElementById('notes-input').value=char.meta.notes||'';
+}
+
+/* === 投骰对话框 === */
+let rollCtx=null;
+function showRollDialog(label,baseBonus){
+  rollCtx={label,baseBonus,mode:'normal',extra:0};
+  openModal(`<h3>${label}</h3>
+    <div class="modal-row"><span>基础加值：<strong class="num" id="rb">${fmt(baseBonus)}</strong></span>
+      <span style="margin-left:auto">微调：</span>
+      <button data-extra="-1">-1</button>
+      <span class="num" id="re" style="min-width:24px;text-align:center">+0</span>
+      <button data-extra="+1">+1</button>
+    </div>
+    <div class="modal-row"><span>模式：</span>
+      <div class="adv-toggle">
+        <button class="active" data-mode="normal">正常</button>
+        <button data-mode="adv">优势</button>
+        <button data-mode="dis">劣势</button>
+      </div>
+    </div>
+    <div id="roll-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button class="primary" id="btn-do-roll">投！</button>
+    </div>`);
+  document.querySelectorAll('[data-extra]').forEach(b=>b.addEventListener('click',()=>{
+    rollCtx.extra+=parseInt(b.dataset.extra);
+    document.getElementById('re').textContent=fmt(rollCtx.extra);
+    document.getElementById('rb').textContent=fmt(rollCtx.baseBonus+rollCtx.extra);
+  }));
+  document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
+    rollCtx.mode=b.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+  document.getElementById('btn-do-roll').addEventListener('click',()=>{
+    const r=rollD20WithAdv(rollCtx.mode);
+    const total=r.chosen+rollCtx.baseBonus+rollCtx.extra;
+    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}`;
+    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(rollCtx.label,total,detail.replace(/<[^>]+>/g,''));
+  });
+}
+
+/* === 攻击对话框 === */
+function showAttackDialog(idx){
+  const a=char.attacks[idx];
+  if(!a)return;
+  const m=abMod(char.abilities[a.ability].score);
+  const atkBonus=m+profBonus(char)+(a.attackBonus||0);
+  const dmgMod=m+(a.damageBonus||0);
+  let amode='normal';
+  openModal(`<h3>攻击：${a.name}</h3>
+    <div class="modal-row" style="font-size:13px">命中 <strong>${fmt(atkBonus)}</strong> ｜ 伤害 <strong>${a.damage}${dmgMod?fmt(dmgMod):''}</strong> ${a.damageType}</div>
+    ${a.mastery?`<div class="modal-row" style="font-size:12px;color:var(--gold);background:var(--panel-hi);padding:6px;border-radius:3px"><strong>精通【${a.mastery}】</strong>：${RULES.weaponMastery[a.mastery]||''}</div>`:''}
+    <div class="modal-row"><span>模式：</span>
+      <div class="adv-toggle">
+        <button class="active" data-amode="normal">正常</button>
+        <button data-amode="adv">优势</button>
+        <button data-amode="dis">劣势</button>
+      </div>
+    </div>
+    <div id="atk-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-atk">投攻击</button>
+      <button id="btn-dmg">投伤害</button>
+      <button id="btn-crit">暴击伤害</button>
+    </div>`);
+  document.querySelectorAll('[data-amode]').forEach(b=>b.addEventListener('click',()=>{
+    amode=b.dataset.amode;
+    document.querySelectorAll('[data-amode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+  document.getElementById('btn-atk').addEventListener('click',()=>{
+    const r=rollD20WithAdv(amode);
+    const total=r.chosen+atkBonus;
+    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${fmt(atkBonus)}${r.chosen===20?' 暴击!':''}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`攻击-${a.name}`,total,detail.replace(/<[^>]+>/g,''));
+  });
+  document.getElementById('btn-dmg').addEventListener('click',()=>{
+    const r=rollExpr(a.damage);
+    if(!r){alert('伤害骰解析失败：'+a.damage);return}
+    const total=r.total+dmgMod;
+    const detail=`${a.damage}: [${r.rolls.join(',')}] ${dmgMod?fmt(dmgMod):''} = ${total} ${a.damageType}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`伤害-${a.name}`,total,detail);
+  });
+  document.getElementById('btn-crit').addEventListener('click',()=>{
+    const r1=rollExpr(a.damage),r2=rollExpr(a.damage);
+    if(!r1||!r2){alert('伤害骰解析失败');return}
+    const total=r1.total+r2.total+dmgMod;
+    const detail=`暴击 ${a.damage}×2: [${r1.rolls.join(',')}]+[${r2.rolls.join(',')}] ${dmgMod?fmt(dmgMod):''} = ${total} ${a.damageType}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`暴击-${a.name}`,total,detail);
+  });
+}
+
+/* === 法术对话框 === */
+function showSpellDialog(spell){
+  const sc=char.spellcasting;
+  const isCantrip=spell.lvl===0;
+  let slotOpts='';
+  if(!isCantrip){
+    const opts=[];
+    for(let lv=spell.lvl;lv<=9;lv++){
+      const s=sc.slots[lv]||{cur:0,max:0};
+      if(s.max===0)continue;
+      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${s.cur===0?'disabled':''}>${lv}环 (${s.cur}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
+    }
+    slotOpts=opts.join('')||'<option disabled>无可用法术位</option>';
+  }
+  openModal(`<h3>${isCantrip?'戏法':spell.lvl+'环'}：${spell.name}</h3>
+    <div class="modal-row" style="font-size:12px;color:var(--text-dim)">
+      <span>${spell.school||''}</span><span>·</span>
+      <span>${spell.ct||''}</span><span>·</span>
+      <span>${spell.range||''}</span><span>·</span>
+      <span>成分${spell.comp||''}</span><span>·</span>
+      <span>${spell.dur||''}</span>
+      ${spell.conc?'<span style="color:var(--accent)">·专注</span>':''}
+      ${spell.ritual?'<span style="color:var(--gold)">·仪式</span>':''}
+    </div>
+    <div style="margin:10px 0;font-size:13px;line-height:1.6">${spell.desc||''}</div>
+    ${!isCantrip?`<div class="modal-row"><span>消耗法术位：</span><select id="slot-sel">${slotOpts}</select></div>`:''}
+    <div id="cast-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
+      ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
+    </div>`);
+  document.getElementById('btn-roll-dmg').addEventListener('click',()=>{
+    let expr=spell.damage;
+    if(!expr){
+      expr=prompt('输入要投的骰子表达式（如 8d6, 3d4+3, 1d10）：','');
+      if(!expr)return;
+    }
+    const r=rollExpr(expr);
+    if(!r){alert('解析失败：'+expr);return}
+    document.getElementById('cast-result').innerHTML=`<div class="roll-result"><div class="total">${r.total}</div><div class="roll-detail">${expr}: [${r.rolls.join(',')}] ${r.mod?fmt(r.mod):''}</div></div>`;
+    pushHistory(`${spell.name}伤害`,r.total,`${expr}: [${r.rolls.join(',')}]`);
+  });
+  if(!isCantrip){
+    document.getElementById('btn-cast').addEventListener('click',()=>{
+      const sel=document.getElementById('slot-sel');
+      if(!sel.value){alert('无可用法术位');return}
+      const lv=parseInt(sel.value);
+      if(sc.slots[lv].cur>0){
+        sc.slots[lv].cur-=1;
+        saveChar();renderSpells();
+        pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位`);
+        closeModal();
+      }else alert('该环没可用法术位');
+    });
+  }
+}
+
+/* === HP 对话框 === */
+function showHPDialog(){
+  openModal(`<h3>HP / 临时HP / 死亡豁免</h3>
+    <div class="modal-row">
+      当前 <strong class="num" id="hp-cur-d">${char.combat.hpCur}</strong> /
+      上限 <input type="number" id="hp-max-i" value="${char.combat.hpMax}" style="width:70px">
+      · 临时 <input type="number" id="hp-temp-i" value="${char.combat.hpTemp}" style="width:70px">
+    </div>
+    <div class="modal-row">
+      <input type="number" id="hp-delta" placeholder="数值" value="0" style="width:80px">
+      <button class="primary" id="btn-hp-dmg">受伤</button>
+      <button id="btn-hp-heal">治疗</button>
+      <button id="btn-hp-full">满血</button>
+    </div>
+    <div class="modal-row">死豁：
+      <button id="btn-ds-s">+成功</button>
+      <button id="btn-ds-f">+失败</button>
+      <button id="btn-ds-r">重置</button>
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-hp-save">保存上限/临时</button>
+    </div>`);
+  const refresh=()=>{document.getElementById('hp-cur-d').textContent=char.combat.hpCur;renderCombat();renderStatus();saveChar()};
+  document.getElementById('btn-hp-dmg').addEventListener('click',()=>{
+    let d=parseInt(document.getElementById('hp-delta').value)||0;
+    if(d<=0)return;
+    if(char.combat.hpTemp>0){
+      const t=Math.min(char.combat.hpTemp,d);
+      char.combat.hpTemp-=t;d-=t;
+      document.getElementById('hp-temp-i').value=char.combat.hpTemp;
+    }
+    char.combat.hpCur=Math.max(0,char.combat.hpCur-d);
+    refresh();
+  });
+  document.getElementById('btn-hp-heal').addEventListener('click',()=>{
+    const d=parseInt(document.getElementById('hp-delta').value)||0;
+    char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+d);
+    refresh();
+  });
+  document.getElementById('btn-hp-full').addEventListener('click',()=>{char.combat.hpCur=char.combat.hpMax;refresh()});
+  const addDs=k=>{const a=char.combat.deathSaves[k];const idx=a.indexOf(false);if(idx>=0)a[idx]=true};
+  document.getElementById('btn-ds-s').addEventListener('click',()=>{addDs('success');refresh()});
+  document.getElementById('btn-ds-f').addEventListener('click',()=>{addDs('fail');refresh()});
+  document.getElementById('btn-ds-r').addEventListener('click',()=>{char.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};refresh()});
+  document.getElementById('btn-hp-save').addEventListener('click',()=>{
+    char.combat.hpMax=parseInt(document.getElementById('hp-max-i').value)||char.combat.hpMax;
+    char.combat.hpTemp=parseInt(document.getElementById('hp-temp-i').value)||0;
+    refresh();closeModal();
+  });
+}
+
+/* === 状态选择器 === */
+function showStatusPicker(){
+  openModal(`<h3>添加状态</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+      ${RULES.conditions.map(c=>`<button data-add-status="${c}">${c}</button>`).join('')}
+    </div>
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+  document.querySelectorAll('[data-add-status]').forEach(b=>b.addEventListener('click',()=>{
+    const s=b.dataset.addStatus;
+    char.combat.statusEffects=char.combat.statusEffects||[];
+    if(!char.combat.statusEffects.includes(s))char.combat.statusEffects.push(s);
+    saveChar();renderStatus();closeModal();
+  }));
+}
+
+/* === 全局点击委托 === */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.matches('[data-toggle-prof]')){
+    e.stopPropagation();
+    const sk=t.dataset.toggleProf;
+    const cur=(char.skills[sk]&&char.skills[sk].prof)||'none';
+    const cycle={none:'prof',prof:'expert',expert:'half',half:'none'};
+    char.skills[sk]=char.skills[sk]||{bonus:0};
+    char.skills[sk].prof=cycle[cur];
+    saveChar();renderSkills();return;
+  }
+  if(t.matches('[data-edit-name]')){
+    e.stopPropagation();
+    const v=prompt('角色名：',char.meta.name||'');
+    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();renderHeader()}
+    return;
+  }
+  if(t.matches('[data-edit-ab]')){
+    e.stopPropagation();
+    const ab=t.dataset.editAb;
+    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,char.abilities[ab].score);
+    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){char.abilities[ab].score=n;saveChar();render()}}
+    return;
+  }
+  if(t.matches('.slot-pip')){
+    const lv=parseInt(t.dataset.slot),i=parseInt(t.dataset.i);
+    const s=char.spellcasting.slots[lv];
+    if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+    s.used[i]=!s.used[i];
+    saveChar();renderSpells();return;
+  }
+  if(t.matches('.pip[data-res]')){
+    const ri=parseInt(t.dataset.res),i=parseInt(t.dataset.i);
+    const r=char.classResources[ri];
+    if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
+    r.used[i]=!r.used[i];
+    saveChar();renderResources();return;
+  }
+  if(t.matches('.death-pip')){
+    const k=t.dataset.ds,i=parseInt(t.dataset.i);
+    const ds=char.combat.deathSaves;
+    if(!Array.isArray(ds[k]))ds[k]=[false,false,false];
+    ds[k][i]=!ds[k][i];
+    saveChar();renderStatus();return;
+  }
+  if(t.id==='insp-toggle'){char.meta.inspiration=!char.meta.inspiration;saveChar();renderStatus();return}
+  if(t.id==='add-status'){showStatusPicker();return}
+  if(t.matches('[data-status-rm]')){
+    const s=t.dataset.statusRm;
+    char.combat.statusEffects=(char.combat.statusEffects||[]).filter(x=>x!==s);
+    saveChar();renderStatus();return;
+  }
+  if(t.closest('[data-roll="save"]')){
+    const ab=t.closest('[data-roll="save"]').dataset.ab;
+    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(char,ab));return;
+  }
+  if(t.closest('[data-roll="ability"]')){
+    const ab=t.closest('[data-roll="ability"]').dataset.ab;
+    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod(char.abilities[ab].score));return;
+  }
+  if(t.closest('[data-roll="skill"]')){
+    const sk=t.closest('[data-roll="skill"]').dataset.skill;
+    const skName=RULES.skills.find(s=>s.key===sk).name;
+    showRollDialog(`${skName}检定`,skillBonus(char,sk));return;
+  }
+  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(char));return}
+  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(char,'perception'));return}
+  if(t.closest('[data-roll="attack"]')){
+    const i=parseInt(t.closest('[data-roll="attack"]').dataset.i);
+    showAttackDialog(i);return;
+  }
+  if(t.closest('[data-spell-i]')){
+    const i=parseInt(t.closest('[data-spell-i]').dataset.spellI);
+    const sp=document.getElementById('spell-list')._allSpells[i];
+    showSpellDialog(sp);return;
+  }
+  if(t.closest('#hp-bar')){showHPDialog();return}
+  if(t.matches('[data-special-roll]')){triggerSpecialRoll(parseInt(t.dataset.specialRoll));return}
+  if(t.matches('[data-special-table]')){showSpecialRollTable(parseInt(t.dataset.specialTable));return}
+});
+
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.matches('[data-coin]')){
+    char.wealth[t.dataset.coin]=parseInt(t.value)||0;
+    saveChar();
+    document.getElementById('wealth-total').textContent=totalGP(char)+' GP';
+    return;
+  }
+  if(t.id==='notes-input'){char.meta.notes=t.value;saveChar();return}
+});
+
+/* === 短休 === */
+function consumeHdInteractive(){
+  const groups=classHdGroups(char);
+  const conMod=abMod(char.abilities.con.score);
+  let totalSpent=0,totalRecover=0;
+  const detail=[];
+  let remaining=char.combat.hdCur;
+  if(remaining<=0){alert('无可用 HD');return}
+  if(groups.length<=1){
+    const g=groups[0]||{hd:8,names:['']};
+    const v=parseInt(prompt(`要消耗几个 HD？（当前 ${char.combat.hdCur}/${char.combat.hdMax}，每个回 d${g.hd} + 体调 ${fmt(conMod)}）`,'0'))||0;
+    if(v<=0)return;
+    const useN=Math.min(v,remaining);
+    let sub=0;const rolls=[];
+    for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+    sub=Math.max(useN,sub);
+    totalSpent=useN;totalRecover=sub;
+    detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]+${conMod}×${useN}`);
+  }else{
+    for(const g of groups){
+      if(remaining<=0)break;
+      const cap=Math.min(g.levels,remaining);
+      if(cap<=0)continue;
+      const v=parseInt(prompt(`【${g.names.join('/')} d${g.hd}】消耗几个？\n该职业等级 ${g.levels}，HD 总池剩 ${remaining}，可消耗至多 ${cap}。`,'0'))||0;
+      if(v<=0)continue;
+      const useN=Math.min(v,cap);
+      let sub=0;const rolls=[];
+      for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+      sub=Math.max(useN,sub);
+      totalSpent+=useN;
+      totalRecover+=sub;
+      detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]`);
+      remaining-=useN;
+    }
+    if(totalSpent>0)detail.push(`+${conMod}×${totalSpent}`);
+  }
+  if(totalSpent===0)return;
+  char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+totalRecover);
+  char.combat.hdCur-=totalSpent;
+  pushHistory('短休HD',totalRecover,detail.join(' '));
+  alert(`恢复 ${totalRecover} HP`);
+}
+
+function shortRest(){
+  if(!confirm('短休 1 小时？\n- 可消耗 HD 恢复 HP\n- 恢复短休资源（激发、神力引导、专注点、契约位等）'))return;
+  for(const r of char.classResources||[]){if(r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  consumeHdInteractive();
+  saveChar();render();
+}
+
+/* === 长休 === */
+function longRest(){
+  if(!confirm('长休 8 小时？\n- HP 全满\n- HD 恢复半数（向下取整，至少 1）\n- 全部法术位回满\n- 恢复长休资源\n- 重置死亡豁免'))return;
+  char.combat.hpCur=char.combat.hpMax;
+  char.combat.hpTemp=0;
+  char.combat.hdCur=Math.min(char.combat.hdMax,char.combat.hdCur+Math.max(1,Math.floor(char.combat.hdMax/2)));
+  char.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};
+  if(char.spellcasting&&char.spellcasting.slots){
+    for(const lv of Object.keys(char.spellcasting.slots)){
+      const s=char.spellcasting.slots[lv];
+      s.used=Array(s.max).fill(false);
+    }
+  }
+  if(char.spellcasting&&char.spellcasting.spellPoints)char.spellcasting.spellPoints.cur=char.spellcasting.spellPoints.max;
+  for(const r of char.classResources||[]){if(r.resetType==='longRest'||r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  saveChar();render();
+  alert('长休完成');
+}
+
+/* === 骰史 === */
+function showHistory(){
+  const items=char.rollHistory||[];
+  openModal(`<h3>骰史 (最近 ${items.length})</h3>
+    <div class="history-list">
+      ${items.length===0?'<div style="color:var(--text-dim)">暂无</div>':
+        items.map(h=>`<div class="history-item">
+          <span class="label">${h.label}</span>
+          <span class="val num">${h.total}</span>
+          <div style="color:var(--text-dim);font-size:11px;margin-top:2px">${h.detail||''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button id="btn-clear-h">清空</button>
+    </div>`);
+  document.getElementById('btn-clear-h').addEventListener('click',()=>{
+    if(confirm('清空骰史？')){char.rollHistory=[];saveChar();closeModal()}
+  });
+}
+
+
+/* === 骰娘命令 === */
+function diceBotCmd(){
+  const ab=char.abilities;
+  const parts=[];
+  for(const k of ['str','dex','con','int','wis','cha']){
+    parts.push(`${RULES.abilityNames[k]}${ab[k].saveProf?'*':''}:${ab[k].score}`);
+  }
+  parts.push(`hp:${char.combat.hpCur}`);
+  parts.push(`hpmax:${char.combat.hpMax}`);
+  parts.push(`先攻:${initiative(char)}`);
+  parts.push(`ac:${ac(char)}`);
+  const dc=spellDC(char);if(dc!=null)parts.push(`dc:${dc}`);
+  parts.push(`pp:${passivePerception(char)}`);
+  parts.push(`熟练:${profBonus(char)}`);
+  for(const sk of RULES.skills){
+    const d=char.skills[sk.key]||{prof:'none'};
+    const mark=d.prof==='prof'?'*':d.prof==='expert'?'*2':d.prof==='half'?'*0.5':'';
+    parts.push(`${sk.name}${mark}:${skillBonus(char,sk.key)}`);
+  }
+  const cmd='.nn '+(char.meta.name||'人物卡')+'\n.dst '+parts.join(' ');
+  openModal(`<h3>骰娘命令导出</h3>
+    <p style="font-size:12px;color:var(--text-dim)">复制以下两行发到群里给骰娘（海豹/Olivia/Dice!/MDice/塔骰 等）。</p>
+    <textarea id="dst-ta" readonly style="width:100%;height:200px;font-family:monospace;font-size:12px"></textarea>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-copy-dst">复制</button>
+    </div>`);
+  document.getElementById('dst-ta').value=cmd;
+  document.getElementById('btn-copy-dst').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(cmd);alert('已复制')}
+    catch(e){document.getElementById('dst-ta').select();document.execCommand('copy');alert('已复制（兼容模式）')}
+  });
+}
+
+/* === 顶部按钮绑定 === */
+document.getElementById('btn-rest-short').addEventListener('click',shortRest);
+document.getElementById('btn-rest-long').addEventListener('click',longRest);
+document.getElementById('btn-history').addEventListener('click',showHistory);
+document.getElementById('btn-dice-cmd').addEventListener('click',diceBotCmd);
+document.getElementById('btn-theme').addEventListener('click',()=>{
+  const cur=document.body.dataset.theme||'dark';
+  document.body.dataset.theme=cur==='dark'?'light':'dark';
+  try{localStorage.setItem('dnd5r-theme',document.body.dataset.theme)}catch(e){}
+});
+
+/* === 启动 === */
+char=loadChar();
+try{const t=localStorage.getItem('dnd5r-theme');if(t)document.body.dataset.theme=t}catch(e){}
+render();
+</script>
+</body>
+</html>

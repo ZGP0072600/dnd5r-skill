@@ -1,0 +1,173 @@
+/*鏁翠綋閰嶇疆*/
+html,body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+/*鏍囬棰滆壊*/
+h1,h2,h3{
+	color:#800000;
+}
+/*鍒楄〃鑱氭嫝*/
+UL,OL{
+	margin-left: 24px;
+	margin-top: -16px;
+	margin-bottom: -16px;
+}
+BLOCKQUOTE{
+	margin-left: 24px;
+	margin-top: -16px;
+	margin-bottom: -16px;
+}
+/*涓嬪垝绾库啋鏈鏍煎紡*/
+U{
+	color: #008000;
+	font-weight: bold;
+	text-decoration: none;
+}
+/*涓嬪垝绾?鏂滀綋鈫掓硶鏈牸寮?/
+U EM,U I{
+	color: #704CD9;
+	font-style: italic;
+	font-weight: bold;
+
+}
+/*鏂滀綋+涓嬪垝绾库啋榄旀硶鐗╁搧鏍煎紡*/
+EM U,I U{
+	color: #0000ff;
+	font-style: normal;
+	font-weight: bold;
+
+}
+/*绮椾綋+涓嬪垝绾库啋鎬墿鏍煎紡*/
+B U,U B,STRONG U,U STRONG{
+	color: #ee3300;
+	font-style: normal;
+	font-weight: bold
+}
+/*娉曟湳椤典娇鐢╤4*/
+h4 {
+    color: #704cd9;
+    margin-bottom: -20px;
+	font-size: 140%;
+}
+/*鎬墿椤典娇鐢╤5*/
+div h5{
+	color: #800000;
+	font-weight: bold;
+	font-size: 140%;
+	margin-top: 0px;
+	margin-bottom: 5px;
+}
+/*閬撳叿椤典娇鐢╤6*/
+h6 {
+	color: #800000;
+    margin-bottom: -20px;
+	font-size: 115%;
+}
+/*灞呬腑妗?/
+div.center{
+	BORDER: #656565 2px solid;
+	WIDTH: 100%;
+	PADDING-BOTTOM: 10px;
+	PADDING-TOP: 10px;
+	PADDING-LEFT: 50px;
+	MARGIN-LEFT: 8%;
+	PADDING-RIGHT: 50px;
+	MARGIN-RIGHT: 8%;
+	BACKGROUND-COLOR: #ebd6c1;
+}
+/*澶囩敤鏁版嵁鍗℃*/
+div.stat-block{
+	margin-left: 24px;
+	width: 537px;
+	background-color: #F8F8F6;
+	padding: 15px;
+	border:3px double #808080;
+	font-size: 100%;;
+	margin-bottom:20px;
+}
+/*瀹炰緥鏂囨湰妗?/
+div.example{
+	font-family: "fangsong","浠垮畫",Arial, Helvetica, sans-serif;
+	WIDTH: 100%; 
+	BACKGROUND: #fff2cc; 
+	PADDING-BOTTOM: 10px; 
+	PADDING-TOP: 10px; 
+	PADDING-LEFT: 10px; 
+	MARGIN-LEFT: 5%; 
+	PADDING-RIGHT: 10px; 
+	MARGIN-RIGHT: 5%
+}
+/*瀹炰緥鍙虫*/
+div.ex-right{
+	BORDER: #656565 2px solid; 
+	WIDTH: 250px;
+	FLOAT: right; 
+	PADDING: 10px; 
+	BACKGROUND-COLOR: #ebd6c1; 
+	MARGIN-RIGHT: -10px
+}
+/*灏忕焊鏉℃*/
+div.paper{
+	BORDER: #000000 1px solid; 
+	font-family: "fangsong","浠垮畫",Arial, Helvetica, sans-serif;
+	PADDING-BOTTOM: 10px; 
+	PADDING-TOP: 10px; 
+	PADDING-LEFT: 50px; 
+	MARGIN-LEFT: 50px;
+	PADDING-RIGHT: 50px; 
+	MARGIN-RIGHT: 50px;
+	BACKGROUND-COLOR: #f3f6f9
+}
+/*绛惧悕*/
+img.xge{
+	HEIGHT: 40px;
+	WIDTH: 40px;
+	MARGIN-RIGHT: 20px
+}
+/*鍩虹琛ㄦ牸*/
+table.basic{
+	width: auto;
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 0;	
+}
+table.basic td{
+	padding: 2px;
+}
+table.basic th{
+	padding: 2px;
+	text-align:left;
+}
+table.center{
+	width: auto;
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 0;	
+	text-align:center;
+}
+table.center td{
+	padding: 2px;
+}
+table.part {
+	width: auto;
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 0;	
+}
+table.part td{
+	padding: 2px;
+}
+table.part th{
+	padding: 2px;
+	font-weight: normal;
+	text-align: center;
+}
+P.sum{
+	font-size: 115%;
+	MARGIN-TOP: -8px;
+	margin-bottom: -8px;
+	color: #808080;
+	font-weight: bold;
+	font-family: "fangsong","浠垮畫";
+
+}
