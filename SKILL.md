@@ -130,6 +130,40 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        ```
        规则：模板的 `getUpcastDamage(spell, castLvl)` 按 `castLvl - lvl` 算 extra，再据 `dice/repeat + perLevel` 合成新表达式。法术对话框监听 `slot-sel` change 事件，select 一变就刷新「投 XdY」按钮文字。**没 upcast 字段时不变**，向后兼容。
        **车卡时**：法术原文「升环施法」段落里有「每比一环高一环 +1d6 火焰伤害」→ `{dice:'1d6', perLevel:1}`；「每比基础环阶高一环多 1 道射线」→ `{repeat:'2d6', perLevel:1}`（或 `{repeat: 内层骰型, perLevel:1}`）。
+     - **伴生 / 变身 / 召唤**（char.companions，可选）：用于德鲁伊荒野形态、游侠 Beast Master 野兽伙伴、奇械师战铁卫 / 钢铁守护、召唤法术等所有"主体之外的独立 stat block"。每个 companion 是 char 的子集 schema：
+       ```json
+       "companions": [
+         {
+           "name": "棕熊（变身）",
+           "type": "wildShape",       // wildShape / companion / summon — 仅作 tab 角标
+           "abilities": { "str": {...}, "dex": {...}, ... 完整六项 },
+           "combat": {
+             "hpMax": 38, "hpCur": 38, "hpTemp": 15,
+             "acBase": 17, "speed": "40 (攀30)", "size": "大型",
+             "initBonus": 0, "statusEffects": []
+           },
+           "skills": { "perception": {"prof":"prof"}, ... },
+           "attacks": [{ "name":"啃咬", "ability":"str", "damage":"1d8", ... }],
+           "classResources": [],      // 多数空；战铁卫/铸剑师可用
+           "features": [{ "source":"动作", "name":"多重攻击", "desc":"..." }],
+           "notes": "棕熊数据卡来自《怪物图鉴 2025》..."
+         }
+       ]
+       ```
+       UI 行为：
+       - 当 `companions.length > 0` 时，header 下方自动出现 tab bar：「主体」「companion 1」「companion 2」...
+       - 点 tab 切换：除「状态/法术/装备/特殊投骰」外的所有 panel（战斗/属性/技能/攻击/资源/特性/笔记）都换成 companion 数据；那 4 个主体专属 panel **自动隐藏**
+       - HP 编辑、短休/长休、投属性骰/技能/攻击 在 companion tab 下都作用于该 companion
+       - 长休时主体 + 全部 companions 的 HP 全满 + classResources 按 resetType 重置
+       - 短休时主体 + 全部 companions 的「短休」类 classResources 重置
+       - **熟练加值（PB）共享主体的**——companion 没有 meta.classes，自动从主体取 PB
+       - tab 切换状态持久化到 char.meta.viewIndex（刷新后回到上次的 tab）
+       
+       **车卡时**（关键）：
+       - 玩家不会自己填 stat block——这是 skill 的活：从《怪物图鉴 X》查证野兽数据（HP/AC/速度/属性/攻击）+ 应用变身/召唤规则修正（如月亮结社变身 AC 提升、召唤法术施法者 PB 加成等），全部填进 companions 数组
+       - 德鲁伊变身的特殊性（PHB24）：HP 仍是主体的、INT/WIS/CHA 保留主体的；但 STR/DEX/CON、AC、速度、攻击是野兽的——companion JSON 里也按这个填即可（HP 字段填主体当前 HP，玩家心理映射；hpTemp 填月亮结社等加成的临时 HP）
+       - 月亮结社等子职可能修改变身 AC（13+感调）和临时 HP（×3）——填的时候直接套上修正后的值
+       - 多形态：每个野兽形态一个 companion 条目（棕熊、狼、巨蜘蛛...），玩家用哪个切到哪个 tab
      - **法术材料**（spell.material，可选）：D&D 5e 里材料分三类，模板按 `material` 字段自动给视觉/交互区分。spell（含 cantrips）支持：
        ```json
        // 普通可替代材料（奥术法器/成分包代）— 字符串简写即可

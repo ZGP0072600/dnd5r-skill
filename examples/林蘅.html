@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>柯薇尔 - DnD 5r</title>
+<title>林蘅 - DnD 5r</title>
 <style>
 :root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
 [data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
@@ -277,30 +277,31 @@ details summary:hover{color:var(--accent)}
 <script id="character-data" type="application/json">
 {
   "meta": {
-    "name": "柯薇尔",
+    "name": "林蘅",
     "player": "测试者",
-    "alignment": "混乱中立",
-    "faith": "暮裂之女（莉莉丝）",
-    "xp": 14000,
-    "notes": "测试卡 #2：用于验证 d100 法力狂潮表在 HTML 卡上的交互显示。\n\n点击「特殊投骰」面板里的「投 d100」按钮：\n  - 自动投 d100 → 弹窗显示落入区间 + 效果文字\n  - 若该效果带二级骰（5-8/17-20/57-60/97-100），自动续投并显示对应选项\n  - 结果记入骰史\n\n点「查表」可一次浏览整张 25 行 d100 表。\n\n规则：每回合一次，消耗法术位施展术士法术后投 d20，骰出 20 即触发表上效应；混乱之潮特性也可用法术位施法重置，但触发时自动跳过 d20 直接查表。",
+    "alignment": "中立善良",
+    "faith": "希莉夫（自然之女）",
+    "xp": 6500,
+    "notes": "测试卡 #4：用于验证 tab 切换 / 变身 companion。\n\n5 级人类德鲁伊（月亮结社）。点击顶部 tab 在「主体」与「棕熊（变身）」间切换。\n变身机制（PHB24）：\n  - HP 仍是德鲁伊主体的（卡上变身 panel 显示的 HP/HD 数值仅作野兽参考）\n  - 月亮结社 3 级临时 HP = 德鲁伊等级 × 3 = 15\n  - AC = max(野兽 AC=11, 13+感调=17) = 17\n  - 攻击/伤害用野兽数据卡的值\n  - 智/感/魅、职业特性、语言、专长保留主体的\n  - 技能/豁免熟练保留主体的；主体熟练加值 +3 用于这些检定（若野兽数据卡值更高则用其）\n  - 不能施法（18级才解锁）\n\n车卡时填好 companion 数据；玩家变身就切到 companion tab 用棕熊的攻击和 AC，记得心算 HP/HD 仍以主体为准。",
     "classes": [
       {
-        "name": "术士",
-        "subclass": "狂野术法（混沌施法）",
-        "level": 7
+        "name": "德鲁伊",
+        "subclass": "月亮结社",
+        "level": 5
       }
     ],
     "race": {
       "name": "人类",
       "subrace": ""
     },
-    "background": "贵族",
+    "background": "隐士",
     "inspiration": false,
-    "charId": "柯薇尔-78372846"
+    "viewIndex": -1,
+    "charId": "林蘅-78372846"
   },
   "abilities": {
     "str": {
-      "score": 8,
+      "score": 10,
       "saveProf": false,
       "saveBonus": 0
     },
@@ -310,37 +311,37 @@ details summary:hover{color:var(--accent)}
       "saveBonus": 0
     },
     "con": {
-      "score": 14,
-      "saveProf": true,
+      "score": 15,
+      "saveProf": false,
       "saveBonus": 0
     },
     "int": {
-      "score": 11,
-      "saveProf": false,
+      "score": 8,
+      "saveProf": true,
       "saveBonus": 0
     },
     "wis": {
-      "score": 12,
-      "saveProf": false,
+      "score": 19,
+      "saveProf": true,
       "saveBonus": 0
     },
     "cha": {
-      "score": 20,
-      "saveProf": true,
+      "score": 10,
+      "saveProf": false,
       "saveBonus": 0
     }
   },
   "combat": {
-    "hpMax": 44,
-    "hpCur": 44,
+    "hpMax": 38,
+    "hpCur": 38,
     "hpTemp": 0,
-    "hdMax": 7,
-    "hdCur": 7,
-    "acBase": 12,
+    "hdMax": 5,
+    "hdCur": 5,
+    "acBase": 15,
     "acBonus": 0,
     "speed": 30,
     "size": "中型",
-    "initBonus": 3,
+    "initBonus": 0,
     "deathSaves": {
       "success": [
         false,
@@ -356,26 +357,11 @@ details summary:hover{color:var(--accent)}
     "resistance": "",
     "immunity": "",
     "advantage": "",
-    "statusEffects": []
+    "statusEffects": [],
+    "concentration": null
   },
   "skills": {
-    "arcana": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "deception": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "history": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "persuasion": {
-      "prof": "prof",
-      "bonus": 0
-    },
-    "insight": {
+    "nature": {
       "prof": "prof",
       "bonus": 0
     },
@@ -383,11 +369,15 @@ details summary:hover{color:var(--accent)}
       "prof": "prof",
       "bonus": 0
     },
-    "intimidation": {
+    "perception": {
       "prof": "prof",
       "bonus": 0
     },
-    "perception": {
+    "medicine": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "survival": {
       "prof": "prof",
       "bonus": 0
     },
@@ -396,30 +386,41 @@ details summary:hover{color:var(--accent)}
   },
   "attacks": [
     {
-      "name": "匕首",
-      "ability": "dex",
+      "name": "弯刀",
+      "ability": "str",
       "attackBonus": 0,
-      "damage": "1d4",
+      "damage": "1d6",
       "damageBonus": 0,
-      "damageType": "穿刺",
-      "properties": "灵巧, 投掷(20/60)",
+      "damageType": "挥砍",
+      "properties": "灵巧, 轻型",
       "mastery": "虚招 Nick",
       "attuned": false
     },
     {
+      "name": "长棍 (双手)",
+      "ability": "str",
+      "attackBonus": 0,
+      "damage": "1d8",
+      "damageBonus": 0,
+      "damageType": "钝击",
+      "properties": "多用(1d6/1d8)，德鲁伊法器",
+      "mastery": "突刺 Topple",
+      "attuned": false
+    },
+    {
       "name": "法术攻击",
-      "ability": "cha",
+      "ability": "wis",
       "attackBonus": 0,
       "damage": "1d10",
       "damageBonus": 0,
       "damageType": "—",
-      "properties": "法术攻击：+8 / DC 16；先天术法激活时 DC 17 且法术攻击有优势",
+      "properties": "法术攻击 +7 / DC 15",
       "mastery": "—",
       "attuned": false
     }
   ],
   "spellcasting": {
-    "castingAbility": "cha",
+    "castingAbility": "wis",
     "extraDcBonus": 0,
     "extraAttackBonus": 0,
     "slots": {
@@ -441,18 +442,15 @@ details summary:hover{color:var(--accent)}
         ]
       },
       "3": {
-        "max": 3,
+        "max": 2,
         "used": [
-          false,
           false,
           false
         ]
       },
       "4": {
-        "max": 1,
-        "used": [
-          false
-        ]
+        "max": 0,
+        "used": []
       },
       "5": {
         "max": 0,
@@ -477,201 +475,141 @@ details summary:hover{color:var(--accent)}
     },
     "cantrips": [
       {
-        "name": "光亮术",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "触及",
-        "comp": "V,M",
-        "dur": "1小时",
-        "desc": "使一件物体发出半径 20 尺的明亮光照。"
-      },
-      {
-        "name": "魔法伎俩",
+        "name": "塑器",
         "school": "变化",
         "ct": "1动作",
-        "range": "10尺",
-        "comp": "V,S",
-        "dur": "最长1小时",
-        "desc": "造成微小魔法效果（声响/风/调味/清洁/冰镇/点燃/灭火/小印记/小物件）。"
-      },
-      {
-        "name": "电爪",
-        "school": "唤法",
-        "ct": "1动作",
         "range": "触及",
         "comp": "V,S",
         "dur": "瞬间",
-        "damage": "2d8",
-        "desc": "近战法术攻击造成 1d8（5/11/17 级 +1d8）闪电；命中后下次目标对你的攻击劣势。"
+        "desc": "塑造泥土/木头/石头/植物等小物。"
       },
       {
-        "name": "术法爆发",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "120尺",
-        "comp": "V,S",
-        "dur": "瞬间",
-        "damage": "2d8",
-        "desc": "远程法术攻击：1d8（5/11/17 级 +1d8）你选择的伤害类型。命中骰最高数则可累加另一个 1d8。"
+        "name": "火焰刀",
+        "school": "塑能",
+        "ct": "1附赠动作",
+        "range": "自身",
+        "comp": "V,S,M",
+        "dur": "专注10分钟",
+        "damage": "3d6",
+        "conc": true,
+        "desc": "持续 10 分钟召唤火焰刃，附赠动作攻击：1d10+力 火焰；释放投掷 30 尺 3d6 火焰豁免减半。"
       },
       {
-        "name": "火焰矢",
-        "school": "唤法",
+        "name": "德鲁伊伎俩",
+        "school": "变化",
         "ct": "1动作",
-        "range": "120尺",
+        "range": "30尺",
         "comp": "V,S",
-        "dur": "瞬间",
-        "damage": "2d10",
-        "desc": "远程法术攻击造成 1d10 火焰伤害（5/11/17 级 +1d10）。"
+        "dur": "最长1小时",
+        "desc": "自然小魔术（声音/植物开花/小动物哨声/季节小变化）。"
       }
     ],
     "spells": [
       {
         "lvl": 1,
-        "name": "护盾",
+        "name": "疗伤术",
         "school": "防护",
-        "ct": "反应",
-        "range": "自身",
-        "comp": "V,S",
-        "dur": "1轮",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "desc": "反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。"
-      },
-      {
-        "lvl": 1,
-        "name": "魔法飞弹",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "120尺",
-        "comp": "V,S",
-        "dur": "瞬间",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "damage": "3d4+3",
-        "desc": "3 支飞弹各 1d4+1 力场伤害自动命中。升环 +1 支。"
-      },
-      {
-        "lvl": 1,
-        "name": "燃烧之手",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "自身(15尺锥)",
-        "comp": "V,S",
-        "dur": "瞬间",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "damage": "3d6",
-        "desc": "15 尺锥范围内每个生物受 3d6 火焰伤害（敏豁减半）。升环 +1d6。"
-      },
-      {
-        "lvl": 1,
-        "name": "睡眠术",
-        "school": "咒法",
-        "ct": "1动作",
-        "range": "90尺",
-        "comp": "V,S,M",
-        "dur": "1分钟",
-        "prepared": true,
-        "ritual": false,
-        "conc": true,
-        "desc": "5d8 HP 之内的生物（按当前 HP 升序）陷入沉睡。被攻击/摇晃即醒。"
-      },
-      {
-        "lvl": 2,
-        "name": "镜影术",
-        "school": "幻术",
-        "ct": "1动作",
-        "range": "自身",
-        "comp": "V,S",
-        "dur": "1分钟",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "desc": "生成 3 个分身吸引攻击。"
-      },
-      {
-        "lvl": 2,
-        "name": "灼焰光线",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "120尺",
-        "comp": "V,S",
-        "dur": "瞬间",
-        "prepared": true,
-        "ritual": false,
-        "conc": false,
-        "damage": "3×2d6",
-        "desc": "3 道光线各做远程法术攻击：命中造成 2d6 火焰。升环 +1 道。"
-      },
-      {
-        "lvl": 2,
-        "name": "隐形术",
-        "school": "幻术",
         "ct": "1动作",
         "range": "触及",
-        "comp": "V,S,M",
-        "dur": "专注1小时",
-        "prepared": true,
-        "ritual": false,
-        "conc": true,
-        "desc": "目标隐形 1 小时（攻击/施法即终止）。"
-      },
-      {
-        "lvl": 3,
-        "name": "火球术",
-        "school": "唤法",
-        "ct": "1动作",
-        "range": "150尺",
-        "comp": "V,S,M",
+        "comp": "V,S",
         "dur": "瞬间",
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "damage": "8d6",
-        "desc": "20 尺半径球内每个生物受 8d6 火焰（敏豁减半）。升环 +1d6。"
+        "damage": "1d8",
+        "upcast": {
+          "dice": "1d8",
+          "perLevel": 1
+        },
+        "desc": "目标恢复 1d8+施法属性 HP。升环每环 +1d8。【月亮结社始终准备】"
       },
       {
-        "lvl": 3,
-        "name": "反制法术",
-        "school": "防护",
-        "ct": "反应",
+        "lvl": 1,
+        "name": "点点星芒",
+        "school": "塑能",
+        "ct": "1动作",
         "range": "60尺",
-        "comp": "S",
+        "comp": "V,S",
         "dur": "瞬间",
         "prepared": true,
         "ritual": false,
         "conc": false,
-        "desc": "反应：使一个目标的施法尝试失败（≤3环自动；更高环要 DC10+环 法术能力检定）。"
+        "damage": "1d8",
+        "upcast": {
+          "dice": "1d8",
+          "perLevel": 1
+        },
+        "desc": "远程法术攻击 1d8 光耀伤害；命中后下次对其的攻击具有优势。升环每环 +1d8。【月亮结社始终准备】"
       },
       {
-        "lvl": 3,
-        "name": "飞行术",
-        "school": "变化",
+        "lvl": 1,
+        "name": "妖光",
+        "school": "塑能",
         "ct": "1动作",
-        "range": "触及",
+        "range": "60尺",
+        "comp": "V",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "desc": "目标 DEX 豁免（DC 15）失败则被光环包围 1 分钟，对目标的攻击具有优势，目标无法获益于隐形。"
+      },
+      {
+        "lvl": 1,
+        "name": "荆棘缠身",
+        "school": "变化",
+        "ct": "1附赠动作",
+        "range": "自身",
         "comp": "V,S,M",
         "dur": "专注10分钟",
         "prepared": true,
         "ritual": false,
         "conc": true,
-        "desc": "目标获得 60 尺飞行速度。"
+        "desc": "自身长出尖刺：5 尺内攻击你的生物受 1d6+敏 穿刺；移动经过你 5 尺方需做 STR 豁免否则速度 0 当回合。"
       },
       {
-        "lvl": 4,
-        "name": "变形术",
+        "lvl": 2,
+        "name": "月华之光",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "120尺",
+        "comp": "V,S,M",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "damage": "2d10",
+        "upcast": {
+          "dice": "1d10",
+          "perLevel": 1
+        },
+        "desc": "5 尺半径 40 尺高的圆柱内每个进入或起回合的生物 CON 豁免，败则 2d10 辐光，成功半减。可附赠动作每回合移动 60 尺光柱。【月亮结社始终准备】"
+      },
+      {
+        "lvl": 2,
+        "name": "动物变形",
         "school": "变化",
         "ct": "1动作",
-        "range": "60尺",
-        "comp": "V,S,M",
+        "range": "30尺",
+        "comp": "V,S",
         "dur": "专注1小时",
         "prepared": true,
         "ritual": false,
         "conc": true,
-        "desc": "将生物变为一只 CR ≤ 目标等级 的野兽。"
+        "desc": "3 个目标变形为不超过 CR 1/4 的野兽。"
+      },
+      {
+        "lvl": 3,
+        "name": "咒唤兽群",
+        "school": "咒法",
+        "ct": "1动作",
+        "range": "90尺",
+        "comp": "V,S",
+        "dur": "专注1小时",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "desc": "召唤一群兽形精魂攻击 5 尺内目标。【月亮结社始终准备】"
       }
     ],
     "spellPoints": {
@@ -681,242 +619,44 @@ details summary:hover{color:var(--accent)}
   },
   "classResources": [
     {
-      "key": "sorceryPoints",
-      "label": "术法点",
-      "resetType": "longRest",
-      "max": 7,
-      "used": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "desc": "魔力泉涌：1 法术位 → 等环位术法点（无需动作）；附赠动作消耗术法点造法术位（1环=2点；2环=3点；3环=5点；4环=6点；5环=7点）。也用于驱动超魔法。"
-    },
-    {
-      "key": "innateSorcery",
-      "label": "先天术法（每次1分钟）",
-      "resetType": "longRest",
+      "key": "wildShape",
+      "label": "荒野变形",
+      "resetType": "shortRest",
       "max": 2,
       "used": [
         false,
         false
       ],
-      "desc": "附赠动作激活 1 分钟：法术 DC +1，术士法术攻击检定具有优势。7 级时若用尽，可消耗 2 术法点继续激活；激活时每法术可叠加最多两个超魔法选项。"
+      "desc": "魔法动作变身野兽。月亮结社 5 级：CR ≤ ⌊5/3⌋=1；变身时获得 15 临时 HP（5×3）；AC = max(野兽AC, 13+4=17)。短/长休恢复。"
     },
     {
-      "key": "tideOfChaos",
-      "label": "混乱之潮",
+      "key": "wildResurgence",
+      "label": "荒野复苏（位↔变形）",
       "resetType": "longRest",
       "max": 1,
       "used": [
         false
       ],
-      "desc": "对自身一次 d20 检定加优势（投骰前决定）。长休恢复；用法术位施法时也会恢复，但此时强制于狂野魔法浪涌表上掷骰（无需 d20 触发）。"
+      "desc": "5 级：每回合一次，可消耗 1 法术位（无需动作）换 1 次荒野变形；或消耗 1 次荒野变形换 1 个一环法术位（每长休一次）。"
     },
     {
-      "key": "sorcerousRestoration",
-      "label": "术法复苏（短休回点）",
+      "key": "wildCompanion",
+      "label": "荒野伙伴 (寻获魔宠)",
       "resetType": "longRest",
       "max": 1,
       "used": [
         false
       ],
-      "desc": "短休时使用：恢复 ≤ 术士等级一半（向下取整，7级=3）的已消耗术法点。每长休一次。"
+      "desc": "魔法动作消耗 1 法术位或 1 次荒野变形施展寻获魔宠。妖精魔宠在长休时消失。"
     }
   ],
-  "specialRolls": [
-    {
-      "key": "wildSurge",
-      "label": "法力狂潮 Wild Magic Surge",
-      "die": "d100",
-      "desc": "<strong>触发：</strong>每回合一次，消耗法术位施展<em>术士法术</em>后掷 d20；掷出 20 即查本表。<br><strong>混乱之潮</strong>用法术位重置时也会触发本表（无需 d20）。<br><span style=\"color:var(--gold)\">14 级：投两次取一；18 级：可直接选择（不能选末行）。</span>",
-      "table": [
-        {
-          "min": 1,
-          "max": 4,
-          "effect": "下 1 分钟内，你在每次自己回合开始时重投本表，并在后续掷骰中跳过本结果。"
-        },
-        {
-          "min": 5,
-          "max": 8,
-          "effect": "一名对你<strong>友善</strong>的生物出现在 60 尺内随机一处未占据空间，由 DM 控制，1 分钟后消失。",
-          "subRoll": {
-            "die": "d4",
-            "options": [
-              "二元魔冢 Modron Duodrone",
-              "呋噜 Flumph",
-              "单元魔冢 Modron Monodrone",
-              "独角兽 Unicorn"
-            ]
-          }
-        },
-        {
-          "min": 9,
-          "max": 12,
-          "effect": "下 1 分钟内，你在每个自己回合开始时恢复 5 生命值。"
-        },
-        {
-          "min": 13,
-          "max": 16,
-          "effect": "下 1 分钟内，你施展的第一个需要豁免的法术，目标进行豁免时具有<strong>劣势</strong>。"
-        },
-        {
-          "min": 17,
-          "max": 20,
-          "effect": "你获得一个持续 1 分钟的效应（除非另有说明）。",
-          "subRoll": {
-            "die": "d8",
-            "options": [
-              "你被只有你和距你 5 尺内生物才能听到的空灵音乐声环绕。",
-              "你的体型增大一级。",
-              "你脸上长出羽毛络腮胡，打喷嚏时羽毛炸开消失。",
-              "你说话时必须大声喊叫。",
-              "距你 10 尺范围内出现飞舞的虚幻蝴蝶。",
-              "你的前额长出第三只眼，使你在感知（察觉）检定上获得优势。",
-              "你一说话就会吐出粉色的泡泡。",
-              "你的皮肤透出蓝色，持续 24 小时；移除诅咒可结束此效应。"
-            ]
-          }
-        },
-        {
-          "min": 21,
-          "max": 24,
-          "effect": "下 1 分钟内，你所有施法时间为「动作」的法术施法时间变为「附赠动作」。"
-        },
-        {
-          "min": 25,
-          "max": 28,
-          "effect": "你被转移到星光位面，直至你的下一回合结束时；随后回到原空间或最近未占据空间。"
-        },
-        {
-          "min": 29,
-          "max": 32,
-          "effect": "下 1 分钟内，你施展的下一道造成伤害的法术，所有伤害骰直接<strong>取满</strong>（不掷骰）。"
-        },
-        {
-          "min": 33,
-          "max": 36,
-          "effect": "下 1 分钟内，你具有所有伤害类型的<strong>抗性</strong>。"
-        },
-        {
-          "min": 37,
-          "max": 40,
-          "effect": "你变成一棵植物盆栽至下个回合开始；失能且对所有伤害易伤；HP 降至 0 则花盆碎裂恢复原形。"
-        },
-        {
-          "min": 41,
-          "max": 44,
-          "effect": "下 1 分钟内，你能够在每个自己回合内以一个附赠动作传送至多 20 尺。"
-        },
-        {
-          "min": 45,
-          "max": 48,
-          "effect": "你和至多 3 名 30 尺内由你选择的生物获得<strong>隐形</strong> 1 分钟（攻击/造成伤害/施法即终止）。"
-        },
-        {
-          "min": 49,
-          "max": 52,
-          "effect": "下 1 分钟内，灵体盾悬浮在你周围，AC <strong>+2</strong>，并免疫<em>魔法飞弹</em>。"
-        },
-        {
-          "min": 53,
-          "max": 56,
-          "effect": "你可以在本回合执行一个<strong>额外的动作</strong>。"
-        },
-        {
-          "min": 57,
-          "max": 60,
-          "effect": "你施展一道随机法术，持续到其最大持续时间结束（即使原本需要专注也无需）。",
-          "subRoll": {
-            "die": "d10",
-            "options": [
-              "困惑术 Confusion",
-              "火球术 Fireball",
-              "云雾术 Fog Cloud",
-              "飞行术 Fly（向 60 尺内一名随机生物施展）",
-              "油腻术 Grease",
-              "浮空术 Levitate（对自身）",
-              "魔法飞弹 Magic Missile（作为 5 环施展）",
-              "镜影术 Mirror Image",
-              "变形术 Polymorph（对自身；豁免失败变山羊）",
-              "识破隐形 See Invisibility"
-            ]
-          }
-        },
-        {
-          "min": 61,
-          "max": 64,
-          "effect": "下 1 分钟内，你触碰任何未被着装/携带的非魔法可燃物件都会燃起火焰，受 1d4 火焰伤害并开始燃烧。"
-        },
-        {
-          "min": 65,
-          "max": 68,
-          "effect": "如果你在下 1 小时内死亡，你立刻复活，如同被<em>转生术</em>所复活一般。"
-        },
-        {
-          "min": 69,
-          "max": 72,
-          "effect": "你陷入<strong>恐慌</strong>状态，直至你的下一回合结束。由 DM 决定恐惧源。"
-        },
-        {
-          "min": 73,
-          "max": 76,
-          "effect": "你<strong>传送</strong>至多 60 尺，至一处你可见的未占据空间。"
-        },
-        {
-          "min": 77,
-          "max": 80,
-          "effect": "位于你 60 尺内的一名随机生物陷入<strong>中毒</strong>状态，持续 1d4 小时。"
-        },
-        {
-          "min": 81,
-          "max": 84,
-          "effect": "下 1 分钟内，你发出半径 30 尺的明亮光照。任何在你 5 尺内结束其回合的生物将陷入<strong>目盲</strong>，直至其下个回合结束。"
-        },
-        {
-          "min": 85,
-          "max": 88,
-          "effect": "选择至多 3 名 30 尺内可见生物，各受 <strong>1d10 暗蚀</strong>伤害；你恢复等于以此法造成暗蚀伤害总和的 HP。"
-        },
-        {
-          "min": 89,
-          "max": 92,
-          "effect": "选择至多 3 名 30 尺内可见生物，各受 <strong>4d10 闪电</strong>伤害。"
-        },
-        {
-          "min": 93,
-          "max": 96,
-          "effect": "下 1 分钟内，你和位于你 30 尺内所有生物对穿刺伤害<strong>易伤</strong>。"
-        },
-        {
-          "min": 97,
-          "max": 100,
-          "effect": "投 d6 决定特殊事件：",
-          "subRoll": {
-            "die": "d6",
-            "options": [
-              "你恢复 2d10 生命值。",
-              "你选择 300 尺内一名盟友恢复 2d10 生命值。",
-              "你恢复一个已消耗的最低环阶法术位。",
-              "你选择 300 尺内一名盟友恢复一个已消耗的最低环阶法术位。",
-              "你重获所有已消耗的术法点。",
-              "17-20 行所述的所有效应同时作用于你身上（一次掷出 8 项全开！）。"
-            ]
-          }
-        }
-      ]
-    }
-  ],
+  "specialRolls": [],
   "equipment": {
     "armor": {
-      "name": "（无甲）",
-      "ac": 10,
+      "name": "镶钉皮甲 + 木盾",
+      "ac": 15,
       "dexLimit": null,
-      "weight": 0,
+      "weight": 19,
       "attuned": false,
       "equipped": true
     },
@@ -929,60 +669,46 @@ details summary:hover{color:var(--accent)}
     },
     "items": [
       {
-        "name": "奥术法器（水晶吊坠）",
-        "weight": 1,
+        "name": "长棍（德鲁伊法器）",
+        "weight": 4,
         "qty": 1,
         "attuned": false,
-        "desc": "施法法器。"
+        "desc": "施法法器；多用 1d6/1d8 钝击"
       },
       {
-        "name": "匕首",
-        "weight": 1,
-        "qty": 2,
-        "attuned": false,
-        "desc": ""
-      },
-      {
-        "name": "矛",
+        "name": "弯刀",
         "weight": 3,
         "qty": 1,
         "attuned": false,
         "desc": ""
       },
       {
-        "name": "地城套组",
-        "weight": 12,
+        "name": "草药套组",
+        "weight": 3,
         "qty": 1,
         "attuned": false,
-        "desc": "撬棍/锤子/木桩/火炬×10/火绒/口粮×10/水袋/绳索。"
+        "desc": "炼制治疗药草。"
       },
       {
-        "name": "高档服装",
-        "weight": 6,
+        "name": "斥候套组",
+        "weight": 11,
         "qty": 1,
         "attuned": false,
-        "desc": "贵族出身。"
+        "desc": "兜帽斗篷+毯子+干草+口粮×10+水袋+50尺绳+火绒"
       },
       {
-        "name": "香水",
-        "weight": 0,
+        "name": "鱼竿+饵盒",
+        "weight": 4,
         "qty": 1,
         "attuned": false,
-        "desc": ""
+        "desc": "隐士套组示范"
       },
       {
-        "name": "骰具（赌具）",
-        "weight": 0,
+        "name": "羊皮纸×8 + 墨水瓶 + 笔",
+        "weight": 1,
         "qty": 1,
         "attuned": false,
-        "desc": "贵族工具熟练。"
-      },
-      {
-        "name": "家族印章戒指",
-        "weight": 0,
-        "qty": 1,
-        "attuned": false,
-        "desc": "贵族凭证。"
+        "desc": "隐士背景：研究/笔记"
       }
     ]
   },
@@ -990,89 +716,198 @@ details summary:hover{color:var(--accent)}
     "cp": 0,
     "sp": 0,
     "ep": 0,
-    "gp": 29,
+    "gp": 8,
     "pp": 0
   },
   "features": [
     {
       "source": "种族（人类）",
-      "name": "适应力 Resourceful",
-      "desc": "每次长休后获得一次英雄激励。"
+      "name": "适应力 / 技能 / 多才多艺",
+      "desc": "长休获得英雄激励；自选 1 项技能熟练（已含：求生）；起源专长 <strong>健壮 Tough</strong>（HP 上限 +10）。"
     },
     {
-      "source": "种族（人类）",
-      "name": "技能 Skillful",
-      "desc": "获得一项自选技能熟练（已计入：察觉）。"
+      "source": "背景（隐士）",
+      "name": "起始专长：医疗师 Healer",
+      "desc": "用医疗包稳定濒死目标 + 立即恢复 1 HP；动作消耗医疗包 1 次让一个目标恢复 1d6+4+生物 HD 数 HP。"
     },
     {
-      "source": "种族（人类）",
-      "name": "多才多艺 Versatile",
-      "desc": "起源专长：警戒 Alert（先攻 +熟练加值=+3；可与友方互换先攻骰）。"
-    },
-    {
-      "source": "背景（贵族）",
-      "name": "起始专长：熟习 Skilled",
-      "desc": "三项自选技能/工具熟练（已计入：洞悉、宗教、威吓）。"
-    },
-    {
-      "source": "背景（贵族）",
+      "source": "背景（隐士）",
       "name": "技能与工具",
-      "desc": "历史、游说熟练；赌具（骰具）熟练。"
+      "desc": "医药、宗教熟练；草药套组熟练。"
     },
     {
-      "source": "术士1级",
-      "name": "施法 Spellcasting",
-      "desc": "魅力施法。法术 DC = 8 + 3 + 5 = <strong>16</strong>；法术攻击 +<strong>8</strong>。施法法器：奥术法器。"
+      "source": "德鲁伊 1 级",
+      "name": "施法 Spellcasting（感知）",
+      "desc": "DC <strong>15</strong> / 法术攻击 +<strong>7</strong>；施法法器：德鲁伊法器（长棍）。"
     },
     {
-      "source": "术士1级",
-      "name": "先天术法 Innate Sorcery",
-      "desc": "附赠动作激活 1 分钟：法术 DC +1（→17），术士法术攻击具有优势。每长休 2 次。"
+      "source": "德鲁伊 1 级",
+      "name": "原力魔法 Druidic",
+      "desc": "知晓德鲁伊密语 Druidic（隐藏字母透传，仅其他德鲁伊能解）。"
     },
     {
-      "source": "术士2级",
-      "name": "魔力泉涌 Font of Magic",
-      "desc": "拥有 7 术法点。可消耗法术位换术法点（=环位）；可附赠动作以术法点造法术位（1环=2点；2环=3点；3环=5点；4环=6点；5环=7点）。"
+      "source": "德鲁伊 2 级",
+      "name": "荒野变形 Wild Shape",
+      "desc": "魔法动作变身野兽 / 妖精精魂。变身时使用野兽数据卡，但保留心智属性、HP/HD、专长、语言、技能/豁免熟练。每短/长休 2 次。<br>5 级德鲁伊：已知形态 6，CR ≤ 1/2（月亮结社 ≤ 1）。"
     },
     {
-      "source": "术士2级",
-      "name": "超魔法 Metamagic（×2）",
-      "desc": "已选：<strong>双胞法术 Twinned Spell</strong>（消耗 1+ 点：让单目标法术同时影响第二个目标）+ <strong>谨慎法术 Careful Spell</strong>（1 点：选择若干友方在你的伤害/控制法术中自动豁免成功）。"
+      "source": "德鲁伊 2 级",
+      "name": "荒野伙伴 Wild Companion",
+      "desc": "消耗 1 法术位或 1 次荒野变形施寻获魔宠（无材料），魔宠为妖精，长休时消失。"
     },
     {
-      "source": "狂野术法3级",
-      "name": "狂野魔法浪涌 Wild Magic Surge",
-      "desc": "每回合一次，用法术位施展术士法术后立即投 d20；掷出 20 即在 d100 法力狂潮表上掷骰。详见「特殊投骰」面板按钮。"
+      "source": "月亮结社 3 级",
+      "name": "结社形态 Circle Forms",
+      "desc": "增益荒野变形：CR 上限提升至 ⌊德鲁伊等级/3⌋（5 级 = 1）；变身 AC = max(野兽AC, 13+感知调整=17)；变身时获得德鲁伊等级 × 3（=15）临时 HP。"
     },
     {
-      "source": "狂野术法3级",
-      "name": "混乱之潮 Tide of Chaos",
-      "desc": "每长休 1 次：自身一次 d20 检定具有优势（投骰前决定）。用法术位施法时此特性也会恢复——但此时强制于法力狂潮表上掷骰（无需 d20 触发）。"
+      "source": "月亮结社 3 级",
+      "name": "始终准备的法术",
+      "desc": "疗伤术、点点星芒、月华之光（5 级），咒唤兽群。"
     },
     {
-      "source": "术士4级",
+      "source": "德鲁伊 4 级",
       "name": "属性提升",
-      "desc": "魅力 +2 → 19。"
+      "desc": "感知 +2 → 19。"
     },
     {
-      "source": "术士5级",
-      "name": "术法复苏 Sorcerous Restoration",
-      "desc": "短休时恢复至多 ⌊术士等级/2⌋=3 的已消耗术法点。每长休一次。"
+      "source": "德鲁伊 5 级",
+      "name": "荒野复苏 Wild Resurgence",
+      "desc": "每回合一次：消耗 1 法术位（无需动作）回 1 次荒野变形；或消耗 1 次荒野变形回 1 个一环法术位（每长休一次）。"
     },
     {
-      "source": "狂野术法6级",
-      "name": "扭曲幸运 Bend Luck",
-      "desc": "他人投 d20 检定后，你可反应消耗 1 术法点投 1d4，作为加值或减值（你决定）附加到该 d20 上。"
-    },
+      "source": "提示",
+      "name": "<span style=\"color:var(--gold)\">变身用法</span>",
+      "desc": "切到「棕熊」tab 即可看到变身后的属性、AC、攻击。<br>注意：HP/HD 仍是<strong>主体</strong>的——变身只换 STR/DEX/CON、AC、速度、攻击，不换 HP；月亮结社加 15 临时 HP（点 HP 编辑手动加临时）。<br>变身期间想看法术/装备就切回主体 tab。"
+    }
+  ],
+  "companions": [
     {
-      "source": "术士6级",
-      "name": "属性提升",
-      "desc": "魅力 +1 → 20，体质 +1 → 14。"
-    },
-    {
-      "source": "术士7级",
-      "name": "术法化身 Sorcery Incarnate",
-      "desc": "先天术法用尽时可消耗 2 术法点继续激活；激活期间每法术最多叠加 2 个超魔法选项。"
+      "name": "棕熊（变身）",
+      "type": "wildShape",
+      "abilities": {
+        "str": {
+          "score": 17,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 12,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "40 (攀30)",
+        "size": "大型",
+        "initBonus": 0,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof",
+          "bonus": 0
+        },
+        "religion": {
+          "prof": "prof",
+          "bonus": 0
+        },
+        "perception": {
+          "prof": "prof",
+          "bonus": 0
+        },
+        "medicine": {
+          "prof": "prof",
+          "bonus": 0
+        },
+        "survival": {
+          "prof": "prof",
+          "bonus": 0
+        }
+      },
+      "attacks": [
+        {
+          "name": "啃咬",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d8",
+          "damageBonus": 0,
+          "damageType": "穿刺",
+          "properties": "近战 5 尺；多重攻击 1/回合 + 1 利爪",
+          "mastery": "—"
+        },
+        {
+          "name": "利爪",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d4",
+          "damageBonus": 0,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺；命中后大型或更小 → 倒地",
+          "mastery": "—"
+        }
+      ],
+      "classResources": [],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "棕熊 Brown Bear · CR 1",
+          "desc": "大型野兽。AC 11（月亮结社加成至 17）。基础 HP 22 (3d10+6) — 但 PHB24 规则下变身仍用主体 HP，本卡显示主体当前 HP；hpTemp 15 = 月亮结社 3 级临时生命值。"
+        },
+        {
+          "source": "动作",
+          "name": "多重攻击",
+          "desc": "棕熊在它的回合执行 1 次<strong>啃咬</strong> + 1 次<strong>利爪</strong>。"
+        },
+        {
+          "source": "动作",
+          "name": "啃咬",
+          "desc": "近战攻击：+5 / 1d8+3 穿刺。"
+        },
+        {
+          "source": "动作",
+          "name": "利爪",
+          "desc": "近战攻击：+5 / 1d4+3 挥砍。命中体型不超过<strong>大型</strong>的目标 → 该目标陷入<strong>倒地</strong>。"
+        },
+        {
+          "source": "感官",
+          "name": "黑暗视觉 60 尺",
+          "desc": "60 尺内可视为微光视觉，微光视觉视为正常视觉（除颜色外）。"
+        },
+        {
+          "source": "提示",
+          "name": "<span style=\"color:var(--gold)\">变身规则速记</span>",
+          "desc": "本 tab 显示的是<em>野兽形态</em>视图。攻击/AC/速度/属性切换为棕熊；HP/HD 仍是<strong>主体</strong>的（PHB24 规则）。变回主体 → 切「主体」tab。"
+        }
+      ],
+      "notes": "棕熊数据卡来自《怪物图鉴 2025/附录A/棕熊.htm》。\n\n变身规则要点（PHB24 + 月亮结社 3 级）：\n  - HP/HD 仍是主体的（不像 5e 2014 用野兽 HP）\n  - 月亮结社加 15 临时 HP（已填 hpTemp）\n  - AC 由月亮结社加成提升到 17\n  - 攻击命中加值 +5（已 baked-in 数据卡 PB+2；DM 严格则用德鲁伊 PB +3，按你 +1 调）\n  - 变身期间无法施法（18 级才解锁）\n  - 月亮结社始终准备的法术（疗伤术/点点星芒/月华之光/咒唤兽群）变身期间也无法施"
     }
   ],
   "rollHistory": []

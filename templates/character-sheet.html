@@ -164,6 +164,13 @@ details summary:hover{color:var(--accent)}
 .surge-table-modal td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:top}
 .surge-table-modal tr.hit{background:rgba(200,160,50,.18)}
 .surge-table-modal td.range{white-space:nowrap;color:var(--gold);font-weight:bold;width:60px}
+.tab-bar{position:sticky;top:0;z-index:9;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:2px;padding:4px 8px;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.tab-bar.has-comps{position:sticky}
+.tab-btn{padding:6px 12px;background:var(--panel-hi);border:1px solid var(--border);border-radius:4px 4px 0 0;cursor:pointer;font-size:13px;color:var(--text-dim);min-height:32px;display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--bg)}
+.tab-btn.active{color:var(--gold);background:var(--bg);border-color:var(--gold);border-bottom-color:var(--bg);font-weight:bold}
+.tab-btn .tag{font-size:10px;color:var(--text-dim);font-weight:normal}
+.tab-btn.active .tag{color:var(--gold)}
 .hidden{display:none!important}
 </style>
 </head>
@@ -179,6 +186,8 @@ details summary:hover{color:var(--accent)}
     <button id="btn-theme">主题</button>
   </div>
 </header>
+
+<div class="tab-bar hidden" id="tab-bar"></div>
 
 <main>
   <section class="panel">
@@ -203,7 +212,7 @@ details summary:hover{color:var(--accent)}
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel" data-main-only="1">
     <h2>状态</h2>
     <div class="modal-row"><span>英雄激励：</span><span class="insp-toggle" id="insp-toggle">无</span></div>
     <div class="modal-row death-saves"><span>死豁：</span><span>成<span id="ds-success-pips"></span></span><span>败<span id="ds-fail-pips"></span></span></div>
@@ -227,7 +236,7 @@ details summary:hover{color:var(--accent)}
     <div id="attack-list"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" data-main-only="1">
     <h2>法术 <span class="sub" id="spell-meta">—</span></h2>
     <div class="slot-grid" id="slot-grid"></div>
     <div class="spell-list" id="spell-list"></div>
@@ -238,12 +247,12 @@ details summary:hover{color:var(--accent)}
     <div id="resource-list"></div>
   </section>
 
-  <section class="panel hidden" id="special-rolls-panel">
+  <section class="panel hidden" id="special-rolls-panel" data-main-only="1">
     <h2>特殊投骰 <span class="sub">点击按钮投骰并查表</span></h2>
     <div id="special-rolls-list"></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" data-main-only="1">
     <h2>装备 <span class="sub" id="weight-display">—</span></h2>
     <div id="armor-info"></div>
     <details open>
@@ -400,11 +409,49 @@ const DEFAULT_CHAR={
     {source:'专长',name:'学究',desc:'两项智力检定（你选择）熟练；进行知识检定时若不熟练也加调整值。'},
     {source:'背景',name:'学者',desc:'获得奥秘+历史熟练，并可在24小时研究中获取一段相关知识。'}
   ],
+  companions:[],
   rollHistory:[]
 };
 
 /* === 状态管理 === */
 let char=null;
+let displayChar=null;  /* 当前 tab 显示的实体（指向 char 主体或某个 companion） */
+function activeChar(){return displayChar||char}
+function isMainView(){return !displayChar||displayChar===char}
+function switchTab(idx){
+  char.meta=char.meta||{};
+  const comps=char.companions||[];
+  if(idx<0||!comps[idx]){
+    displayChar=char;
+    char.meta.viewIndex=-1;
+  }else{
+    displayChar=comps[idx];
+    char.meta.viewIndex=idx;
+  }
+  saveChar();
+  applyMainOnlyVisibility();
+  render();
+}
+function applyMainOnlyVisibility(){
+  const isMain=isMainView();
+  document.querySelectorAll('[data-main-only]').forEach(el=>{
+    el.classList.toggle('hidden',!isMain);
+  });
+}
+function renderTabBar(){
+  const bar=document.getElementById('tab-bar');
+  const comps=char.companions||[];
+  if(!comps.length){bar.classList.add('hidden');bar.innerHTML='';return}
+  bar.classList.remove('hidden');
+  const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
+  const tabs=[];
+  tabs.push(`<button class="tab-btn ${idx===-1?'active':''}" data-tab="-1">${char.meta.name||'本人'} <span class="tag">主体</span></button>`);
+  comps.forEach((c,i)=>{
+    const t=c.type==='wildShape'?'变身':c.type==='companion'?'伴生':c.type==='summon'?'召唤':'伴生';
+    tabs.push(`<button class="tab-btn ${idx===i?'active':''}" data-tab="${i}">${c.name||'?'} <span class="tag">${t}</span></button>`);
+  });
+  bar.innerHTML=tabs.join('');
+}
 function getEmbeddedChar(){
   try{
     const txt=document.getElementById('character-data').textContent.trim();
@@ -418,7 +465,7 @@ function ensureCharId(c){
   return c.meta.charId;
 }
 // 把 cur 数字字段转成 used 布尔数组（pip 独立 toggle）。兼容老数据。
-function normalize(c){
+function normalizeOne(c){
   const sc=c.spellcasting||{};
   const slots=sc.slots||{};
   for(const lv in slots){
@@ -446,6 +493,10 @@ function normalize(c){
       ds[k]=[0,1,2].map(i=>i<n);
     }
   }
+}
+function normalize(c){
+  normalizeOne(c);
+  for(const comp of c.companions||[])normalizeOne(comp);
   return c;
 }
 function loadChar(){
@@ -463,8 +514,12 @@ function saveChar(){
 }
 
 /* === 计算 === */
-function totalLevel(c){return c.meta.classes.reduce((s,x)=>s+(x.level||0),0)}
-function profBonus(c){return RULES.proficiencyByLevel[totalLevel(c)]||2}
+function totalLevel(c){return (c&&c.meta&&Array.isArray(c.meta.classes))?c.meta.classes.reduce((s,x)=>s+(x.level||0),0):0}
+function profBonus(c){
+  // companion 没 meta.classes 时共享主体 PB
+  const target=(c&&c.meta&&Array.isArray(c.meta.classes))?c:char;
+  return RULES.proficiencyByLevel[totalLevel(target)]||2;
+}
 function classHdGroups(c){
   const map=new Map();
   for(const cls of c.meta.classes||[]){
@@ -496,7 +551,7 @@ function skillBonus(c,sk){
   else if(c.skills.jackOfAllTrades)b+=Math.floor(pb/2);
   return b+(d.bonus||0)+(c.skills.globalBonus||0)
 }
-function ac(c){let a=c.combat.acBase+(c.combat.acBonus||0);const sh=c.equipment.shield;if(sh&&sh.equipped&&sh.ac)a+=sh.ac;return a}
+function ac(c){let a=c.combat.acBase+(c.combat.acBonus||0);const sh=c.equipment&&c.equipment.shield;if(sh&&sh.equipped&&sh.ac)a+=sh.ac;return a}
 function spellDC(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return 8+profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraDcBonus||0)}
 function spellAttack(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraAttackBonus||0)}
 function passivePerception(c){return 10+skillBonus(c,'perception')}
@@ -575,8 +630,30 @@ function openModal(html){document.getElementById('modal-content').innerHTML=html
 function closeModal(){document.getElementById('modal-overlay').classList.add('hidden')}
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal()});
 
-/* === 渲染 === */
-function render(){renderHeader();renderCombat();renderStatus();renderAbilities();renderSkills();renderAttacks();renderSpells();renderResources();renderSpecialRolls();renderEquipment();renderFeatures();renderNotes()}
+/* === 渲染 ===
+   多数 render 函数读 activeChar()——主体或 companion，由当前 tab 决定。
+   主体专属（marked data-main-only / 始终读 char）：
+     状态、法术、装备、特殊投骰；这些 panel 切到 companion 时整体 hide。
+   渲染入口：
+     1. renderTabBar（决定 displayChar 当前指向）
+     2. applyMainOnlyVisibility（隐藏不该出现的 panel）
+     3. 各 panel 渲染——主体 panel 直读 char，entity-aware panel 读 activeChar */
+function render(){
+  // 没 displayChar 默认主体
+  if(!displayChar)displayChar=char;
+  renderTabBar();
+  applyMainOnlyVisibility();
+  renderHeader();
+  renderCombat();
+  if(isMainView())renderStatus();
+  renderAbilities();
+  renderSkills();
+  renderAttacks();
+  if(isMainView()){renderSpells();renderSpecialRolls();renderEquipment()}
+  renderResources();
+  renderFeatures();
+  renderNotes();
+}
 
 function renderHeader(){
   document.getElementById('char-name').textContent=char.meta.name||'未命名';
@@ -588,23 +665,38 @@ function renderHeader(){
 }
 
 function renderCombat(){
-  document.getElementById('hp-cur').textContent=char.combat.hpCur;
-  document.getElementById('hp-max').textContent=char.combat.hpMax;
-  document.getElementById('hp-temp').textContent=char.combat.hpTemp?`(+${char.combat.hpTemp})`:'';
-  const pct=char.combat.hpMax>0?Math.max(0,char.combat.hpCur/char.combat.hpMax*100):0;
+  const c=activeChar();
+  const isMain=isMainView();
+  document.getElementById('hp-cur').textContent=c.combat.hpCur;
+  document.getElementById('hp-max').textContent=c.combat.hpMax;
+  document.getElementById('hp-temp').textContent=c.combat.hpTemp?`(+${c.combat.hpTemp})`:'';
+  const pct=c.combat.hpMax>0?Math.max(0,c.combat.hpCur/c.combat.hpMax*100):0;
   const bar=document.getElementById('hp-bar-fg');
   bar.style.width=pct+'%';
   bar.className='hp-bar-fg'+(pct<25?' crit':pct<50?' low':'');
-  document.getElementById('init-val').textContent=fmt(initiative(char));
-  document.getElementById('ac-val').textContent=ac(char);
-  const dc=spellDC(char);
-  document.getElementById('dc-val').textContent=dc!=null?dc:'—';
-  document.getElementById('speed-val').textContent=char.combat.speed;
-  document.getElementById('size-val').textContent=char.combat.size;
-  document.getElementById('pp-val').textContent=passivePerception(char);
-  document.getElementById('hd-cur').textContent=char.combat.hdCur;
-  document.getElementById('hd-max').textContent=char.combat.hdMax;
-  document.getElementById('hd-size').textContent=hdSummary(char);
+  document.getElementById('init-val').textContent=fmt(initiative(c));
+  document.getElementById('ac-val').textContent=ac(c);
+  // DC / HD 主体专属，companion 视图显示 —
+  if(isMain){
+    const dc=spellDC(char);
+    document.getElementById('dc-val').textContent=dc!=null?dc:'—';
+    document.getElementById('hd-cur').textContent=char.combat.hdCur;
+    document.getElementById('hd-max').textContent=char.combat.hdMax;
+    // 在 hd-cur 和 hd-max 之间的 "/" 是模板里硬写的；这里把它显示出来
+    const hdMaxEl=document.getElementById('hd-max');
+    if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='/';
+    document.getElementById('hd-size').textContent=hdSummary(char);
+  }else{
+    document.getElementById('dc-val').textContent='—';
+    document.getElementById('hd-cur').textContent='—';
+    document.getElementById('hd-max').textContent='';
+    const hdMaxEl=document.getElementById('hd-max');
+    if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='';
+    document.getElementById('hd-size').textContent='主体';
+  }
+  document.getElementById('speed-val').textContent=c.combat.speed;
+  document.getElementById('size-val').textContent=c.combat.size;
+  document.getElementById('pp-val').textContent=passivePerception(c);
 }
 
 function renderStatus(){
@@ -632,9 +724,10 @@ function renderStatus(){
 }
 
 function renderAbilities(){
+  const c=activeChar();
   const grid=document.getElementById('ab-grid');
   grid.innerHTML=RULES.abilities.map(ab=>{
-    const a=char.abilities[ab],m=abMod(a.score),sb=saveBonus(char,ab);
+    const a=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0},m=abMod(a.score),sb=saveBonus(c,ab);
     return `<div class="ab-box" data-roll="ability" data-ab="${ab}">
       <div class="label">${RULES.abilityNames[ab]}</div>
       <div class="mod num">${fmt(m)}</div>
@@ -645,9 +738,11 @@ function renderAbilities(){
 }
 
 function renderSkills(){
+  const c=activeChar();
+  const skills=c.skills||{};
   const list=document.getElementById('skill-list');
   list.innerHTML=RULES.skills.map(s=>{
-    const d=char.skills[s.key]||{prof:'none',bonus:0};
+    const d=skills[s.key]||{prof:'none',bonus:0};
     let mark='',cls='';
     if(d.prof==='prof'){mark='●';cls='prof'}
     else if(d.prof==='expert'){mark='◆';cls='expert'}
@@ -656,16 +751,18 @@ function renderSkills(){
       <span class="prof-toggle ${cls}" data-toggle-prof="${s.key}">${mark}</span>
       <span class="skill-name">${s.name}</span>
       <span class="skill-ability">${RULES.abilityNames[s.ability].slice(0,1)}</span>
-      <span class="skill-bonus num">${fmt(skillBonus(char,s.key))}</span>
+      <span class="skill-bonus num">${fmt(skillBonus(c,s.key))}</span>
     </div>`;
   }).join('');
 }
 
 function renderAttacks(){
+  const c=activeChar();
   const list=document.getElementById('attack-list');
-  const pb=profBonus(char);
-  list.innerHTML=(char.attacks||[]).map((a,i)=>{
-    const m=abMod(char.abilities[a.ability].score);
+  const pb=profBonus(char);  // PB 始终来自主体（companion 共享熟练加值）
+  list.innerHTML=(c.attacks||[]).map((a,i)=>{
+    const ab=c.abilities[a.ability]||{score:10};
+    const m=abMod(ab.score);
     const atk=m+pb+(a.attackBonus||0);
     const dmgMod=m+(a.damageBonus||0);
     const dmg=`${a.damage}${dmgMod?fmt(dmgMod):''}`;
@@ -738,8 +835,9 @@ function renderSpells(){
 }
 
 function renderResources(){
+  const c=activeChar();
   const list=document.getElementById('resource-list');
-  const items=[...(char.classResources||[])];
+  const items=[...(c.classResources||[])];
   if(!items.length){list.innerHTML='<div style="color:var(--text-dim)">无职业资源</div>';return}
   list.innerHTML=items.map((r,i)=>{
     if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
@@ -879,16 +977,20 @@ function renderEquipment(){
 }
 
 function renderFeatures(){
+  const c=activeChar();
   const list=document.getElementById('features-list');
-  list.innerHTML=(char.features||[]).map(f=>`<div class="feature">
-    <div class="src">[${f.source}]</div>
-    <div class="name">${f.name}</div>
-    <div class="desc">${f.desc}</div>
+  list.innerHTML=(c.features||[]).map(f=>`<div class="feature">
+    <div class="src">[${f.source||''}]</div>
+    <div class="name">${f.name||''}</div>
+    <div class="desc">${f.desc||''}</div>
   </div>`).join('')||'<div style="color:var(--text-dim)">无</div>';
 }
 
 function renderNotes(){
-  document.getElementById('notes-input').value=char.meta.notes||'';
+  const c=activeChar();
+  // companion 用 c.notes（直接顶层字段），主体用 c.meta.notes
+  const txt=isMainView()?(char.meta&&char.meta.notes||''):(c.notes||'');
+  document.getElementById('notes-input').value=txt;
 }
 
 /* === 投骰对话框 === */
@@ -936,9 +1038,10 @@ function showRollDialog(label,baseBonus){
 
 /* === 攻击对话框 === */
 function showAttackDialog(idx){
-  const a=char.attacks[idx];
+  const c=activeChar();
+  const a=c.attacks[idx];
   if(!a)return;
-  const m=abMod(char.abilities[a.ability].score);
+  const m=abMod((c.abilities[a.ability]||{score:10}).score);
   const atkBonus=m+profBonus(char)+(a.attackBonus||0);
   const dmgMod=m+(a.damageBonus||0);
   let amode='normal';
@@ -1130,11 +1233,13 @@ function doConcentrationSave(){
 
 /* === HP 对话框 === */
 function showHPDialog(){
-  openModal(`<h3>HP / 临时HP / 死亡豁免</h3>
+  const c=activeChar();
+  const isMain=isMainView();
+  openModal(`<h3>HP / 临时HP${isMain?' / 死亡豁免':''}${isMain?'':' （'+(c.name||'伴生')+'）'}</h3>
     <div class="modal-row">
-      当前 <strong class="num" id="hp-cur-d">${char.combat.hpCur}</strong> /
-      上限 <input type="number" id="hp-max-i" value="${char.combat.hpMax}" style="width:70px">
-      · 临时 <input type="number" id="hp-temp-i" value="${char.combat.hpTemp}" style="width:70px">
+      当前 <strong class="num" id="hp-cur-d">${c.combat.hpCur}</strong> /
+      上限 <input type="number" id="hp-max-i" value="${c.combat.hpMax}" style="width:70px">
+      · 临时 <input type="number" id="hp-temp-i" value="${c.combat.hpTemp||0}" style="width:70px">
     </div>
     <div class="modal-row">
       <input type="number" id="hp-delta" placeholder="数值" value="0" style="width:80px">
@@ -1142,40 +1247,42 @@ function showHPDialog(){
       <button id="btn-hp-heal">治疗</button>
       <button id="btn-hp-full">满血</button>
     </div>
-    <div class="modal-row">死豁：
+    ${isMain?`<div class="modal-row">死豁：
       <button id="btn-ds-s">+成功</button>
       <button id="btn-ds-f">+失败</button>
       <button id="btn-ds-r">重置</button>
-    </div>
+    </div>`:''}
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
       <button class="primary" id="btn-hp-save">保存上限/临时</button>
     </div>`);
-  const refresh=()=>{document.getElementById('hp-cur-d').textContent=char.combat.hpCur;renderCombat();renderStatus();saveChar()};
+  const refresh=()=>{document.getElementById('hp-cur-d').textContent=c.combat.hpCur;renderCombat();if(isMain)renderStatus();saveChar()};
   document.getElementById('btn-hp-dmg').addEventListener('click',()=>{
     let d=parseInt(document.getElementById('hp-delta').value)||0;
     if(d<=0)return;
-    if(char.combat.hpTemp>0){
-      const t=Math.min(char.combat.hpTemp,d);
-      char.combat.hpTemp-=t;d-=t;
-      document.getElementById('hp-temp-i').value=char.combat.hpTemp;
+    if(c.combat.hpTemp>0){
+      const t=Math.min(c.combat.hpTemp,d);
+      c.combat.hpTemp-=t;d-=t;
+      document.getElementById('hp-temp-i').value=c.combat.hpTemp;
     }
-    char.combat.hpCur=Math.max(0,char.combat.hpCur-d);
+    c.combat.hpCur=Math.max(0,c.combat.hpCur-d);
     refresh();
   });
   document.getElementById('btn-hp-heal').addEventListener('click',()=>{
     const d=parseInt(document.getElementById('hp-delta').value)||0;
-    char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+d);
+    c.combat.hpCur=Math.min(c.combat.hpMax,c.combat.hpCur+d);
     refresh();
   });
-  document.getElementById('btn-hp-full').addEventListener('click',()=>{char.combat.hpCur=char.combat.hpMax;refresh()});
-  const addDs=k=>{const a=char.combat.deathSaves[k];const idx=a.indexOf(false);if(idx>=0)a[idx]=true};
-  document.getElementById('btn-ds-s').addEventListener('click',()=>{addDs('success');refresh()});
-  document.getElementById('btn-ds-f').addEventListener('click',()=>{addDs('fail');refresh()});
-  document.getElementById('btn-ds-r').addEventListener('click',()=>{char.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};refresh()});
+  document.getElementById('btn-hp-full').addEventListener('click',()=>{c.combat.hpCur=c.combat.hpMax;refresh()});
+  if(isMain){
+    const addDs=k=>{const a=c.combat.deathSaves[k];const idx=a.indexOf(false);if(idx>=0)a[idx]=true};
+    document.getElementById('btn-ds-s').addEventListener('click',()=>{addDs('success');refresh()});
+    document.getElementById('btn-ds-f').addEventListener('click',()=>{addDs('fail');refresh()});
+    document.getElementById('btn-ds-r').addEventListener('click',()=>{c.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};refresh()});
+  }
   document.getElementById('btn-hp-save').addEventListener('click',()=>{
-    char.combat.hpMax=parseInt(document.getElementById('hp-max-i').value)||char.combat.hpMax;
-    char.combat.hpTemp=parseInt(document.getElementById('hp-temp-i').value)||0;
+    c.combat.hpMax=parseInt(document.getElementById('hp-max-i').value)||c.combat.hpMax;
+    c.combat.hpTemp=parseInt(document.getElementById('hp-temp-i').value)||0;
     refresh();closeModal();
   });
 }
@@ -1198,26 +1305,37 @@ function showStatusPicker(){
 /* === 全局点击委托 === */
 document.addEventListener('click',e=>{
   const t=e.target;
+  if(t.matches('[data-tab]')){
+    switchTab(parseInt(t.dataset.tab));return;
+  }
   if(t.matches('[data-toggle-prof]')){
     e.stopPropagation();
+    const c=activeChar();
     const sk=t.dataset.toggleProf;
-    const cur=(char.skills[sk]&&char.skills[sk].prof)||'none';
+    c.skills=c.skills||{};
+    const cur=(c.skills[sk]&&c.skills[sk].prof)||'none';
     const cycle={none:'prof',prof:'expert',expert:'half',half:'none'};
-    char.skills[sk]=char.skills[sk]||{bonus:0};
-    char.skills[sk].prof=cycle[cur];
+    c.skills[sk]=c.skills[sk]||{bonus:0};
+    c.skills[sk].prof=cycle[cur];
     saveChar();renderSkills();return;
   }
   if(t.matches('[data-edit-name]')){
     e.stopPropagation();
+    // 主体名编辑（companion tab 时点 header 名字仍编辑主体名）
     const v=prompt('角色名：',char.meta.name||'');
-    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();renderHeader()}
+    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();render()}
     return;
   }
   if(t.matches('[data-edit-ab]')){
     e.stopPropagation();
+    const c=activeChar();
     const ab=t.dataset.editAb;
-    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,char.abilities[ab].score);
-    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){char.abilities[ab].score=n;saveChar();render()}}
+    const cur=c.abilities[ab]?c.abilities[ab].score:10;
+    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,cur);
+    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){
+      c.abilities[ab]=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
+      c.abilities[ab].score=n;saveChar();render();
+    }}
     return;
   }
   if(t.matches('.slot-pip')){
@@ -1228,8 +1346,9 @@ document.addEventListener('click',e=>{
     saveChar();renderSpells();return;
   }
   if(t.matches('.pip[data-res]')){
+    const c=activeChar();
     const ri=parseInt(t.dataset.res),i=parseInt(t.dataset.i);
-    const r=char.classResources[ri];
+    const r=c.classResources[ri];
     if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
     r.used[i]=!r.used[i];
     saveChar();renderResources();return;
@@ -1255,20 +1374,23 @@ document.addEventListener('click',e=>{
     saveChar();renderStatus();return;
   }
   if(t.closest('[data-roll="save"]')){
+    const c=activeChar();
     const ab=t.closest('[data-roll="save"]').dataset.ab;
-    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(char,ab));return;
+    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(c,ab));return;
   }
   if(t.closest('[data-roll="ability"]')){
+    const c=activeChar();
     const ab=t.closest('[data-roll="ability"]').dataset.ab;
-    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod(char.abilities[ab].score));return;
+    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod((c.abilities[ab]||{score:10}).score));return;
   }
   if(t.closest('[data-roll="skill"]')){
+    const c=activeChar();
     const sk=t.closest('[data-roll="skill"]').dataset.skill;
     const skName=RULES.skills.find(s=>s.key===sk).name;
-    showRollDialog(`${skName}检定`,skillBonus(char,sk));return;
+    showRollDialog(`${skName}检定`,skillBonus(c,sk));return;
   }
-  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(char));return}
-  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(char,'perception'));return}
+  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(activeChar()));return}
+  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(activeChar(),'perception'));return}
   if(t.closest('[data-roll="attack"]')){
     const i=parseInt(t.closest('[data-roll="attack"]').dataset.i);
     showAttackDialog(i);return;
@@ -1291,7 +1413,11 @@ document.addEventListener('change',e=>{
     document.getElementById('wealth-total').textContent=totalGP(char)+' GP';
     return;
   }
-  if(t.id==='notes-input'){char.meta.notes=t.value;saveChar();return}
+  if(t.id==='notes-input'){
+    if(isMainView()){char.meta.notes=t.value}
+    else{const c=activeChar();c.notes=t.value}
+    saveChar();return;
+  }
 });
 
 /* === 短休 === */
@@ -1337,16 +1463,22 @@ function consumeHdInteractive(){
   alert(`恢复 ${totalRecover} HP`);
 }
 
+/* 全 entity 列表（主体 + 所有 companions），用于长/短休批量重置资源 / HP */
+function allEntities(){return [char,...(char.companions||[])]}
+
 function shortRest(){
-  if(!confirm('短休 1 小时？\n- 可消耗 HD 恢复 HP\n- 恢复短休资源（激发、神力引导、专注点、契约位等）'))return;
-  for(const r of char.classResources||[]){if(r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  if(!confirm('短休 1 小时？\n- 可消耗 HD 恢复 HP（仅主体）\n- 恢复主体 + 全部伴生的「短休」资源'))return;
+  for(const e of allEntities()){
+    for(const r of e.classResources||[]){if(r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  }
   consumeHdInteractive();
   saveChar();render();
 }
 
 /* === 长休 === */
 function longRest(){
-  if(!confirm('长休 8 小时？\n- HP 全满\n- HD 恢复半数（向下取整，至少 1）\n- 全部法术位回满\n- 恢复长休资源\n- 重置死亡豁免'))return;
+  if(!confirm('长休 8 小时？\n- 主体 + 全部伴生 HP 全满\n- 主体 HD 恢复半数（向下取整，至少 1）\n- 主体全部法术位回满\n- 主体 + 伴生的「长休/短休」资源恢复\n- 主体重置死亡豁免'))return;
+  // 主体
   char.combat.hpCur=char.combat.hpMax;
   char.combat.hpTemp=0;
   char.combat.hdCur=Math.min(char.combat.hdMax,char.combat.hdCur+Math.max(1,Math.floor(char.combat.hdMax/2)));
@@ -1358,7 +1490,11 @@ function longRest(){
     }
   }
   if(char.spellcasting&&char.spellcasting.spellPoints)char.spellcasting.spellPoints.cur=char.spellcasting.spellPoints.max;
-  for(const r of char.classResources||[]){if(r.resetType==='longRest'||r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  // 主体 + 全部伴生：HP 全满 + 资源回满
+  for(const e of allEntities()){
+    if(e.combat){e.combat.hpCur=e.combat.hpMax;e.combat.hpTemp=0}
+    for(const r of e.classResources||[]){if(r.resetType==='longRest'||r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  }
   saveChar();render();
   alert('长休完成');
 }
@@ -1432,6 +1568,12 @@ document.getElementById('btn-theme').addEventListener('click',()=>{
 
 /* === 启动 === */
 char=loadChar();
+// 恢复上次的 tab 视图
+{
+  const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
+  const comps=char.companions||[];
+  displayChar=(idx>=0&&comps[idx])?comps[idx]:char;
+}
 try{const t=localStorage.getItem('dnd5r-theme');if(t)document.body.dataset.theme=t}catch(e){}
 render();
 </script>
