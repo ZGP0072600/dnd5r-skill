@@ -156,7 +156,11 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        **active 字段默认值**：未填时 `type=companion` 视为 `true`（永久伴生默认显示 tab）；其他类型视为 `false`（在形态库等待激活）。
        UI 行为：
        - **Tab bar**：companions 非空时 header 下方自动出现。只显示 `active=true` 的 companion + 主体；inactive 的形态库不出现
-       - **「+ 召唤」按钮**：当存在 inactive companion 时自动出现在 tab bar 末尾（红色虚线边框）。点击 → 弹「选择变身 / 召唤」对话框，按 `source` 字段分组列出所有 inactive 形态。玩家选一个 → 该 companion `active=true` + 自动切到该 tab
+       - **召唤入口（首选）—— 从能力/法术触发**：spell 或 feature 加 `summonSource: "<source 名>"` 字段后，点击该法术或特性会弹出**只含该 source 的 picker**：
+         * 法术对话框：自动多出一个「召唤…」按钮，点击后关闭法术对话框 → 弹该 source 的 picker（如「寻获魔宠 — 选择形态」）
+         * 特性条目：标记为 `summonable`，名字旁显示 `▸ 召唤…` 提示，整条可点击 → 同样弹 picker（如「荒野变形 — 选择形态」）
+         * 这与玩家心智一致：召唤来自具体的能力/法术，而非抽象的"召唤管理"
+       - **「+ 召唤」按钮（兜底）**：当存在 inactive companion 时自动出现在 tab bar 末尾（红色虚线边框）。点击 → 弹「选择变身 / 召唤」对话框，按 `source` 分组列出**所有** inactive 形态。一站式总览，主要在玩家忘记从哪个能力进时用
        - **Tab 上的 ✕ 按钮**：所有 type≠companion 的 active tab 上都有（永久伴生 type=companion 不可关，避免误删）。点击弹 confirm → 同意后 `active=false`、tab 消失、自动回主体 tab；历史里写入「解除变身/召唤-XX」
        - **长休**：除常规重置（HP 全满 + 资源回满）外，会扫描 active 的 wildShape/summon 弹一个二级 confirm「是否解除以下 N 个：…」让玩家批量取消
        - **数据切换**：除「状态/法术/装备/特殊投骰」外的所有 panel（战斗/属性/技能/攻击/资源/特性/笔记）跟着 tab 走
@@ -174,6 +178,11 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
        - 每个 companion 数据从对应资料库查证（《怪物图鉴 2025/附录A/》或法术原文或 PHB24 子职模板），按规则修正后填进 JSON
        - 德鲁伊变身的特殊性（PHB24）：HP 仍是主体的、INT/WIS/CHA 保留主体的；但 STR/DEX/CON、AC、速度、攻击是野兽的。月亮结社：AC = max(野兽AC, 13+感调)、hpTemp = 德鲁伊等级×3
        - 永久伴生（魔宠选定后、Beast Master 野兽、Steel Defender）→ active 显式填 true 或留空（type=companion 默认 true）；变身/召唤 → active:false 让玩家通过 picker 激活
+       - **summonSource 字段对应 companion.source**——名字必须一致才能匹配。建议命名：「荒野变形」「寻获魔宠」「召唤野兽」「缚仆术」「野兽魂魄」「钢铁守护」等（贴近能力中文名）
+       - 给召唤法术/能力加 summonSource：
+         * spell：`{lvl:1,name:"寻获魔宠",ritual:true,summonSource:"寻获魔宠",...}`
+         * feature：`{source:"德鲁伊2级",name:"荒野变形",summonSource:"荒野变形",desc:"..."}`
+         * desc 里加一句「点击此条目 → 直接选择形态」/「点击下方『召唤…』按钮选择具体形态」让玩家知道入口
      - **法术材料**（spell.material，可选）：D&D 5e 里材料分三类，模板按 `material` 字段自动给视觉/交互区分。spell（含 cantrips）支持：
        ```json
        // 普通可替代材料（奥术法器/成分包代）— 字符串简写即可

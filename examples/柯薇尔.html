@@ -148,6 +148,9 @@ details summary:hover{color:var(--accent)}
 .features-list .src{font-size:10px;color:var(--text-dim)}
 .features-list .name{font-weight:bold;color:var(--gold)}
 .features-list .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.features-list .feature.summonable{cursor:pointer}
+.features-list .feature.summonable:hover{background:var(--panel-hi)}
+.features-list .feature.summonable .name::after{content:' ▸ 召唤…';color:var(--accent);font-size:11px;font-weight:normal}
 .special-roll-row{padding:8px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;background:var(--panel-hi)}
 .special-roll-row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .special-roll-row .label{font-weight:bold;color:var(--gold);flex:1}
@@ -305,7 +308,7 @@ details summary:hover{color:var(--accent)}
     },
     "background": "贵族",
     "inspiration": false,
-    "charId": "柯薇尔-78373930"
+    "charId": "柯薇尔-78374527"
   },
   "abilities": {
     "str": {
@@ -1274,10 +1277,16 @@ function deactivateCompanion(idx){
   render();
 }
 
-function showSummonPicker(){
+/* sourceFilter 给定时只显示该 source 的 inactive companion；不给时显示全部 */
+function showSummonPicker(sourceFilter){
   const comps=char.companions||[];
-  const inactive=comps.map((c,i)=>({c,i})).filter(x=>!isCompanionActive(x.c));
-  if(!inactive.length){alert('没有可激活的形态/召唤。\n车卡时让 Claude 把可变形态/可召唤生物加进 JSON 后再试。');return}
+  let inactive=comps.map((c,i)=>({c,i})).filter(x=>!isCompanionActive(x.c));
+  if(sourceFilter)inactive=inactive.filter(x=>x.c.source===sourceFilter);
+  if(!inactive.length){
+    if(sourceFilter)alert(`「${sourceFilter}」没有可选形态。\n车卡时让 Claude 把对应生物加进 JSON 后再试。`);
+    else alert('没有可激活的形态/召唤。\n车卡时让 Claude 把可变形态/可召唤生物加进 JSON 后再试。');
+    return;
+  }
   // 按 source 分组
   const groups=new Map();
   for(const {c,i} of inactive){
@@ -1294,7 +1303,8 @@ function showSummonPicker(){
       <div class="opts">${arr.map(x=>`<button data-activate="${x.i}">${x.c.name||'?'}</button>`).join('')}</div>
     </div>`;
   }).join('');
-  openModal(`<h3>选择变身 / 召唤</h3>
+  const title=sourceFilter?`${sourceFilter} — 选择形态`:'选择变身 / 召唤';
+  openModal(`<h3>${title}</h3>
     ${groupHTML}
     <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
 }
@@ -1854,11 +1864,15 @@ function renderEquipment(){
 function renderFeatures(){
   const c=activeChar();
   const list=document.getElementById('features-list');
-  list.innerHTML=(c.features||[]).map(f=>`<div class="feature">
+  list.innerHTML=(c.features||[]).map(f=>{
+    const cls=f.summonSource?'feature summonable':'feature';
+    const dataAttr=f.summonSource?` data-feature-summon="${f.summonSource}"`:'';
+    return `<div class="${cls}"${dataAttr}>
     <div class="src">[${f.source||''}]</div>
     <div class="name">${f.name||''}</div>
     <div class="desc">${f.desc||''}</div>
-  </div>`).join('')||'<div style="color:var(--text-dim)">无</div>';
+  </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无</div>';
 }
 
 function renderNotes(){
@@ -2007,6 +2021,7 @@ function showSpellDialog(spell){
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
       <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
+      ${spell.summonSource?`<button id="btn-spell-summon" title="召唤一个 ${spell.summonSource} 形态">召唤…</button>`:''}
       ${!isCantrip&&spell.ritual?`<button id="btn-cast-ritual" title="花 10 分钟以仪式施展，不消耗法术位">仪式（不扣位）</button>`:''}
       ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
     </div>`);
@@ -2071,6 +2086,14 @@ function showSpellDialog(spell){
         closeModal();
       });
     }
+  }
+  // 召唤按钮（戏法或法术皆可）：直接 picker；激活由 picker 内部 click 处理
+  const summonBtn=document.getElementById('btn-spell-summon');
+  if(summonBtn){
+    summonBtn.addEventListener('click',()=>{
+      closeModal();
+      showSummonPicker(spell.summonSource);
+    });
   }
 }
 
@@ -2189,6 +2212,10 @@ document.addEventListener('click',e=>{
     activateCompanion(parseInt(t.dataset.activate));return;
   }
   if(t.id==='btn-summon-add'){showSummonPicker();return}
+  if(t.closest('[data-feature-summon]')){
+    const src=t.closest('[data-feature-summon]').dataset.featureSummon;
+    showSummonPicker(src);return;
+  }
   if(t.matches('[data-tab]')){
     switchTab(parseInt(t.dataset.tab));return;
   }
