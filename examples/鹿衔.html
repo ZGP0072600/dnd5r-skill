@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>鹿衔 - DnD 5r</title>
+<style>
+:root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
+[data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%}
+.num{font-variant-numeric:tabular-nums}
+button{cursor:pointer;background:var(--panel-hi);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:13px;font-family:inherit;min-height:32px}
+button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:active{transform:translateY(1px)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.primary:hover{filter:brightness(1.1)}
+input,select,textarea{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;padding:4px 6px;font-family:inherit;font-size:inherit;min-height:28px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+input[type=number]{width:60px;text-align:right}
+header{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:2px solid var(--accent);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1{margin:0;font-size:18px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header h1 .meta{font-weight:normal;font-size:12px;color:var(--text-dim);margin-left:8px}
+.toolbar{display:flex;gap:4px;flex-wrap:wrap}
+.toolbar button{font-size:12px;padding:4px 8px;min-height:28px}
+main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow:dense}
+@media(min-width:700px){main{grid-template-columns:1fr 1fr}.panel.full{grid-column:1/-1}}
+@media(min-width:1100px){main{grid-template-columns:1fr 1fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.panel h2{margin:0 0 8px;font-size:14px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:4px;display:flex;align-items:center;gap:6px}
+.panel h2 .sub{font-size:11px;color:var(--text-dim);font-weight:normal;margin-left:auto}
+.combat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-box{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px 4px;text-align:center;min-height:60px;position:relative}
+.stat-box[data-roll]{cursor:pointer;border-color:var(--gold)}
+.stat-box[data-roll]::after{content:'🎲';position:absolute;top:3px;right:5px;font-size:11px;opacity:.7}
+.stat-box[data-roll]:hover{border-color:var(--accent);background:var(--bg)}
+.stat-box .label{font-size:11px;color:var(--text-dim)}
+.stat-box .val{font-size:22px;font-weight:bold}
+.stat-box .sub{font-size:11px;color:var(--text-dim)}
+.hp-bar{grid-column:1/-1;background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px;cursor:pointer}
+.hp-bar .hp-num{font-size:22px;font-weight:bold}
+.hp-bar .hp-bar-bg{background:var(--bg);height:8px;border-radius:4px;overflow:hidden;margin-top:6px}
+.hp-bar .hp-bar-fg{background:var(--good);height:100%;transition:width .3s}
+.hp-bar .hp-bar-fg.low{background:var(--gold)}
+.hp-bar .hp-bar-fg.crit{background:var(--bad)}
+.hp-row{display:flex;gap:8px;align-items:baseline}
+.hp-temp{color:var(--gold)}
+.ab-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+@media(max-width:500px){.ab-grid{grid-template-columns:repeat(3,1fr)}}
+.ab-box{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px 4px;text-align:center;cursor:pointer;min-height:80px}
+.ab-box:hover{border-color:var(--accent)}
+.ab-box .label{font-size:11px;color:var(--text-dim)}
+.ab-box .mod{font-size:26px;font-weight:bold;line-height:1.1;color:var(--text)}
+.ab-box .score{font-size:16px;font-weight:bold;color:var(--gold);cursor:text;border-bottom:1px dashed var(--border);padding:1px 6px;display:inline-block;margin-top:3px}
+.ab-box .score:hover{border-color:var(--accent)}
+.ab-box .save{font-size:11px;color:var(--text-dim);margin-top:4px}
+.ab-box .save.prof{color:var(--good);font-weight:bold}
+.skill-list{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+@media(max-width:500px){.skill-list{grid-template-columns:1fr}}
+.skill-row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:3px;cursor:pointer;min-height:32px}
+.skill-row:hover{background:var(--panel-hi)}
+.skill-row .prof-toggle{width:20px;height:20px;border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;background:var(--bg)}
+.skill-row .prof-toggle.prof{background:var(--good);border-color:var(--good);color:#fff}
+.skill-row .prof-toggle.expert{background:var(--gold);border-color:var(--gold);color:#fff}
+.skill-row .prof-toggle.half{background:var(--text-dim);border-color:var(--text-dim);color:#fff}
+.skill-row .skill-name{flex:1}
+.skill-row .skill-ability{font-size:11px;color:var(--text-dim);width:18px}
+.skill-row .skill-bonus{font-weight:bold;min-width:30px;text-align:right}
+.attack-row{background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;padding:8px;margin-bottom:6px;cursor:pointer}
+.attack-row:hover{border-color:var(--accent)}
+.attack-row .name{font-weight:bold}
+.attack-row .stats{font-size:12px;color:var(--text-dim);display:flex;gap:12px;flex-wrap:wrap;margin-top:2px}
+.attack-row .mastery{color:var(--gold)}
+.slot-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px}
+.slot-col{text-align:center}
+.slot-col .level{font-size:10px;color:var(--text-dim)}
+.slot-col .slots{display:flex;flex-direction:column-reverse;align-items:center;gap:2px;min-height:20px}
+.slot-pip{width:16px;height:16px;border:1px solid var(--border);border-radius:2px;cursor:pointer;background:var(--bg)}
+.slot-pip.full{background:var(--accent);border-color:var(--accent)}
+.spell-list{max-height:400px;overflow-y:auto}
+.spell-row{padding:6px;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.spell-row:hover{background:var(--panel-hi)}
+.spell-row .lv{font-size:11px;color:var(--text-dim);width:24px;flex-shrink:0;text-align:center}
+.spell-row .name{flex:1}
+.spell-row .school{font-size:11px;color:var(--gold)}
+.spell-row .conc{font-size:11px;color:var(--accent)}
+.spell-row .mat-consumed{color:var(--bad);font-size:11px;font-weight:bold;margin-left:2px}
+.spell-row .mat-valuable{color:var(--gold);font-size:11px;margin-left:2px}
+.material-line{padding:8px 10px;border-radius:4px;margin:8px 0;font-size:12px;line-height:1.5}
+.material-line.normal{background:var(--panel-hi);color:var(--text-dim)}
+.material-line.valuable{background:rgba(200,160,50,.12);color:var(--gold);border-left:3px solid var(--gold)}
+.material-line.consumed{background:rgba(200,50,50,.15);color:var(--accent);border-left:3px solid var(--accent);font-weight:bold}
+.res-row{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border)}
+.res-row:last-child{border-bottom:none}
+.res-row .label{flex:1}
+.res-row .reset-tag{font-size:10px;color:var(--text-dim);padding:2px 6px;background:var(--panel-hi);border-radius:2px}
+.res-row .pips{display:flex;gap:3px}
+.res-row .pip{width:16px;height:16px;border:1px solid var(--border);border-radius:2px;cursor:pointer;background:var(--bg)}
+.res-row .pip.full{background:var(--gold);border-color:var(--gold)}
+.item-row{display:flex;gap:6px;padding:6px 4px;border-bottom:1px dashed var(--border);align-items:center}
+.item-row:last-child{border:none}
+.item-row .name{flex:1}
+.item-row .qty,.item-row .weight{color:var(--text-dim);font-size:12px}
+.wealth-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.coin-box{text-align:center;background:var(--panel-hi);border:1px solid var(--border);border-radius:3px;padding:4px}
+.coin-box .label{font-size:10px;color:var(--text-dim)}
+.coin-box input{width:100%;text-align:center}
+.status-grid{display:flex;flex-wrap:wrap;gap:4px}
+.status-tag{padding:4px 10px;background:var(--bad);color:#fff;border-radius:12px;font-size:12px;cursor:pointer}
+.status-tag.add{background:var(--panel-hi);color:var(--text-dim);border:1px dashed var(--border)}
+.insp-toggle{padding:4px 12px;border-radius:4px;background:var(--panel-hi);border:1px solid var(--border);cursor:pointer;display:inline-block}
+.insp-toggle.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.conc-active{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:rgba(200,160,50,.18);border:1px solid var(--gold);color:var(--gold);font-size:13px}
+.conc-active .name{font-weight:bold}
+.conc-active button{padding:2px 7px;font-size:11px;min-height:24px}
+.conc-empty{color:var(--text-dim)}
+.death-saves{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.death-pip{width:18px;height:18px;border:1px solid var(--border);border-radius:50%;cursor:pointer;display:inline-block;margin:0 2px;vertical-align:middle}
+.death-pip.success{background:var(--good);border-color:var(--good)}
+.death-pip.fail{background:var(--bad);border-color:var(--bad)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px var(--shadow)}
+.modal h3{margin:0 0 10px;color:var(--accent)}
+.modal-row{margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.roll-result{font-size:24px;text-align:center;padding:14px;background:var(--panel-hi);border-radius:4px;margin:10px 0}
+.roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
+.roll-result .nat20{color:var(--good)}
+.roll-result .nat1{color:var(--bad)}
+.roll-detail{font-size:12px;color:var(--text-dim);margin-top:6px}
+.adv-toggle{display:flex;gap:4px;flex:1}
+.adv-toggle button{flex:1}
+.adv-toggle button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.history-list{max-height:400px;overflow-y:auto}
+.history-item{padding:8px;border-bottom:1px solid var(--border);font-size:12px}
+.history-item .label{color:var(--gold)}
+.history-item .val{float:right;font-weight:bold;font-size:14px}
+textarea.notes{width:100%;min-height:120px;resize:vertical}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+details summary{cursor:pointer;padding:4px 0;color:var(--text-dim)}
+details summary:hover{color:var(--accent)}
+.features-list .feature{padding:8px 4px;border-bottom:1px solid var(--border)}
+.features-list .feature:last-child{border:none}
+.features-list .src{font-size:10px;color:var(--text-dim)}
+.features-list .name{font-weight:bold;color:var(--gold)}
+.features-list .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.features-list .feature.summonable{cursor:pointer}
+.features-list .feature.summonable:hover{background:var(--panel-hi)}
+.features-list .feature.summonable .name .summon-hint{color:var(--accent);font-size:11px;font-weight:normal;margin-left:4px}
+.special-roll-row{padding:8px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;background:var(--panel-hi)}
+.special-roll-row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.special-roll-row .label{font-weight:bold;color:var(--gold);flex:1}
+.special-roll-row .die-tag{font-size:11px;color:var(--text-dim);padding:2px 6px;background:var(--bg);border-radius:2px}
+.special-roll-row button.roll-btn{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:bold}
+.special-roll-row button.roll-btn:hover{filter:brightness(1.15)}
+.special-roll-row .desc{font-size:12px;color:var(--text-dim);margin-top:6px}
+.surge-result .range{color:var(--gold);font-weight:bold;font-size:14px;margin-bottom:6px}
+.surge-result .effect{padding:10px;background:var(--panel-hi);border-radius:4px;line-height:1.55;margin-bottom:8px}
+.surge-result .sub-roll{padding:8px;border-left:3px solid var(--accent);background:var(--bg);margin-top:8px}
+.surge-result .sub-roll .sub-label{font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.surge-table-modal{max-height:70vh;overflow-y:auto}
+.surge-table-modal table{width:100%;border-collapse:collapse;font-size:12px}
+.surge-table-modal td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:top}
+.surge-table-modal tr.hit{background:rgba(200,160,50,.18)}
+.surge-table-modal td.range{white-space:nowrap;color:var(--gold);font-weight:bold;width:60px}
+.tab-bar{position:sticky;top:0;z-index:9;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:2px;padding:4px 8px;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.tab-bar.has-comps{position:sticky}
+.tab-btn{padding:6px 12px;background:var(--panel-hi);border:1px solid var(--border);border-radius:4px 4px 0 0;cursor:pointer;font-size:13px;color:var(--text-dim);min-height:32px;display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--bg)}
+.tab-btn.active{color:var(--gold);background:var(--bg);border-color:var(--gold);border-bottom-color:var(--bg);font-weight:bold}
+.tab-btn .tag{font-size:10px;color:var(--text-dim);font-weight:normal}
+.tab-btn.active .tag{color:var(--gold)}
+.tab-btn .x{margin-left:2px;color:var(--text-dim);font-size:14px;line-height:1;padding:0 2px;border-radius:3px}
+.tab-btn .x:hover{background:var(--bad);color:#fff}
+.tab-btn.summon-add{color:var(--accent);border-color:var(--accent);border-style:dashed}
+.tab-btn.summon-add:hover{background:var(--accent);color:#fff}
+.summon-picker-group{margin-bottom:14px}
+.summon-picker-group h4{margin:0 0 6px;font-size:13px;color:var(--gold)}
+.summon-picker-group .opts{display:flex;flex-wrap:wrap;gap:6px}
+.summon-picker-group button{font-size:13px}
+.summon-picker-group .meta{font-size:11px;color:var(--text-dim);margin-bottom:6px}
+.hidden{display:none!important}
+</style>
+</head>
+<body data-theme="dark">
+
+<header>
+  <h1><span id="char-name" data-edit-name="1" title="点击改名" style="cursor:pointer;border-bottom:1px dashed var(--border)">悲灵</span> <span class="meta" id="char-meta"></span></h1>
+  <div class="toolbar">
+    <button id="btn-rest-short">短休</button>
+    <button id="btn-rest-long">长休</button>
+    <button id="btn-history">骰史</button>
+    <button id="btn-dice-cmd">骰娘</button>
+    <button id="btn-theme">主题</button>
+  </div>
+</header>
+
+<div class="tab-bar hidden" id="tab-bar"></div>
+
+<main>
+  <section class="panel">
+    <h2>战斗 <span class="sub" id="prof-display">熟练 +0</span></h2>
+    <div class="combat-grid">
+      <div class="hp-bar" id="hp-bar">
+        <div class="hp-row">
+          <div>
+            <div style="font-size:11px;color:var(--text-dim);">HP</div>
+            <div><span class="hp-num num"><span id="hp-cur">0</span>/<span id="hp-max">0</span></span> <span class="hp-temp" id="hp-temp"></span></div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;color:var(--text-dim);">点击编辑/受伤治疗</div>
+        </div>
+        <div class="hp-bar-bg"><div class="hp-bar-fg" id="hp-bar-fg" style="width:100%"></div></div>
+      </div>
+      <div class="stat-box" data-roll="initiative"><div class="label">先攻</div><div class="val num" id="init-val">+0</div></div>
+      <div class="stat-box"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
+      <div class="stat-box"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
+      <div class="stat-box"><div class="label">速度</div><div class="val num" id="speed-val">30</div><div class="sub" id="size-val">中型</div></div>
+      <div class="stat-box" data-roll="perception"><div class="label">被动察觉</div><div class="val num" id="pp-val">10</div></div>
+      <div class="stat-box"><div class="label">HD</div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
+    </div>
+  </section>
+
+  <section class="panel" data-main-only="1">
+    <h2>状态</h2>
+    <div class="modal-row"><span>英雄激励：</span><span class="insp-toggle" id="insp-toggle">无</span></div>
+    <div class="modal-row death-saves"><span>死豁：</span><span>成<span id="ds-success-pips"></span></span><span>败<span id="ds-fail-pips"></span></span></div>
+    <div class="modal-row"><span>专注：</span><span id="conc-display"></span></div>
+    <div class="modal-row"><span>状态：</span><div class="status-grid" id="status-grid"></div></div>
+    <div class="modal-row"><span>抗性：</span><span id="resistance" style="color:var(--text-dim)">—</span></div>
+  </section>
+
+  <section class="panel full">
+    <h2>属性</h2>
+    <div class="ab-grid" id="ab-grid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>技能 <span class="sub">点击投骰，方块切熟练</span></h2>
+    <div class="skill-list" id="skill-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>攻击 <span class="sub">点击投攻击+伤害</span></h2>
+    <div id="attack-list"></div>
+  </section>
+
+  <section class="panel" data-main-only="1">
+    <h2>法术 <span class="sub" id="spell-meta">—</span></h2>
+    <div class="slot-grid" id="slot-grid"></div>
+    <div class="spell-list" id="spell-list"></div>
+  </section>
+
+  <section class="panel">
+    <h2>职业资源</h2>
+    <div id="resource-list"></div>
+  </section>
+
+  <section class="panel hidden" id="special-rolls-panel" data-main-only="1">
+    <h2>特殊投骰 <span class="sub">点击按钮投骰并查表</span></h2>
+    <div id="special-rolls-list"></div>
+  </section>
+
+  <section class="panel" data-main-only="1">
+    <h2>装备 <span class="sub" id="weight-display">—</span></h2>
+    <div id="armor-info"></div>
+    <details open>
+      <summary>物品 (<span id="item-count">0</span>)</summary>
+      <div id="item-list"></div>
+    </details>
+    <h2 style="margin-top:12px">财产 <span class="sub" id="wealth-total">0 GP</span></h2>
+    <div class="wealth-grid" id="wealth-grid"></div>
+  </section>
+
+  <section class="panel full">
+    <h2>特性、专长、子职</h2>
+    <div class="features-list" id="features-list"></div>
+  </section>
+
+  <section class="panel full">
+    <h2>笔记</h2>
+    <textarea class="notes" id="notes-input"></textarea>
+  </section>
+</main>
+
+<script id="character-data" type="application/json">
+{
+  "meta": {
+    "name": "鹿衔",
+    "player": "测试者",
+    "alignment": "中立善良",
+    "faith": "",
+    "xp": 6500,
+    "notes": "测试卡 #5：游侠驯兽师 — 验证「永久伴生」用例（type=companion，active 默认 true）。\n\n5 级人类游侠驯兽师（远程射手）。野兽伙伴是「原初行侣」（PHB24 子职新机制）：玩家在 大地 / 海洋 / 天空 三种数据卡里挑一个，长休时可重新选。野兽 AC/HP/攻击全部按游侠等级和感知调整动态计算（已 baked-in 5 级 + 感知 +3）。\n\n默认伴生：大地野兽（外形：「灰背」一只忠诚的山地狼）。想换其它野兽：先在 tab 上点 ✕ 解除当前 → 再「+ 唤出」选海洋/天空野兽。\n\n战斗流程：\n  - 玩家附赠动作命令野兽攻击/疾走/撤离/回避/协助\n  - 不命令则野兽默认回避\n  - 玩家攻击动作可牺牲一次自己的攻击命令野兽出招\n  - 野兽攻击命中 = 玩家法术攻击 +6\n  - 野兽 PB +3 加进所有属性检定/豁免（原初联结）",
+    "classes": [
+      {
+        "name": "游侠",
+        "subclass": "驯兽师",
+        "level": 5
+      }
+    ],
+    "race": {
+      "name": "人类",
+      "subrace": ""
+    },
+    "background": "向导",
+    "inspiration": false,
+    "viewIndex": -1,
+    "charId": "鹿衔-78376933"
+  },
+  "abilities": {
+    "str": {
+      "score": 8,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "dex": {
+      "score": 19,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "con": {
+      "score": 14,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "int": {
+      "score": 10,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "wis": {
+      "score": 16,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "cha": {
+      "score": 8,
+      "saveProf": false,
+      "saveBonus": 0
+    }
+  },
+  "combat": {
+    "hpMax": 44,
+    "hpCur": 44,
+    "hpTemp": 0,
+    "hdMax": 5,
+    "hdCur": 5,
+    "acBase": 16,
+    "acBonus": 0,
+    "speed": 30,
+    "size": "中型",
+    "initBonus": 0,
+    "deathSaves": {
+      "success": [
+        false,
+        false,
+        false
+      ],
+      "fail": [
+        false,
+        false,
+        false
+      ]
+    },
+    "resistance": "",
+    "immunity": "",
+    "advantage": "",
+    "statusEffects": [],
+    "concentration": null
+  },
+  "skills": {
+    "stealth": {
+      "prof": "expert",
+      "bonus": 0
+    },
+    "survival": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "perception": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "investigation": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "nature": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "animalHandling": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "globalBonus": 0,
+    "jackOfAllTrades": false
+  },
+  "attacks": [
+    {
+      "name": "长弓",
+      "ability": "dex",
+      "attackBonus": 2,
+      "damage": "1d8",
+      "damageBonus": 0,
+      "damageType": "穿刺",
+      "properties": "重型, 双手, 弹药(150/600), 装填; 含战斗风格-射术 +2",
+      "mastery": "缓速 Slow",
+      "attuned": false
+    },
+    {
+      "name": "短剑",
+      "ability": "dex",
+      "attackBonus": 0,
+      "damage": "1d6",
+      "damageBonus": 0,
+      "damageType": "穿刺",
+      "properties": "灵巧, 轻型",
+      "mastery": "虚招 Nick",
+      "attuned": false
+    },
+    {
+      "name": "标枪 (投掷)",
+      "ability": "dex",
+      "attackBonus": 0,
+      "damage": "1d6",
+      "damageBonus": 0,
+      "damageType": "穿刺",
+      "properties": "投掷(30/120)",
+      "mastery": "—",
+      "attuned": false
+    },
+    {
+      "name": "法术攻击",
+      "ability": "wis",
+      "attackBonus": 0,
+      "damage": "1d10",
+      "damageBonus": 0,
+      "damageType": "—",
+      "properties": "法术攻击 +6 / DC 14",
+      "mastery": "—",
+      "attuned": false
+    }
+  ],
+  "spellcasting": {
+    "castingAbility": "wis",
+    "extraDcBonus": 0,
+    "extraAttackBonus": 0,
+    "slots": {
+      "1": {
+        "max": 4,
+        "used": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "2": {
+        "max": 2,
+        "used": [
+          false,
+          false
+        ]
+      },
+      "3": {
+        "max": 0,
+        "used": []
+      },
+      "4": {
+        "max": 0,
+        "used": []
+      },
+      "5": {
+        "max": 0,
+        "used": []
+      },
+      "6": {
+        "max": 0,
+        "used": []
+      },
+      "7": {
+        "max": 0,
+        "used": []
+      },
+      "8": {
+        "max": 0,
+        "used": []
+      },
+      "9": {
+        "max": 0,
+        "used": []
+      }
+    },
+    "cantrips": [
+      {
+        "name": "神导术",
+        "school": "咒法（德）",
+        "ct": "1动作",
+        "range": "触及",
+        "comp": "V,S",
+        "dur": "专注1分钟",
+        "conc": true,
+        "desc": "目标 1 分钟内可对一次属性检定加 1d4。【德鲁伊教战士战斗风格】"
+      },
+      {
+        "name": "点点星芒",
+        "school": "塑能（德）",
+        "ct": "1动作",
+        "range": "60尺",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "damage": "1d8",
+        "desc": "远程法术攻击 1d8 光耀；命中后下次对其攻击具有优势。【德鲁伊教战士战斗风格】"
+      },
+      {
+        "name": "火焰术",
+        "school": "塑能（德）",
+        "ct": "1动作",
+        "range": "30尺",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "damage": "1d8",
+        "desc": "DEX 豁免 DC14，败则 1d8 火焰。【魔法学徒-德鲁伊起源专长】"
+      },
+      {
+        "name": "防护",
+        "school": "防护（德）",
+        "ct": "反应",
+        "range": "自身",
+        "comp": "V,S",
+        "dur": "1轮",
+        "desc": "反应：让一次攻击你的检定具有劣势。【魔法学徒-德鲁伊起源专长】"
+      }
+    ],
+    "spells": [
+      {
+        "lvl": 1,
+        "name": "猎人印记",
+        "school": "塑能",
+        "ct": "1附赠动作",
+        "range": "90尺",
+        "comp": "V,S",
+        "dur": "专注1小时",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "damage": "1d6",
+        "desc": "标记一名生物 1 小时：你对其武器攻击命中后额外 +1d6 力场。可附赠动作切换目标。【宿敌：始终准备 + 每长休可不消耗法术位施 3 次】"
+      },
+      {
+        "lvl": 1,
+        "name": "捕获打击",
+        "school": "咒法",
+        "ct": "1附赠动作",
+        "range": "自身",
+        "comp": "V,S",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "damage": "1d6",
+        "desc": "附赠激活 1 分钟：你下次武器命中目标 STR 豁免（DC14），败则被荆棘<u>束缚</u>，每回合开始 1d6 穿刺。"
+      },
+      {
+        "lvl": 1,
+        "name": "疗伤术",
+        "school": "防护",
+        "ct": "1动作",
+        "range": "触及",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "damage": "1d8",
+        "upcast": {
+          "dice": "1d8",
+          "perLevel": 1
+        },
+        "desc": "目标恢复 1d8+3 HP。升环每环 +1d8。"
+      },
+      {
+        "lvl": 1,
+        "name": "抛接打击",
+        "school": "塑能",
+        "ct": "1附赠动作",
+        "range": "自身",
+        "comp": "V,S",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "damage": "2d6",
+        "desc": "附赠激活 1 分钟：你下次武器命中额外 +2d6 火焰，DEX 豁免（DC14）败则起燃 1d6/回合直至灭。"
+      },
+      {
+        "lvl": 1,
+        "name": "纠缠术",
+        "school": "咒法",
+        "ct": "1动作",
+        "range": "90尺",
+        "comp": "V,S",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "desc": "20 尺立方植物束缚：STR 豁免（DC14），败则<u>束缚</u>1 分钟。【魔法学徒-德鲁伊起源专长免位 1 次/长休】"
+      },
+      {
+        "lvl": 2,
+        "name": "月华之光",
+        "school": "塑能",
+        "ct": "1动作",
+        "range": "120尺",
+        "comp": "V,S,M",
+        "dur": "专注1分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "damage": "2d10",
+        "upcast": {
+          "dice": "1d10",
+          "perLevel": 1
+        },
+        "desc": "5 尺半径 40 尺高光柱，进入或开始回合 CON 豁免，败则 2d10 辐光，成功半减。可附赠动作每回合移光柱 60 尺。"
+      },
+      {
+        "lvl": 2,
+        "name": "锐目术",
+        "school": "变化",
+        "ct": "1动作",
+        "range": "自身",
+        "comp": "V,S,M",
+        "dur": "1小时",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "desc": "察觉具有优势，30 尺内识破隐形，1 哩内细节清晰。"
+      }
+    ],
+    "spellPoints": {
+      "cur": 0,
+      "max": 0
+    }
+  },
+  "classResources": [
+    {
+      "key": "favoredEnemy",
+      "label": "宿敌（猎人印记免位）",
+      "resetType": "longRest",
+      "max": 3,
+      "used": [
+        false,
+        false,
+        false
+      ],
+      "desc": "始终准备的猎人印记可不消耗法术位施展。每长休 3 次。"
+    },
+    {
+      "key": "magicInitiateDruid",
+      "label": "魔法学徒-纠缠术（免位）",
+      "resetType": "longRest",
+      "max": 1,
+      "used": [
+        false
+      ],
+      "desc": "魔法学徒（德鲁伊）专长：每长休可不消耗法术位施展纠缠术 1 次。"
+    }
+  ],
+  "specialRolls": [],
+  "equipment": {
+    "armor": {
+      "name": "镶钉皮甲",
+      "ac": 16,
+      "dexLimit": null,
+      "weight": 13,
+      "attuned": false,
+      "equipped": true
+    },
+    "shield": {
+      "name": "",
+      "ac": 0,
+      "weight": 0,
+      "attuned": false,
+      "equipped": false
+    },
+    "items": [
+      {
+        "name": "长弓",
+        "weight": 2,
+        "qty": 1,
+        "attuned": false,
+        "desc": "主战武器：远程 +9 / 1d8+4。"
+      },
+      {
+        "name": "箭矢",
+        "weight": 0.05,
+        "qty": 30,
+        "attuned": false,
+        "desc": ""
+      },
+      {
+        "name": "箭袋",
+        "weight": 1,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      },
+      {
+        "name": "短剑",
+        "weight": 2,
+        "qty": 2,
+        "attuned": false,
+        "desc": "副手近战，单手轻型。"
+      },
+      {
+        "name": "标枪",
+        "weight": 2,
+        "qty": 4,
+        "attuned": false,
+        "desc": "投掷武器。"
+      },
+      {
+        "name": "弯刀",
+        "weight": 3,
+        "qty": 1,
+        "attuned": false,
+        "desc": "备用近战。"
+      },
+      {
+        "name": "德鲁伊法器（槲寄生枝条）",
+        "weight": 1,
+        "qty": 1,
+        "attuned": false,
+        "desc": "施法法器。"
+      },
+      {
+        "name": "探索套组",
+        "weight": 11,
+        "qty": 1,
+        "attuned": false,
+        "desc": "斥候装备：兜帽斗篷+毯子+干草+绳50尺+口粮×10+火绒+水袋"
+      },
+      {
+        "name": "制图工具",
+        "weight": 6,
+        "qty": 1,
+        "attuned": false,
+        "desc": "向导背景熟练。"
+      },
+      {
+        "name": "帐篷",
+        "weight": 20,
+        "qty": 1,
+        "attuned": false,
+        "desc": "向导套组。"
+      }
+    ]
+  },
+  "wealth": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 3,
+    "pp": 0
+  },
+  "features": [
+    {
+      "source": "种族（人类）",
+      "name": "适应力 / 技能 / 多才多艺",
+      "desc": "长休获得英雄激励；自选 1 项技能熟练（已含：察觉）；起源专长 <strong>警戒 Alert</strong>（先攻 +PB=+3，可与盟友互换先攻）。"
+    },
+    {
+      "source": "背景（向导）",
+      "name": "起始专长：魔法学徒（德鲁伊）",
+      "desc": "习得 2 道德鲁伊戏法（火焰术、防护），始终准备 1 道一环德鲁伊法术（纠缠术），每长休可免位施展该一环 1 次。施法属性：感知。"
+    },
+    {
+      "source": "背景（向导）",
+      "name": "技能与工具",
+      "desc": "隐匿、求生熟练；制图工具熟练。"
+    },
+    {
+      "source": "游侠 1 级",
+      "name": "施法 Spellcasting（感知）",
+      "desc": "DC <strong>14</strong> / 法术攻击 +<strong>6</strong>；施法法器：德鲁伊法器。"
+    },
+    {
+      "source": "游侠 1 级",
+      "name": "宿敌 Favored Enemy",
+      "desc": "始终准备<strong>猎人印记</strong>；可不消耗法术位施展，每长休 <strong>3 次</strong>。"
+    },
+    {
+      "source": "游侠 1 级",
+      "name": "武器精通 Weapon Mastery（2 种）",
+      "desc": "已选：长弓（缓速）、短剑（虚招）。每长休可重选。"
+    },
+    {
+      "source": "游侠 2 级",
+      "name": "熟练探险家 / 战斗风格",
+      "desc": "<strong>熟练探险家</strong>：选定 1 熟练技能升专精（已选：隐匿）；获 2 门语言（精灵语 + 矮人语）。<br><strong>战斗风格</strong>：<strong>射术 Archery</strong>（远程命中 +2，已计入长弓 +9）+ <strong>德鲁伊教战士</strong>（习得 2 道德鲁伊戏法：神导术、点点星芒）。"
+    },
+    {
+      "source": "驯兽师 3 级",
+      "name": "原初行侣 Primal Companion",
+      "summonSource": "原初行侣",
+      "desc": "魔法召唤一只原初野兽（大地/海洋/天空 三选一），听从你的命令。野兽 PB = 你的 PB；攻击命中 = 你的法术攻击；HP/AC 按你的等级和感知调整算（已 baked-in）。<br><strong>战斗：</strong>野兽自主移动 + 用反应；附赠动作命令它执行其他动作（包括野兽打击）；不命令默认回避。<br><strong>替换：</strong>长休时可换野兽种类。死亡后 1 小时内消耗法术位 1 动作可复活。<br><strong>点击此条目即可在三种野兽间挑选。</strong>"
+    },
+    {
+      "source": "游侠 4 级",
+      "name": "属性提升",
+      "desc": "敏捷 +2 → 19。"
+    },
+    {
+      "source": "游侠 5 级",
+      "name": "额外攻击 Extra Attack",
+      "desc": "执行攻击动作时发动 2 次攻击。"
+    },
+    {
+      "source": "提示",
+      "name": "<span style=\"color:var(--gold)\">驯兽师玩法速记</span>",
+      "desc": "1. 你和「原初行侣」同时存在 — 两个 tab 并行。<br>2. 战斗时通常这样：你射箭（长弓 ×2 攻击）+ 附赠命令野兽打击（或牺牲 1 次主体攻击改为命令）。<br>3. 你死野兽消失。野兽死可消耗法术位 1 分钟内复活。<br>4. 长休换野兽：先解除当前 → +唤出 选另一种。"
+    }
+  ],
+  "companions": [
+    {
+      "name": "灰背（大地野兽）",
+      "type": "companion",
+      "source": "原初行侣",
+      "active": true,
+      "abilities": {
+        "str": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 11,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 30,
+        "hpCur": 30,
+        "hpTemp": 0,
+        "hdMax": 5,
+        "hdCur": 5,
+        "acBase": 16,
+        "acBonus": 0,
+        "speed": "40 (攀40)",
+        "size": "中型",
+        "initBonus": 2,
+        "statusEffects": []
+      },
+      "skills": {
+        "perception": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "野兽打击（穿/砍/钝）",
+          "ability": "wis",
+          "attackBonus": 1,
+          "damage": "1d8",
+          "damageBonus": 3,
+          "damageType": "召唤时选",
+          "properties": "近战 5 尺；命中加值 = 主体法术攻击 +6；冲撞：直线移动 ≥20 尺再命中 → 额外 1d6 + 倒地（≤巨型）",
+          "mastery": "—"
+        }
+      ],
+      "classResources": [],
+      "features": [
+        {
+          "source": "PHB24 驯兽师",
+          "name": "大地野兽 Beast of the Land",
+          "desc": "中型野兽。AC = 13+感调 = 16；HP = 5+游侠等级×5 = 30；速度 40 + 攀爬 40。<br>玩家描述外形：可以是<strong>狼/猎犬/山猫/直翅龙马等任意陆地野兽</strong>，本卡设定为「灰背」(山地狼)。"
+        },
+        {
+          "source": "特质",
+          "name": "原初联结 Primal Bond",
+          "desc": "将玩家 PB <strong>+3</strong> 加进所有属性检定/豁免。"
+        },
+        {
+          "source": "动作",
+          "name": "野兽打击 Beast's Strike",
+          "desc": "近战 +6 / 1d8+5（穿/砍/钝，召唤时选定）。<br><strong>冲撞：</strong>直线 20 尺 + 命中 → 额外 1d6 + 大型或更小目标倒地。"
+        },
+        {
+          "source": "提示",
+          "name": "<span style=\"color:var(--gold)\">指挥规则</span>",
+          "desc": "主体附赠动作命令野兽攻击 / 疾走 / 撤离 / 回避 / 协助；不命令时野兽默认回避。<br>主体也可以牺牲攻击动作中的 1 次攻击换野兽出 1 次野兽打击。"
+        }
+      ],
+      "notes": "数据卡来自 PHB24 驯兽师子职「大地野兽」模板。\n外形描述：「灰背」一只全身灰毛的山地狼，瞳孔有银光，听得懂鹿衔说的语言。"
+    },
+    {
+      "name": "潮影（海洋野兽）",
+      "type": "companion",
+      "source": "原初行侣",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 11,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 30,
+        "hpCur": 30,
+        "hpTemp": 0,
+        "hdMax": 5,
+        "hdCur": 5,
+        "acBase": 16,
+        "acBonus": 0,
+        "speed": "5 (游60)",
+        "size": "中型",
+        "initBonus": 2,
+        "statusEffects": []
+      },
+      "skills": {
+        "perception": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "野兽打击（钝/穿）",
+          "ability": "wis",
+          "attackBonus": 1,
+          "damage": "1d6",
+          "damageBonus": 3,
+          "damageType": "召唤时选",
+          "properties": "近战 5 尺；命中 = 主体法术攻击 +6；命中后目标受擒（逃脱 DC 14 = 法术豁免 DC）",
+          "mastery": "—"
+        }
+      ],
+      "classResources": [],
+      "features": [
+        {
+          "source": "PHB24 驯兽师",
+          "name": "海洋野兽 Beast of the Sea",
+          "desc": "中型野兽。AC 16；HP 30；陆速 5、<strong>游泳 60</strong>。水陆两栖（可水可空气呼吸）。<br>玩家描述外形：水獭、海豹、巨蛇、章鱼、鳄鱼等水生形态。"
+        },
+        {
+          "source": "特质",
+          "name": "原初联结 / 水陆两栖",
+          "desc": "PB +3 加属性/豁免；空气和水中都能呼吸。"
+        },
+        {
+          "source": "动作",
+          "name": "野兽打击 Beast's Strike",
+          "desc": "近战 +6 / 1d6+5（钝/穿）+ <strong>受擒</strong>（逃脱 DC = 主体法术豁免 DC 14）。"
+        }
+      ],
+      "notes": "需要水域时通过长休换出。"
+    },
+    {
+      "name": "翎晕（天空野兽）",
+      "type": "companion",
+      "source": "原初行侣",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 6,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 16,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 13,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 11,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 24,
+        "hpCur": 24,
+        "hpTemp": 0,
+        "hdMax": 5,
+        "hdCur": 5,
+        "acBase": 16,
+        "acBonus": 0,
+        "speed": "10 (飞60)",
+        "size": "小型",
+        "initBonus": 3,
+        "statusEffects": []
+      },
+      "skills": {
+        "perception": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "野兽打击（砍）",
+          "ability": "wis",
+          "attackBonus": 1,
+          "damage": "1d4",
+          "damageBonus": 4,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺；命中 = 主体法术攻击 +6；伤害 1d4+3+敏(注：用感)",
+          "mastery": "—"
+        }
+      ],
+      "classResources": [],
+      "features": [
+        {
+          "source": "PHB24 驯兽师",
+          "name": "天空野兽 Beast of the Sky",
+          "desc": "小型野兽。AC 16；HP <strong>24</strong>（少于陆/海）；陆 10、<strong>飞行 60</strong>。<br>玩家描述外形：鹰、隼、巨鸟、小型直翅龙马、龙鳞天蛇等飞行生物。"
+        },
+        {
+          "source": "特质",
+          "name": "原初联结 / 飞掠",
+          "desc": "PB +3 加属性/豁免；<strong>飞掠 Flyby</strong>：飞行离开敌人触及不引发借机攻击。"
+        },
+        {
+          "source": "动作",
+          "name": "野兽打击 Beast's Strike",
+          "desc": "近战 +6 / 1d4+6（=1d4+3+感调3+1?）<strong>挥砍</strong>。注：数据卡原文 +3+感调，故 1d4+6。"
+        }
+      ],
+      "notes": "侦察 / 远征运输用。HP 较低（24），但飞行机动性极高。"
+    }
+  ],
+  "rollHistory": []
+}
+</script>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+/* === 5e 2024 规则常量 === */
+const RULES={
+  proficiencyByLevel:[0,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6],
+  abilities:['str','dex','con','int','wis','cha'],
+  abilityNames:{str:'力量',dex:'敏捷',con:'体质',int:'智力',wis:'感知',cha:'魅力'},
+  skills:[
+    {key:'athletics',name:'运动',ability:'str'},
+    {key:'acrobatics',name:'特技',ability:'dex'},
+    {key:'sleightOfHand',name:'巧手',ability:'dex'},
+    {key:'stealth',name:'隐匿',ability:'dex'},
+    {key:'arcana',name:'奥秘',ability:'int'},
+    {key:'history',name:'历史',ability:'int'},
+    {key:'investigation',name:'调查',ability:'int'},
+    {key:'nature',name:'自然',ability:'int'},
+    {key:'religion',name:'宗教',ability:'int'},
+    {key:'animalHandling',name:'驯兽',ability:'wis'},
+    {key:'insight',name:'洞悉',ability:'wis'},
+    {key:'medicine',name:'医药',ability:'wis'},
+    {key:'perception',name:'察觉',ability:'wis'},
+    {key:'survival',name:'求生',ability:'wis'},
+    {key:'deception',name:'欺瞒',ability:'cha'},
+    {key:'intimidation',name:'威吓',ability:'cha'},
+    {key:'performance',name:'表演',ability:'cha'},
+    {key:'persuasion',name:'游说',ability:'cha'}
+  ],
+  weaponMastery:{
+    '虚招':'Vex：若该武器击中目标，至下回合结束，对该目标的攻击具有优势。',
+    '削减':'Sap：若该武器击中目标，目标的下次攻击具有劣势（持续到下回合开始）。',
+    '慢化':'Slow：若击中目标且其速度>0，目标速度-10尺至下回合结束。',
+    '推开':'Push：若击中目标，将体型不大于大型的目标推开10尺。',
+    '裂砍':'Cleave：若近战命中，对相邻另一目标做一次伤害骰（不加加值）。',
+    '突刺':'Topple：若击中，目标做体质豁免（DC=8+熟练+攻击属性），失败则俯卧。',
+    '出鞘':'Nick：用副手轻型武器的额外攻击作为同一动作（而非附赠动作）。',
+    '强击':'Graze：若攻击未命中，仍造成等于关键属性调整值的同类型伤害。',
+    '弹道':'Topple/类似——见原文'
+  },
+  conditions:['失明','魅惑','聋哑','失能','惊恐','被擒抱','麻痹','石化','中毒','俯卧','束缚','震慑','昏迷','濒死','虚弱','隐形','蒙蔽','晕眩'],
+  classes:{
+    '法师':{hd:6,primary:['int'],casterType:'full'},
+    '术士':{hd:6,primary:['cha'],casterType:'full'},
+    '吟游诗人':{hd:8,primary:['cha'],casterType:'full'},
+    '牧师':{hd:8,primary:['wis'],casterType:'full'},
+    '德鲁伊':{hd:8,primary:['wis'],casterType:'full'},
+    '圣武士':{hd:10,primary:['str','cha'],casterType:'half'},
+    '游侠':{hd:10,primary:['dex','wis'],casterType:'half'},
+    '战士':{hd:10,primary:['str','dex'],casterType:'none'},
+    '野蛮人':{hd:12,primary:['str'],casterType:'none'},
+    '武僧':{hd:8,primary:['dex','wis'],casterType:'none'},
+    '游荡者':{hd:8,primary:['dex'],casterType:'none'},
+    '魔契师':{hd:8,primary:['cha'],casterType:'pact'}
+  }
+};
+
+/* === 测试角色：5 级人类法师 - 唤起学派 === */
+const DEFAULT_CHAR={
+  meta:{name:'悲灵',charId:'default-beilin',player:'',alignment:'中立善良',faith:'',xp:6500,notes:'',
+    classes:[{name:'法师',subclass:'唤起学派',level:5}],
+    race:{name:'人类',subrace:''},background:'学者',inspiration:false},
+  abilities:{
+    str:{score:8,saveProf:false,saveBonus:0},
+    dex:{score:14,saveProf:false,saveBonus:0},
+    con:{score:14,saveProf:false,saveBonus:0},
+    int:{score:16,saveProf:true,saveBonus:0},
+    wis:{score:12,saveProf:true,saveBonus:0},
+    cha:{score:10,saveProf:false,saveBonus:0}
+  },
+  combat:{hpMax:32,hpCur:32,hpTemp:0,hdMax:5,hdCur:5,acBase:13,acBonus:0,
+    speed:30,size:'中型',initBonus:0,deathSaves:{success:[false,false,false],fail:[false,false,false]},
+    resistance:'',immunity:'',advantage:'',statusEffects:[],concentration:null},
+  skills:{
+    arcana:{prof:'prof',bonus:0},
+    history:{prof:'prof',bonus:0},
+    investigation:{prof:'prof',bonus:0},
+    insight:{prof:'prof',bonus:0},
+    globalBonus:0,jackOfAllTrades:false
+  },
+  attacks:[
+    {name:'匕首',ability:'dex',attackBonus:0,damage:'1d4',damageBonus:0,damageType:'穿刺',properties:'灵巧, 投掷(20/60)',mastery:'虚招',attuned:false},
+    {name:'轻弩',ability:'dex',attackBonus:0,damage:'1d8',damageBonus:0,damageType:'穿刺',properties:'装填, 双手, 弹药(80/320)',mastery:'慢化',attuned:false}
+  ],
+  spellcasting:{
+    castingAbility:'int',extraDcBonus:0,extraAttackBonus:0,
+    slots:{1:{max:4,used:[false,false,false,false]},2:{max:3,used:[false,false,false]},3:{max:2,used:[false,false]},4:{max:0,used:[]},5:{max:0,used:[]},6:{max:0,used:[]},7:{max:0,used:[]},8:{max:0,used:[]},9:{max:0,used:[]}},
+    cantrips:[
+      {name:'火焰矢',school:'唤法',ct:'1动作',range:'120尺',comp:'V,S',dur:'瞬间',damage:'2d10',desc:'远程法术攻击。命中造成 1d10 火焰伤害，5/11/17 级各+1d10（5级=2d10）。'},
+      {name:'魔法伎俩',school:'变化',ct:'1动作',range:'10尺',comp:'V,S',dur:'最长1小时',desc:'造成微小魔法效果（声响/风/调味/清洁/冰镇/点燃/灭火/小印记/小物件）。'},
+      {name:'防护',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',desc:'反应：让一次攻击者投出劣势。'}
+    ],
+    spells:[
+      {lvl:1,name:'魔法飞弹',school:'唤法',ct:'1动作',range:'120尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'3d4+3',desc:'产生3支飞弹，每支1d4+1力场伤害自动命中。升环每环+1支（升4环投4d4+4，依此类推；当前按钮按基础3环投）。'},
+      {lvl:1,name:'护盾',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',prepared:true,ritual:false,conc:false,desc:'反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。'},
+      {lvl:1,name:'医疗',school:'防护',ct:'1动作',range:'60尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'1d8+3',desc:'治疗目标 1d8+施法属性(INT 3) HP。升环每环+1d8。'},
+      {lvl:1,name:'感知敌意',school:'占卜',ct:'1动作',range:'自身(30尺)',comp:'V,S',dur:'专注10分钟',prepared:true,ritual:false,conc:true,desc:'察觉范围内每个生物的敌意意图（不确定理由）。'},
+      {lvl:2,name:'雾步',school:'咒法',ct:'1附赠动作',range:'自身',comp:'V',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'传送至30尺内可见地点。'},
+      {lvl:2,name:'镜影术',school:'幻术',ct:'1动作',range:'自身',comp:'V,S',dur:'1分钟',prepared:true,ritual:false,conc:false,desc:'产生3个分身，攻击者随机命中分身（DC基于复制数）。'},
+      {lvl:2,name:'看不见的仆役',school:'咒法',ct:'1动作',range:'60尺',comp:'V,S,M',dur:'1小时',prepared:true,ritual:true,conc:false,desc:'召唤无形仆役执行简单任务。'},
+      {lvl:3,name:'火球术',school:'唤法',ct:'1动作',range:'150尺',comp:'V,S,M',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'8d6',desc:'150尺远某点，20尺半径球内每个生物受 8d6 火焰伤害，敏捷豁免减半。升环每环+1d6。'},
+      {lvl:3,name:'反制法术',school:'防护',ct:'反应',range:'60尺',comp:'S',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'反应：使一个目标的施法尝试失败（3环及以下自动；更高环要 DC10+环数 法术能力检定）。'}
+    ],
+    spellPoints:{cur:0,max:0}
+  },
+  classResources:[
+    {key:'arcaneRecovery',label:'奥术恢复',resetType:'longRest',max:1,used:[false],desc:'短休时使用，恢复总环阶数 ≤ 半角色等级（向上取整）的法术位（不含6环及以上）。'}
+  ],
+  specialRolls:[],
+  equipment:{
+    armor:{name:'法师铠护身(法术)',ac:13,dexLimit:null,weight:0,attuned:false,equipped:true},
+    shield:{name:'',ac:0,weight:0,attuned:false,equipped:false},
+    items:[
+      {name:'法术书',weight:3,qty:1,attuned:false,desc:'记录已知法术'},
+      {name:'奥术法器(水晶)',weight:1,qty:1,attuned:false,desc:'施法材料替代'},
+      {name:'探险包',weight:59,qty:1,attuned:false,desc:'背包/睡袋/口粮/水袋等'},
+      {name:'匕首',weight:1,qty:1,attuned:false,desc:''},
+      {name:'轻弩',weight:5,qty:1,attuned:false,desc:''},
+      {name:'弩矢×20',weight:1.5,qty:1,attuned:false,desc:''}
+    ]
+  },
+  wealth:{cp:0,sp:0,ep:0,gp:120,pp:0},
+  features:[
+    {source:'种族',name:'人类多面手',desc:'1级时获得一项起始专长。'},
+    {source:'职业(1级)',name:'法术施放',desc:'使用智力作为施法关键属性。'},
+    {source:'职业(1级)',name:'奥术恢复',desc:'短休时恢复一些法术位（每长休一次）。'},
+    {source:'子职(2级)',name:'唤起学派 - 法术雕琢',desc:'施放伤害性唤法法术时，可选择半角色等级（向上取整）个目标自动豁免成功（不受伤害）。'},
+    {source:'专长',name:'学究',desc:'两项智力检定（你选择）熟练；进行知识检定时若不熟练也加调整值。'},
+    {source:'背景',name:'学者',desc:'获得奥秘+历史熟练，并可在24小时研究中获取一段相关知识。'}
+  ],
+  companions:[],
+  rollHistory:[]
+};
+
+/* === 状态管理 === */
+let char=null;
+let displayChar=null;  /* 当前 tab 显示的实体（指向 char 主体或某个 companion） */
+function activeChar(){return displayChar||char}
+function isMainView(){return !displayChar||displayChar===char}
+function switchTab(idx){
+  char.meta=char.meta||{};
+  const comps=char.companions||[];
+  if(idx<0||!comps[idx]){
+    displayChar=char;
+    char.meta.viewIndex=-1;
+  }else{
+    displayChar=comps[idx];
+    char.meta.viewIndex=idx;
+  }
+  saveChar();
+  applyMainOnlyVisibility();
+  render();
+}
+function applyMainOnlyVisibility(){
+  const isMain=isMainView();
+  document.querySelectorAll('[data-main-only]').forEach(el=>{
+    el.classList.toggle('hidden',!isMain);
+  });
+}
+
+function activateCompanion(idx){
+  const c=(char.companions||[])[idx];
+  if(!c)return;
+  c.active=true;
+  saveChar();
+  switchTab(idx);
+}
+
+function deactivateCompanion(idx){
+  const c=(char.companions||[])[idx];
+  if(!c)return;
+  if(c.type==='companion')return;  // 永久伴生不可解除
+  if(!confirm(`确认取消"${c.name}"（${typeLabel(c.type)}）吗？\n该 tab 会消失，下次需要再从「+召唤」选择。`))return;
+  c.active=false;
+  pushHistory(`解除${typeLabel(c.type)}`,0,c.name);
+  // 如果当前正显示这个，切回主体
+  if(char.meta&&char.meta.viewIndex===idx){
+    char.meta.viewIndex=-1;
+    displayChar=char;
+  }
+  saveChar();
+  applyMainOnlyVisibility();
+  render();
+}
+
+/* sourceFilter 给定时只显示该 source 的 inactive companion；不给时显示全部 */
+function showSummonPicker(sourceFilter){
+  const comps=char.companions||[];
+  let inactive=comps.map((c,i)=>({c,i})).filter(x=>!isCompanionActive(x.c));
+  if(sourceFilter)inactive=inactive.filter(x=>x.c.source===sourceFilter);
+  if(!inactive.length){
+    if(sourceFilter)alert(`「${sourceFilter}」没有可选形态。\n车卡时让 Claude 把对应生物加进 JSON 后再试。`);
+    else alert('没有可激活的形态/召唤。\n车卡时让 Claude 把可变形态/可召唤生物加进 JSON 后再试。');
+    return;
+  }
+  // 按 source 分组
+  const groups=new Map();
+  for(const {c,i} of inactive){
+    const src=c.source||'其它';
+    if(!groups.has(src))groups.set(src,[]);
+    groups.get(src).push({c,i});
+  }
+  const groupHTML=Array.from(groups.entries()).map(([src,arr])=>{
+    const sample=arr[0].c;
+    const meta=sample.type==='wildShape'?'变身（消耗 1 次荒野变形）':sample.type==='summon'?'召唤':'';
+    return `<div class="summon-picker-group">
+      <h4>${src}</h4>
+      ${meta?`<div class="meta">${meta}</div>`:''}
+      <div class="opts">${arr.map(x=>`<button data-activate="${x.i}">${x.c.name||'?'}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+  const title=sourceFilter?`${sourceFilter} — 选择形态`:'选择变身 / 召唤';
+  openModal(`<h3>${title}</h3>
+    ${groupHTML}
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+}
+/* companion 默认 active：未显式指定 active 字段时，type=companion 视为永久伴生（active=true），其他默认 inactive */
+function isCompanionActive(c){
+  if(typeof c.active==='boolean')return c.active;
+  return c.type==='companion';
+}
+function typeLabel(t){return t==='wildShape'?'变身':t==='companion'?'伴生':t==='summon'?'召唤':'伴生'}
+/* 根据 source 名查 char.companions 里挂在该 source 下的 companion type，
+   用于决定"召唤…"/"变形…"/"唤出…"提示文字。混合或未知 → "变形/召唤" */
+function summonVerb(sourceName){
+  const comps=(char.companions||[]).filter(c=>c.source===sourceName);
+  if(!comps.length)return '变形/召唤';
+  const types=new Set(comps.map(c=>c.type));
+  if(types.size===1){
+    const t=[...types][0];
+    return t==='wildShape'?'变形':t==='summon'?'召唤':'唤出';
+  }
+  return '变形/召唤';
+}
+
+function renderTabBar(){
+  const bar=document.getElementById('tab-bar');
+  const comps=char.companions||[];
+  // 隐藏条件：完全没有 companions
+  if(!comps.length){bar.classList.add('hidden');bar.innerHTML='';return}
+  bar.classList.remove('hidden');
+  const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
+  const tabs=[];
+  tabs.push(`<button class="tab-btn ${idx===-1?'active':''}" data-tab="-1">${char.meta.name||'本人'} <span class="tag">主体</span></button>`);
+  comps.forEach((c,i)=>{
+    if(!isCompanionActive(c))return;  // inactive 不显示
+    const t=typeLabel(c.type);
+    const closable=(c.type!=='companion');  // 永久伴生不能 ✕（避免误删；想删让玩家手动改 JSON）
+    tabs.push(`<button class="tab-btn ${idx===i?'active':''}" data-tab="${i}">${c.name||'?'} <span class="tag">${t}</span>${closable?`<span class="x" data-deactivate="${i}" title="取消该${t}">✕</span>`:''}</button>`);
+  });
+  // 「+召唤/变形」按钮（如果有 inactive companion）。文字根据 inactive 的 type 决定
+  const inactives=comps.filter(c=>!isCompanionActive(c));
+  if(inactives.length){
+    const inactiveTypes=new Set(inactives.map(c=>c.type));
+    let label='+ 变形/召唤';
+    if(inactiveTypes.size===1){
+      const t=[...inactiveTypes][0];
+      label=t==='wildShape'?'+ 变形':t==='summon'?'+ 召唤':'+ 唤出';
+    }
+    tabs.push(`<button class="tab-btn summon-add" id="btn-summon-add" title="选择一个形态/伴生">${label}</button>`);
+  }
+  bar.innerHTML=tabs.join('');
+}
+function getEmbeddedChar(){
+  try{
+    const txt=document.getElementById('character-data').textContent.trim();
+    if(txt&&txt!=='{}')return JSON.parse(txt);
+  }catch(e){console.warn('character-data parse failed',e)}
+  return JSON.parse(JSON.stringify(DEFAULT_CHAR));
+}
+function ensureCharId(c){
+  if(!c.meta)c.meta={};
+  if(!c.meta.charId)c.meta.charId='char-'+Math.random().toString(36).slice(2,10);
+  return c.meta.charId;
+}
+// 把 cur 数字字段转成 used 布尔数组（pip 独立 toggle）。兼容老数据。
+function normalizeOne(c){
+  const sc=c.spellcasting||{};
+  const slots=sc.slots||{};
+  for(const lv in slots){
+    const s=slots[lv];
+    if(Array.isArray(s.used))continue;
+    const mx=s.max|0,cur=(s.cur==null?mx:s.cur)|0;
+    const usedN=Math.max(0,mx-cur);
+    s.used=Array(mx).fill(false);
+    for(let i=0;i<usedN;i++){if(mx-1-i>=0)s.used[mx-1-i]=true}
+    delete s.cur;
+  }
+  for(const r of c.classResources||[]){
+    if(Array.isArray(r.used))continue;
+    const mx=r.max|0,cur=(r.cur==null?mx:r.cur)|0;
+    const usedN=Math.max(0,mx-cur);
+    r.used=Array(mx).fill(false);
+    for(let i=0;i<usedN;i++){if(mx-1-i>=0)r.used[mx-1-i]=true}
+    delete r.cur;
+  }
+  const ds=c.combat&&c.combat.deathSaves;
+  if(ds){
+    for(const k of ['success','fail']){
+      if(Array.isArray(ds[k]))continue;
+      const n=ds[k]|0;
+      ds[k]=[0,1,2].map(i=>i<n);
+    }
+  }
+}
+function normalize(c){
+  normalizeOne(c);
+  for(const comp of c.companions||[])normalizeOne(comp);
+  return c;
+}
+function loadChar(){
+  const initial=getEmbeddedChar();
+  const charId=ensureCharId(initial);
+  let c=initial;
+  try{
+    const s=localStorage.getItem('dnd5r-char:'+charId);
+    if(s)c=JSON.parse(s);
+  }catch(e){}
+  return normalize(c);
+}
+function saveChar(){
+  try{localStorage.setItem('dnd5r-char:'+ensureCharId(char),JSON.stringify(char))}catch(e){}
+}
+
+/* === 计算 === */
+function totalLevel(c){return (c&&c.meta&&Array.isArray(c.meta.classes))?c.meta.classes.reduce((s,x)=>s+(x.level||0),0):0}
+function profBonus(c){
+  // companion 没 meta.classes 时共享主体 PB
+  const target=(c&&c.meta&&Array.isArray(c.meta.classes))?c:char;
+  return RULES.proficiencyByLevel[totalLevel(target)]||2;
+}
+function classHdGroups(c){
+  const map=new Map();
+  for(const cls of c.meta.classes||[]){
+    const hd=RULES.classes[cls.name]?.hd||8;
+    if(!map.has(hd))map.set(hd,{hd,levels:0,names:[]});
+    const g=map.get(hd);
+    g.levels+=cls.level||0;
+    g.names.push(cls.name);
+  }
+  return Array.from(map.values()).sort((a,b)=>b.hd-a.hd);
+}
+function hdSummary(c){
+  const groups=classHdGroups(c);
+  if(!groups.length)return 'd8';
+  if(groups.length===1)return 'd'+groups[0].hd;
+  return groups.map(g=>`d${g.hd}×${g.levels}`).join(' + ');
+}
+function abMod(s){return Math.floor((s-10)/2)}
+function fmt(n){return(n>=0?'+':'')+n}
+function saveBonus(c,ab){const a=c.abilities[ab];let b=abMod(a.score);if(a.saveProf)b+=profBonus(c);return b+(a.saveBonus||0)}
+function skillBonus(c,sk){
+  const s=RULES.skills.find(x=>x.key===sk);
+  const d=c.skills[sk]||{prof:'none',bonus:0};
+  let b=abMod(c.abilities[s.ability].score);
+  const pb=profBonus(c);
+  if(d.prof==='prof')b+=pb;
+  else if(d.prof==='expert')b+=pb*2;
+  else if(d.prof==='half')b+=Math.floor(pb/2);
+  else if(c.skills.jackOfAllTrades)b+=Math.floor(pb/2);
+  return b+(d.bonus||0)+(c.skills.globalBonus||0)
+}
+function ac(c){let a=c.combat.acBase+(c.combat.acBonus||0);const sh=c.equipment&&c.equipment.shield;if(sh&&sh.equipped&&sh.ac)a+=sh.ac;return a}
+function spellDC(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return 8+profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraDcBonus||0)}
+function spellAttack(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraAttackBonus||0)}
+function passivePerception(c){return 10+skillBonus(c,'perception')}
+function initiative(c){return abMod(c.abilities.dex.score)+(c.combat.initBonus||0)}
+function totalGP(c){const w=c.wealth;return Math.round((w.cp/100+w.sp/10+w.ep/2+w.gp+w.pp*10)*100)/100}
+function totalWeight(c){let w=0;const a=c.equipment.armor;if(a&&a.weight)w+=a.weight;const sh=c.equipment.shield;if(sh&&sh.weight)w+=sh.weight;for(const it of c.equipment.items||[])w+=(it.weight||0)*(it.qty||1);return w}
+function carryStatus(c){const w=totalWeight(c),s=c.abilities.str.score;if(w<=s*5)return{label:'轻载',color:'var(--good)'};if(w<=s*10)return{label:'重载',color:'var(--gold)'};if(w<=s*15)return{label:'超载',color:'var(--bad)'};return{label:'超重',color:'var(--bad)'}}
+
+/* === 投骰原子 === */
+function rollDie(s){return Math.floor(Math.random()*s)+1}
+function rollDice(n,s){const r=[];for(let i=0;i<n;i++)r.push(rollDie(s));return{rolls:r,total:r.reduce((a,b)=>a+b,0)}}
+function parseDice(e){const m=e.replace(/\s/g,'').match(/^(\d+)d(\d+)([+-]\d+)?$/i);if(!m)return null;return{n:+m[1],sides:+m[2],mod:m[3]?+m[3]:0}}
+/* 表达式语法：
+     1d4+1            单组骰
+     8d6 / 2d8        无 mod 单组骰
+     3·(1d4+1)        重复组：3 次 (1d4+1)，逐组求和（魔法飞弹/灼热射线等多投独立伤害的法术）
+     3·2d6            等价 3·(2d6)（括号可省）
+   分隔符 · / × / * 等价。 */
+function rollExpr(e){
+  const raw=e;
+  e=String(e).replace(/\s/g,'');
+  const repeat=e.match(/^(\d+)[·×*]\(?([^()]+)\)?$/);
+  if(repeat){
+    const n=+repeat[1];
+    const inner=parseDice(repeat[2]);
+    if(!inner)return null;
+    let total=0;
+    const allRolls=[];
+    const groups=[];
+    for(let i=0;i<n;i++){
+      const r=rollDice(inner.n,inner.sides);
+      const groupTotal=r.total+inner.mod;
+      total+=groupTotal;
+      allRolls.push(...r.rolls);
+      groups.push(`(${r.rolls.join('+')}${inner.mod?fmt(inner.mod):''}=${groupTotal})`);
+    }
+    return {rolls:allRolls,total,mod:0,expr:raw,detail:groups.join(' + ')};
+  }
+  const p=parseDice(e);
+  if(!p)return null;
+  const r=rollDice(p.n,p.sides);
+  return {...r,mod:p.mod,total:r.total+p.mod,expr:raw};
+}
+/* 升环伤害计算：
+     spell.upcast = { dice: '1d6', perLevel: 1 }       → '8d6' 升 N 环 → '(8+N)d6'
+     spell.upcast = { repeat: '1d4+1', perLevel: 1 }   → '3·(1d4+1)' 升 N 环 → '(3+N)·(1d4+1)'
+   若没 upcast 字段，返回原 damage（不变）。castLvl 可大于等于 spell.lvl。 */
+function getUpcastDamage(spell,castLvl){
+  const baseDmg=spell.damage||'';
+  const baseLvl=spell.lvl||0;
+  const extra=Math.max(0,castLvl-baseLvl);
+  if(!extra||!spell.upcast)return baseDmg;
+  const u=spell.upcast,per=u.perLevel||1;
+  if(u.dice){
+    const baseM=baseDmg.replace(/\s/g,'').match(/^(\d+)d(\d+)([+-]\d+)?$/);
+    const upM=String(u.dice).replace(/\s/g,'').match(/^(\d*)d(\d+)$/);
+    if(baseM&&upM&&baseM[2]===upM[2]){
+      const newN=+baseM[1]+extra*per*(+upM[1]||1);
+      return newN+'d'+baseM[2]+(baseM[3]||'');
+    }
+  }
+  if(u.repeat){
+    const baseR=baseDmg.replace(/\s/g,'').match(/^(\d+)[·×*]\(?([^()]+)\)?$/);
+    if(baseR&&baseR[2]===String(u.repeat).replace(/\s/g,'')){
+      const newN=+baseR[1]+extra*per;
+      return `${newN}·(${baseR[2]})`;
+    }
+  }
+  return baseDmg;
+}
+function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
+function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
+
+/* === 模态框 === */
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-overlay').classList.remove('hidden')}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden')}
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal()});
+
+/* === 渲染 ===
+   多数 render 函数读 activeChar()——主体或 companion，由当前 tab 决定。
+   主体专属（marked data-main-only / 始终读 char）：
+     状态、法术、装备、特殊投骰；这些 panel 切到 companion 时整体 hide。
+   渲染入口：
+     1. renderTabBar（决定 displayChar 当前指向）
+     2. applyMainOnlyVisibility（隐藏不该出现的 panel）
+     3. 各 panel 渲染——主体 panel 直读 char，entity-aware panel 读 activeChar */
+function render(){
+  // 没 displayChar 默认主体
+  if(!displayChar)displayChar=char;
+  renderTabBar();
+  applyMainOnlyVisibility();
+  renderHeader();
+  renderCombat();
+  if(isMainView())renderStatus();
+  renderAbilities();
+  renderSkills();
+  renderAttacks();
+  if(isMainView()){renderSpells();renderSpecialRolls();renderEquipment()}
+  renderResources();
+  renderFeatures();
+  renderNotes();
+}
+
+function renderHeader(){
+  document.getElementById('char-name').textContent=char.meta.name||'未命名';
+  const cls=char.meta.classes.map(c=>`${c.name}${c.subclass?'·'+c.subclass:''} ${c.level}级`).join(' / ');
+  const race=char.meta.race.name+(char.meta.race.subrace?'/'+char.meta.race.subrace:'');
+  document.getElementById('char-meta').textContent=`${race} · ${cls} · ${char.meta.background||''}`;
+  document.getElementById('prof-display').textContent=`熟练 ${fmt(profBonus(char))}`;
+  document.title=`${char.meta.name||'人物卡'} — DnD 5r`;
+}
+
+function renderCombat(){
+  const c=activeChar();
+  const isMain=isMainView();
+  document.getElementById('hp-cur').textContent=c.combat.hpCur;
+  document.getElementById('hp-max').textContent=c.combat.hpMax;
+  document.getElementById('hp-temp').textContent=c.combat.hpTemp?`(+${c.combat.hpTemp})`:'';
+  const pct=c.combat.hpMax>0?Math.max(0,c.combat.hpCur/c.combat.hpMax*100):0;
+  const bar=document.getElementById('hp-bar-fg');
+  bar.style.width=pct+'%';
+  bar.className='hp-bar-fg'+(pct<25?' crit':pct<50?' low':'');
+  document.getElementById('init-val').textContent=fmt(initiative(c));
+  document.getElementById('ac-val').textContent=ac(c);
+  // DC / HD 主体专属，companion 视图显示 —
+  if(isMain){
+    const dc=spellDC(char);
+    document.getElementById('dc-val').textContent=dc!=null?dc:'—';
+    document.getElementById('hd-cur').textContent=char.combat.hdCur;
+    document.getElementById('hd-max').textContent=char.combat.hdMax;
+    // 在 hd-cur 和 hd-max 之间的 "/" 是模板里硬写的；这里把它显示出来
+    const hdMaxEl=document.getElementById('hd-max');
+    if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='/';
+    document.getElementById('hd-size').textContent=hdSummary(char);
+  }else{
+    document.getElementById('dc-val').textContent='—';
+    document.getElementById('hd-cur').textContent='—';
+    document.getElementById('hd-max').textContent='';
+    const hdMaxEl=document.getElementById('hd-max');
+    if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='';
+    document.getElementById('hd-size').textContent='主体';
+  }
+  document.getElementById('speed-val').textContent=c.combat.speed;
+  document.getElementById('size-val').textContent=c.combat.size;
+  document.getElementById('pp-val').textContent=passivePerception(c);
+}
+
+function renderStatus(){
+  const it=document.getElementById('insp-toggle');
+  it.textContent=char.meta.inspiration?'有 ⭐':'无';
+  it.className='insp-toggle'+(char.meta.inspiration?' on':'');
+  const ds=char.combat.deathSaves;
+  if(!Array.isArray(ds.success))ds.success=[false,false,false];
+  if(!Array.isArray(ds.fail))ds.fail=[false,false,false];
+  document.getElementById('ds-success-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.success[i]?' success':''}" data-ds="success" data-i="${i}"></span>`).join('');
+  document.getElementById('ds-fail-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.fail[i]?' fail':''}" data-ds="fail" data-i="${i}"></span>`).join('');
+  const sg=document.getElementById('status-grid');
+  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag" data-status-rm="${s}">${s} ✕</span>`).join('');
+  sg.innerHTML=tags+`<span class="status-tag add" id="add-status">+ 添加</span>`;
+  document.getElementById('resistance').textContent=char.combat.resistance||'—';
+  // 专注
+  const cd=document.getElementById('conc-display');
+  const conc=char.combat.concentration;
+  if(conc&&conc.spellName){
+    const lvlText=conc.spellLvl?` (${conc.spellLvl}环)`:'';
+    cd.innerHTML=`<span class="conc-active"><span class="name">⊙ ${conc.spellName}${lvlText}</span><button id="btn-conc-save" title="受伤维持专注豁免">维持</button><button id="btn-conc-release" title="主动释放专注">释放</button></span>`;
+  }else{
+    cd.innerHTML='<span class="conc-empty">—</span>';
+  }
+}
+
+function renderAbilities(){
+  const c=activeChar();
+  const grid=document.getElementById('ab-grid');
+  grid.innerHTML=RULES.abilities.map(ab=>{
+    const a=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0},m=abMod(a.score),sb=saveBonus(c,ab);
+    return `<div class="ab-box" data-roll="ability" data-ab="${ab}">
+      <div class="label">${RULES.abilityNames[ab]}</div>
+      <div class="mod num">${fmt(m)}</div>
+      <div class="score num" data-edit-ab="${ab}">${a.score}</div>
+      <div class="save${a.saveProf?' prof':''} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSkills(){
+  const c=activeChar();
+  const skills=c.skills||{};
+  const list=document.getElementById('skill-list');
+  list.innerHTML=RULES.skills.map(s=>{
+    const d=skills[s.key]||{prof:'none',bonus:0};
+    let mark='',cls='';
+    if(d.prof==='prof'){mark='●';cls='prof'}
+    else if(d.prof==='expert'){mark='◆';cls='expert'}
+    else if(d.prof==='half'){mark='◐';cls='half'}
+    return `<div class="skill-row" data-roll="skill" data-skill="${s.key}">
+      <span class="prof-toggle ${cls}" data-toggle-prof="${s.key}">${mark}</span>
+      <span class="skill-name">${s.name}</span>
+      <span class="skill-ability">${RULES.abilityNames[s.ability].slice(0,1)}</span>
+      <span class="skill-bonus num">${fmt(skillBonus(c,s.key))}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderAttacks(){
+  const c=activeChar();
+  const list=document.getElementById('attack-list');
+  const pb=profBonus(char);  // PB 始终来自主体（companion 共享熟练加值）
+  list.innerHTML=(c.attacks||[]).map((a,i)=>{
+    const ab=c.abilities[a.ability]||{score:10};
+    const m=abMod(ab.score);
+    const atk=m+pb+(a.attackBonus||0);
+    const dmgMod=m+(a.damageBonus||0);
+    const dmg=`${a.damage}${dmgMod?fmt(dmgMod):''}`;
+    return `<div class="attack-row" data-roll="attack" data-i="${i}">
+      <div class="name">${a.name}${a.attuned?' ✦':''}</div>
+      <div class="stats">
+        <span>命中 <strong>${fmt(atk)}</strong></span>
+        <span>伤害 <strong>${dmg}</strong> ${a.damageType}</span>
+        ${a.mastery?`<span class="mastery">精通：${a.mastery}</span>`:''}
+      </div>
+      <div class="stats" style="font-size:11px">${a.properties||''}</div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无武器</div>';
+}
+
+/* === 法术材料 helper ===
+   spell.material 可以是字符串（描述）或对象 {desc, gp, consumed, focusable}。
+   分类：
+   - consumed=true       → 消耗类（红色高亮 + 施放前 confirm）
+   - gp>0 && !consumed   → 高价值类（金色高亮，不消耗但 DM 会管这颗珍珠还在不在）
+   - 其余                → 普通材料（灰色小字，可被法器替代）
+*/
+function spellMaterial(spell){
+  const m=spell.material;
+  if(!m)return null;
+  if(typeof m==='string')return {desc:m,gp:0,consumed:false,focusable:true,kind:'normal'};
+  const consumed=!!m.consumed;
+  const gp=+m.gp||0;
+  const focusable=m.focusable!==false&&!consumed&&!gp;
+  const kind=consumed?'consumed':(gp>0?'valuable':'normal');
+  return {desc:m.desc||'',gp,consumed,focusable,kind};
+}
+
+function renderSpells(){
+  const sc=char.spellcasting;
+  const meta=document.getElementById('spell-meta');
+  const sg=document.getElementById('slot-grid');
+  const list=document.getElementById('spell-list');
+  if(!sc||!sc.castingAbility){meta.textContent='此角色无施法能力';sg.innerHTML='';list.innerHTML='';return}
+  meta.textContent=`DC ${spellDC(char)} · 攻 ${fmt(spellAttack(char))} (${RULES.abilityNames[sc.castingAbility]})`;
+  sg.innerHTML=[1,2,3,4,5,6,7,8,9].map(lv=>{
+    const s=sc.slots[lv]||{used:[],max:0};
+    if(s.max===0)return `<div class="slot-col"><div class="level">${lv}</div><div class="slots" style="opacity:.3">—</div></div>`;
+    if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+    const pips=[];
+    for(let i=0;i<s.max;i++)pips.push(`<div class="slot-pip ${s.used[i]?'':'full'}" data-slot="${lv}" data-i="${i}"></div>`);
+    const remaining=s.used.filter(x=>!x).length;
+    return `<div class="slot-col"><div class="level">${lv}环</div><div class="slots">${pips.join('')}</div><div class="level num">${remaining}/${s.max}</div></div>`;
+  }).join('');
+  const all=[];
+  for(const c of sc.cantrips||[])all.push({...c,lvl:0});
+  for(const sp of sc.spells||[])all.push(sp);
+  all.sort((a,b)=>a.lvl-b.lvl||a.name.localeCompare(b.name,'zh'));
+  list.innerHTML=all.map((sp,i)=>{
+    const mat=spellMaterial(sp);
+    let matBadge='';
+    if(mat){
+      if(mat.kind==='consumed')matBadge=`<span class="mat-consumed" title="消耗：${mat.desc}">⚠${mat.gp?mat.gp+'gp':''}</span>`;
+      else if(mat.kind==='valuable')matBadge=`<span class="mat-valuable" title="${mat.desc}">💎${mat.gp}gp</span>`;
+    }
+    return `<div class="spell-row" data-spell-i="${i}">
+    <span class="lv">${sp.lvl===0?'戏':sp.lvl+'环'}</span>
+    <span class="name">${sp.name}${matBadge}</span>
+    <span class="school">${sp.school||''}</span>
+    ${sp.conc?'<span class="conc">[专]</span>':''}
+    ${sp.ritual?'<span class="conc">[仪]</span>':''}
+  </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无法术</div>';
+  list._allSpells=all;
+}
+
+function renderResources(){
+  const c=activeChar();
+  const list=document.getElementById('resource-list');
+  const items=[...(c.classResources||[])];
+  if(!items.length){list.innerHTML='<div style="color:var(--text-dim)">无职业资源</div>';return}
+  list.innerHTML=items.map((r,i)=>{
+    if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
+    const pips=[];
+    const max=Math.min(r.max,12);
+    for(let j=0;j<max;j++)pips.push(`<div class="pip ${r.used[j]?'':'full'}" data-res="${i}" data-i="${j}"></div>`);
+    const tag=r.resetType==='shortRest'?'短休':r.resetType==='longRest'?'长休':'其它';
+    const remaining=r.used.filter(x=>!x).length;
+    const hasSummon=!!r.summonSource;
+    const labelExtra=hasSummon?` <span style="font-size:11px;color:var(--accent)">▸ ${summonVerb(r.summonSource)}…</span>`:'';
+    const labelAttr=hasSummon?` data-resource-summon="${r.summonSource}"`:'';
+    const labelStyle=hasSummon?'cursor:pointer':'';
+    return `<div class="res-row" title="${(r.desc||'').replace(/"/g,'&quot;')}">
+      <span class="label" style="${labelStyle}"${labelAttr}>${r.label}${labelExtra}</span>
+      <span class="reset-tag">${tag}</span>
+      <span class="pips">${pips.join('')}</span>
+      <span class="num" style="min-width:40px;text-align:right">${remaining}/${r.max}</span>
+    </div>`;
+  }).join('');
+}
+
+/* === 特殊投骰（如混沌施法 d100 法力狂潮）=== */
+function renderSpecialRolls(){
+  const panel=document.getElementById('special-rolls-panel');
+  const list=document.getElementById('special-rolls-list');
+  const items=char.specialRolls||[];
+  if(!items.length){panel.classList.add('hidden');return}
+  panel.classList.remove('hidden');
+  list.innerHTML=items.map((r,i)=>{
+    const die=r.die||'d100';
+    const desc=r.desc?`<div class="desc">${r.desc}</div>`:'';
+    return `<div class="special-roll-row">
+      <div class="top">
+        <span class="label">${r.label||'特殊投骰'}</span>
+        <span class="die-tag">${die}</span>
+        <button class="roll-btn" data-special-roll="${i}">投${die}</button>
+        <button data-special-table="${i}">查表</button>
+      </div>
+      ${desc}
+    </div>`;
+  }).join('');
+}
+
+function findSurgeRow(table,roll){
+  for(const row of table||[]){if(roll>=row.min&&roll<=row.max)return row}
+  return null;
+}
+
+function rollSubOption(sub){
+  if(!sub)return null;
+  const m=String(sub.die||'d4').match(/^d(\d+)$/i);
+  if(!m)return null;
+  const sides=+m[1];
+  const r=rollDie(sides);
+  const opts=sub.options||[];
+  const text=opts[r-1]||'(表外)';
+  return {die:`d${sides}`,roll:r,text};
+}
+
+function showSpecialRollResult(spec,roll,row){
+  const die=spec.die||'d100';
+  const label=spec.label||'特殊投骰';
+  let body=`<h3>${label}</h3>
+    <div class="surge-result">
+      <div class="roll-result"><div>${die} 结果</div><div class="total">${roll}</div></div>`;
+  if(!row){
+    body+=`<div class="effect">未在表上找到匹配区间。</div>`;
+  }else{
+    body+=`<div class="range">区间 ${row.min}–${row.max}</div>
+      <div class="effect">${row.effect||'(无文字)'}</div>`;
+    if(row.subRoll){
+      const sub=rollSubOption(row.subRoll);
+      if(sub){
+        body+=`<div class="sub-roll">
+          <div class="sub-label">附加 ${sub.die} = <strong style="color:var(--accent)">${sub.roll}</strong></div>
+          <div>${sub.text}</div>
+        </div>`;
+        pushHistory(`${label} ${die}+${sub.die}`,roll,`${roll} → ${row.min}-${row.max}；${sub.die}=${sub.roll}：${sub.text}`);
+      }else{
+        pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+      }
+    }else{
+      pushHistory(`${label} ${die}`,roll,`${roll} → ${row.min}-${row.max}：${(row.effect||'').slice(0,80)}`);
+    }
+  }
+  body+=`</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`;
+  openModal(body);
+}
+
+function triggerSpecialRoll(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const m=String(spec.die||'d100').match(/^d(\d+)$/i);
+  const sides=m?+m[1]:100;
+  const roll=rollDie(sides);
+  const row=findSurgeRow(spec.table,roll);
+  showSpecialRollResult(spec,roll,row);
+}
+
+function showSpecialRollTable(i){
+  const spec=(char.specialRolls||[])[i];
+  if(!spec)return;
+  const die=spec.die||'d100';
+  const rows=(spec.table||[]).map(r=>`<tr>
+    <td class="range">${r.min}–${r.max}</td>
+    <td>${r.effect||''}${r.subRoll?`<div style="margin-top:4px;font-size:11px;color:var(--text-dim)">附加 ${r.subRoll.die}：${(r.subRoll.options||[]).map((o,k)=>`<span style="display:inline-block;margin-right:8px"><strong>${k+1}</strong>=${o}</span>`).join('')}</div>`:''}</td>
+  </tr>`).join('');
+  openModal(`<h3>${spec.label||'特殊投骰'}（${die} 全表）</h3>
+    <div class="surge-table-modal"><table>${rows||'<tr><td>(空表)</td></tr>'}</table></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+    </div>`);
+}
+
+function renderEquipment(){
+  const arm=char.equipment.armor,sh=char.equipment.shield;
+  let html='';
+  if(arm&&arm.name)html+=`<div class="item-row"><span class="name">护甲：${arm.name} (AC ${arm.ac})${arm.attuned?' ✦':''}</span><span class="weight">${arm.weight||0}磅</span></div>`;
+  if(sh&&sh.name)html+=`<div class="item-row"><span class="name">盾牌：${sh.name} (+${sh.ac} AC) ${sh.equipped?'装备中':''}${sh.attuned?' ✦':''}</span><span class="weight">${sh.weight||0}磅</span></div>`;
+  document.getElementById('armor-info').innerHTML=html;
+  const items=char.equipment.items||[];
+  document.getElementById('item-count').textContent=items.length;
+  document.getElementById('item-list').innerHTML=items.map(it=>`<div class="item-row">
+    <span class="name">${it.name}${it.attuned?' ✦':''}</span>
+    <span class="qty">×${it.qty||1}</span>
+    <span class="weight">${((it.weight||0)*(it.qty||1)).toFixed(1)}磅</span>
+  </div>`).join('')||'<div style="color:var(--text-dim)">无</div>';
+  const w=totalWeight(char);
+  const cs=carryStatus(char);
+  document.getElementById('weight-display').innerHTML=`<span style="color:${cs.color}">${cs.label}</span> · ${w.toFixed(1)}/${char.abilities.str.score*15}磅`;
+  const wg=document.getElementById('wealth-grid');
+  const labels={cp:'CP 铜',sp:'SP 银',ep:'EP 琥',gp:'GP 金',pp:'PP 铂'};
+  wg.innerHTML=['cp','sp','ep','gp','pp'].map(c=>`<div class="coin-box">
+    <div class="label">${labels[c]}</div>
+    <input type="number" min="0" data-coin="${c}" value="${char.wealth[c]||0}">
+  </div>`).join('');
+  document.getElementById('wealth-total').textContent=totalGP(char)+' GP';
+}
+
+function renderFeatures(){
+  const c=activeChar();
+  const list=document.getElementById('features-list');
+  list.innerHTML=(c.features||[]).map(f=>{
+    const cls=f.summonSource?'feature summonable':'feature';
+    const dataAttr=f.summonSource?` data-feature-summon="${f.summonSource}"`:'';
+    const hint=f.summonSource?`<span class="summon-hint">▸ ${summonVerb(f.summonSource)}…</span>`:'';
+    return `<div class="${cls}"${dataAttr}>
+    <div class="src">[${f.source||''}]</div>
+    <div class="name">${f.name||''}${hint}</div>
+    <div class="desc">${f.desc||''}</div>
+  </div>`;
+  }).join('')||'<div style="color:var(--text-dim)">无</div>';
+}
+
+function renderNotes(){
+  const c=activeChar();
+  // companion 用 c.notes（直接顶层字段），主体用 c.meta.notes
+  const txt=isMainView()?(char.meta&&char.meta.notes||''):(c.notes||'');
+  document.getElementById('notes-input').value=txt;
+}
+
+/* === 投骰对话框 === */
+let rollCtx=null;
+function showRollDialog(label,baseBonus){
+  rollCtx={label,baseBonus,mode:'normal',extra:0};
+  openModal(`<h3>${label}</h3>
+    <div class="modal-row"><span>基础加值：<strong class="num" id="rb">${fmt(baseBonus)}</strong></span>
+      <span style="margin-left:auto">微调：</span>
+      <button data-extra="-1">-1</button>
+      <span class="num" id="re" style="min-width:24px;text-align:center">+0</span>
+      <button data-extra="+1">+1</button>
+    </div>
+    <div class="modal-row"><span>模式：</span>
+      <div class="adv-toggle">
+        <button class="active" data-mode="normal">正常</button>
+        <button data-mode="adv">优势</button>
+        <button data-mode="dis">劣势</button>
+      </div>
+    </div>
+    <div id="roll-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button class="primary" id="btn-do-roll">投！</button>
+    </div>`);
+  document.querySelectorAll('[data-extra]').forEach(b=>b.addEventListener('click',()=>{
+    rollCtx.extra+=parseInt(b.dataset.extra);
+    document.getElementById('re').textContent=fmt(rollCtx.extra);
+    document.getElementById('rb').textContent=fmt(rollCtx.baseBonus+rollCtx.extra);
+  }));
+  document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
+    rollCtx.mode=b.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+  document.getElementById('btn-do-roll').addEventListener('click',()=>{
+    const r=rollD20WithAdv(rollCtx.mode);
+    const total=r.chosen+rollCtx.baseBonus+rollCtx.extra;
+    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}`;
+    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(rollCtx.label,total,detail.replace(/<[^>]+>/g,''));
+  });
+}
+
+/* === 攻击对话框 === */
+function showAttackDialog(idx){
+  const c=activeChar();
+  const a=c.attacks[idx];
+  if(!a)return;
+  const m=abMod((c.abilities[a.ability]||{score:10}).score);
+  const atkBonus=m+profBonus(char)+(a.attackBonus||0);
+  const dmgMod=m+(a.damageBonus||0);
+  let amode='normal';
+  openModal(`<h3>攻击：${a.name}</h3>
+    <div class="modal-row" style="font-size:13px">命中 <strong>${fmt(atkBonus)}</strong> ｜ 伤害 <strong>${a.damage}${dmgMod?fmt(dmgMod):''}</strong> ${a.damageType}</div>
+    ${a.mastery?`<div class="modal-row" style="font-size:12px;color:var(--gold);background:var(--panel-hi);padding:6px;border-radius:3px"><strong>精通【${a.mastery}】</strong>：${RULES.weaponMastery[a.mastery]||''}</div>`:''}
+    <div class="modal-row"><span>模式：</span>
+      <div class="adv-toggle">
+        <button class="active" data-amode="normal">正常</button>
+        <button data-amode="adv">优势</button>
+        <button data-amode="dis">劣势</button>
+      </div>
+    </div>
+    <div id="atk-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-atk">投攻击</button>
+      <button id="btn-dmg">投伤害</button>
+      <button id="btn-crit">暴击伤害</button>
+    </div>`);
+  document.querySelectorAll('[data-amode]').forEach(b=>b.addEventListener('click',()=>{
+    amode=b.dataset.amode;
+    document.querySelectorAll('[data-amode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+  document.getElementById('btn-atk').addEventListener('click',()=>{
+    const r=rollD20WithAdv(amode);
+    const total=r.chosen+atkBonus;
+    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${fmt(atkBonus)}${r.chosen===20?' 暴击!':''}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`攻击-${a.name}`,total,detail.replace(/<[^>]+>/g,''));
+  });
+  document.getElementById('btn-dmg').addEventListener('click',()=>{
+    const r=rollExpr(a.damage);
+    if(!r){alert('伤害骰解析失败：'+a.damage);return}
+    const total=r.total+dmgMod;
+    const detail=`${a.damage}: [${r.rolls.join(',')}] ${dmgMod?fmt(dmgMod):''} = ${total} ${a.damageType}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`伤害-${a.name}`,total,detail);
+  });
+  document.getElementById('btn-crit').addEventListener('click',()=>{
+    const r1=rollExpr(a.damage),r2=rollExpr(a.damage);
+    if(!r1||!r2){alert('伤害骰解析失败');return}
+    const total=r1.total+r2.total+dmgMod;
+    const detail=`暴击 ${a.damage}×2: [${r1.rolls.join(',')}]+[${r2.rolls.join(',')}] ${dmgMod?fmt(dmgMod):''} = ${total} ${a.damageType}`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    pushHistory(`暴击-${a.name}`,total,detail);
+  });
+}
+
+/* === 法术对话框 === */
+function showSpellDialog(spell){
+  const sc=char.spellcasting;
+  const isCantrip=spell.lvl===0;
+  let slotOpts='';
+  if(!isCantrip){
+    const opts=[];
+    for(let lv=spell.lvl;lv<=9;lv++){
+      const s=sc.slots[lv]||{max:0,used:[]};
+      if(s.max===0)continue;
+      const remaining=(s.used||[]).filter(x=>!x).length;
+      opts.push(`<option value="${lv}" ${lv===spell.lvl?'selected':''} ${remaining===0?'disabled':''}>${lv}环 (${remaining}/${s.max})${lv>spell.lvl?' 升环':''}</option>`);
+    }
+    slotOpts=opts.join('')||'<option disabled>无可用法术位</option>';
+  }
+  const mat=spellMaterial(spell);
+  let matLine='';
+  if(mat){
+    if(mat.kind==='consumed')matLine=`<div class="material-line consumed">⚠ <strong>消耗材料：</strong>${mat.desc}${mat.gp?`（${mat.gp} GP）`:''}<br><span style="font-weight:normal;font-size:11px">施法即用掉一份；记得在装备里减少库存。</span></div>`;
+    else if(mat.kind==='valuable')matLine=`<div class="material-line valuable">💎 <strong>必备材料：</strong>${mat.desc}（${mat.gp} GP，不消耗）<br><span style="font-weight:normal;font-size:11px">价值高于 1 GP，奥术法器/成分包<u>无法</u>替代，需实际持有。</span></div>`;
+    else matLine=`<div class="material-line normal">材料：${mat.desc}${mat.focusable?'<span style="font-size:11px"> · 可由奥术法器/成分包替代</span>':''}</div>`;
+  }
+  openModal(`<h3>${isCantrip?'戏法':spell.lvl+'环'}：${spell.name}</h3>
+    <div class="modal-row" style="font-size:12px;color:var(--text-dim)">
+      <span>${spell.school||''}</span><span>·</span>
+      <span>${spell.ct||''}</span><span>·</span>
+      <span>${spell.range||''}</span><span>·</span>
+      <span>成分${spell.comp||''}</span><span>·</span>
+      <span>${spell.dur||''}</span>
+      ${spell.conc?'<span style="color:var(--accent)">·专注</span>':''}
+      ${spell.ritual?'<span style="color:var(--gold)">·仪式</span>':''}
+    </div>
+    ${matLine}
+    <div style="margin:10px 0;font-size:13px;line-height:1.6">${spell.desc||''}</div>
+    ${!isCantrip?`<div class="modal-row"><span>消耗法术位：</span><select id="slot-sel">${slotOpts}</select></div>`:''}
+    <div id="cast-result"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
+      ${spell.summonSource?`<button id="btn-spell-summon" title="${summonVerb(spell.summonSource)}一个 ${spell.summonSource} 形态">${summonVerb(spell.summonSource)}…</button>`:''}
+      ${!isCantrip&&spell.ritual?`<button id="btn-cast-ritual" title="花 10 分钟以仪式施展，不消耗法术位">仪式（不扣位）</button>`:''}
+      ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
+    </div>`);
+  // 升环时按 select 当前环阶动态算 damage 表达式
+  function currentDmgExpr(){
+    if(isCantrip)return spell.damage||'';
+    const sel=document.getElementById('slot-sel');
+    const lv=sel?parseInt(sel.value)||spell.lvl:spell.lvl;
+    return getUpcastDamage(spell,lv);
+  }
+  function refreshDmgBtn(){
+    const btn=document.getElementById('btn-roll-dmg');
+    const expr=currentDmgExpr();
+    btn.textContent=expr?`投 ${expr}`:'投伤害骰…';
+  }
+  if(!isCantrip){
+    const sel=document.getElementById('slot-sel');
+    if(sel)sel.addEventListener('change',refreshDmgBtn);
+    refreshDmgBtn();
+  }
+  document.getElementById('btn-roll-dmg').addEventListener('click',()=>{
+    let expr=currentDmgExpr();
+    if(!expr){
+      expr=prompt('输入要投的骰子表达式（如 8d6, 3d4+3, 3·(1d4+1)）：','');
+      if(!expr)return;
+    }
+    const r=rollExpr(expr);
+    if(!r){alert('解析失败：'+expr);return}
+    const detail=r.detail||`[${r.rolls.join(',')}] ${r.mod?fmt(r.mod):''}`;
+    document.getElementById('cast-result').innerHTML=`<div class="roll-result"><div class="total">${r.total}</div><div class="roll-detail">${expr}: ${detail}</div></div>`;
+    pushHistory(`${spell.name}伤害`,r.total,`${expr}: ${detail}`);
+  });
+  if(!isCantrip){
+    document.getElementById('btn-cast').addEventListener('click',()=>{
+      const sel=document.getElementById('slot-sel');
+      if(!sel.value){alert('无可用法术位');return}
+      const lv=parseInt(sel.value);
+      const s=sc.slots[lv];
+      if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+      const idx=s.used.indexOf(false);
+      if(idx===-1){alert('该环没可用法术位');return}
+      const matInfo=spellMaterial(spell);
+      let extra='';
+      if(matInfo&&matInfo.kind==='consumed'){
+        if(!confirm(`本次施放将消耗：${matInfo.desc}${matInfo.gp?`（${matInfo.gp} GP）`:''}。\n\n确认施放？\n（记得手动从装备/财产中减除该材料）`))return;
+        extra=` · 消耗 ${matInfo.desc}${matInfo.gp?` (${matInfo.gp}gp)`:''}`;
+      }
+      // 专注追踪：先做替换确认，再扣位
+      if(spell.conc&&!setConcentration(spell,lv))return;
+      s.used[idx]=true;
+      saveChar();renderSpells();renderStatus();
+      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}${spell.conc?' · 专注':''}`);
+      closeModal();
+    });
+    // 仪式施法（不扣位，10 分钟）
+    const ritualBtn=document.getElementById('btn-cast-ritual');
+    if(ritualBtn){
+      ritualBtn.addEventListener('click',()=>{
+        if(spell.conc&&!setConcentration(spell,spell.lvl))return;
+        saveChar();renderStatus();
+        pushHistory(`仪式施法-${spell.name}`,spell.lvl,`花 10 分钟以仪式施展，不消耗法术位${spell.conc?' · 专注':''}`);
+        closeModal();
+      });
+    }
+  }
+  // 召唤按钮（戏法或法术皆可）：直接 picker；激活由 picker 内部 click 处理
+  const summonBtn=document.getElementById('btn-spell-summon');
+  if(summonBtn){
+    summonBtn.addEventListener('click',()=>{
+      closeModal();
+      showSummonPicker(spell.summonSource);
+    });
+  }
+}
+
+/* === 专注 helpers === */
+function setConcentration(spell,castLvl){
+  const cur=char.combat.concentration;
+  if(cur&&cur.spellName){
+    if(!confirm(`你当前正在专注 ${cur.spellName}${cur.spellLvl?` (${cur.spellLvl}环)`:''}。\n施展 ${spell.name} 将取消该专注。\n\n确认？`))return false;
+  }
+  char.combat.concentration={spellName:spell.name,spellLvl:castLvl||spell.lvl||0};
+  return true;
+}
+
+function doConcentrationSave(){
+  const cur=char.combat.concentration;
+  if(!cur||!cur.spellName){alert('当前未专注任何法术');return}
+  const dmgStr=prompt(`受到的伤害是多少？\n（豁免 DC = max(10, 伤害/2)）`,'10');
+  const dmg=parseInt(dmgStr);
+  if(!dmg||dmg<=0)return;
+  const dc=Math.max(10,Math.floor(dmg/2));
+  const conSave=saveBonus(char,'con');
+  const r=rollDie(20);
+  const total=r+conSave;
+  const success=r===20||(r!==1&&total>=dc);
+  const detail=`D20: ${r} ${fmt(conSave)} = ${total} vs DC${dc} → ${success?'成功':'失败'}`;
+  pushHistory(`维持专注-${cur.spellName}`,total,`伤害 ${dmg} → ${detail}`);
+  if(!success){
+    char.combat.concentration=null;
+    alert(`💥 豁免失败！\n专注 ${cur.spellName} 已结束。\n\n${detail}`);
+  }else{
+    alert(`✓ 豁免成功，继续专注 ${cur.spellName}。\n\n${detail}`);
+  }
+  saveChar();renderStatus();
+}
+
+/* === HP 对话框 === */
+function showHPDialog(){
+  const c=activeChar();
+  const isMain=isMainView();
+  openModal(`<h3>HP / 临时HP${isMain?' / 死亡豁免':''}${isMain?'':' （'+(c.name||'伴生')+'）'}</h3>
+    <div class="modal-row">
+      当前 <strong class="num" id="hp-cur-d">${c.combat.hpCur}</strong> /
+      上限 <input type="number" id="hp-max-i" value="${c.combat.hpMax}" style="width:70px">
+      · 临时 <input type="number" id="hp-temp-i" value="${c.combat.hpTemp||0}" style="width:70px">
+    </div>
+    <div class="modal-row">
+      <input type="number" id="hp-delta" placeholder="数值" value="0" style="width:80px">
+      <button class="primary" id="btn-hp-dmg">受伤</button>
+      <button id="btn-hp-heal">治疗</button>
+      <button id="btn-hp-full">满血</button>
+    </div>
+    ${isMain?`<div class="modal-row">死豁：
+      <button id="btn-ds-s">+成功</button>
+      <button id="btn-ds-f">+失败</button>
+      <button id="btn-ds-r">重置</button>
+    </div>`:''}
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-hp-save">保存上限/临时</button>
+    </div>`);
+  const refresh=()=>{document.getElementById('hp-cur-d').textContent=c.combat.hpCur;renderCombat();if(isMain)renderStatus();saveChar()};
+  document.getElementById('btn-hp-dmg').addEventListener('click',()=>{
+    let d=parseInt(document.getElementById('hp-delta').value)||0;
+    if(d<=0)return;
+    if(c.combat.hpTemp>0){
+      const t=Math.min(c.combat.hpTemp,d);
+      c.combat.hpTemp-=t;d-=t;
+      document.getElementById('hp-temp-i').value=c.combat.hpTemp;
+    }
+    c.combat.hpCur=Math.max(0,c.combat.hpCur-d);
+    refresh();
+  });
+  document.getElementById('btn-hp-heal').addEventListener('click',()=>{
+    const d=parseInt(document.getElementById('hp-delta').value)||0;
+    c.combat.hpCur=Math.min(c.combat.hpMax,c.combat.hpCur+d);
+    refresh();
+  });
+  document.getElementById('btn-hp-full').addEventListener('click',()=>{c.combat.hpCur=c.combat.hpMax;refresh()});
+  if(isMain){
+    const addDs=k=>{const a=c.combat.deathSaves[k];const idx=a.indexOf(false);if(idx>=0)a[idx]=true};
+    document.getElementById('btn-ds-s').addEventListener('click',()=>{addDs('success');refresh()});
+    document.getElementById('btn-ds-f').addEventListener('click',()=>{addDs('fail');refresh()});
+    document.getElementById('btn-ds-r').addEventListener('click',()=>{c.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};refresh()});
+  }
+  document.getElementById('btn-hp-save').addEventListener('click',()=>{
+    c.combat.hpMax=parseInt(document.getElementById('hp-max-i').value)||c.combat.hpMax;
+    c.combat.hpTemp=parseInt(document.getElementById('hp-temp-i').value)||0;
+    refresh();closeModal();
+  });
+}
+
+/* === 状态选择器 === */
+function showStatusPicker(){
+  openModal(`<h3>添加状态</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+      ${RULES.conditions.map(c=>`<button data-add-status="${c}">${c}</button>`).join('')}
+    </div>
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+  document.querySelectorAll('[data-add-status]').forEach(b=>b.addEventListener('click',()=>{
+    const s=b.dataset.addStatus;
+    char.combat.statusEffects=char.combat.statusEffects||[];
+    if(!char.combat.statusEffects.includes(s))char.combat.statusEffects.push(s);
+    saveChar();renderStatus();closeModal();
+  }));
+}
+
+/* === 全局点击委托 === */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.matches('[data-deactivate]')){
+    e.stopPropagation();  // 不冒泡到 tab 切换
+    deactivateCompanion(parseInt(t.dataset.deactivate));return;
+  }
+  if(t.matches('[data-activate]')){
+    closeModal();
+    activateCompanion(parseInt(t.dataset.activate));return;
+  }
+  if(t.id==='btn-summon-add'){showSummonPicker();return}
+  if(t.closest('[data-feature-summon]')){
+    const src=t.closest('[data-feature-summon]').dataset.featureSummon;
+    showSummonPicker(src);return;
+  }
+  if(t.closest('[data-resource-summon]')){
+    e.stopPropagation();  // 不冒泡到资源 pip toggle
+    const src=t.closest('[data-resource-summon]').dataset.resourceSummon;
+    showSummonPicker(src);return;
+  }
+  if(t.matches('[data-tab]')){
+    switchTab(parseInt(t.dataset.tab));return;
+  }
+  if(t.matches('[data-toggle-prof]')){
+    e.stopPropagation();
+    const c=activeChar();
+    const sk=t.dataset.toggleProf;
+    c.skills=c.skills||{};
+    const cur=(c.skills[sk]&&c.skills[sk].prof)||'none';
+    const cycle={none:'prof',prof:'expert',expert:'half',half:'none'};
+    c.skills[sk]=c.skills[sk]||{bonus:0};
+    c.skills[sk].prof=cycle[cur];
+    saveChar();renderSkills();return;
+  }
+  if(t.matches('[data-edit-name]')){
+    e.stopPropagation();
+    // 主体名编辑（companion tab 时点 header 名字仍编辑主体名）
+    const v=prompt('角色名：',char.meta.name||'');
+    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();render()}
+    return;
+  }
+  if(t.matches('[data-edit-ab]')){
+    e.stopPropagation();
+    const c=activeChar();
+    const ab=t.dataset.editAb;
+    const cur=c.abilities[ab]?c.abilities[ab].score:10;
+    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,cur);
+    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){
+      c.abilities[ab]=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
+      c.abilities[ab].score=n;saveChar();render();
+    }}
+    return;
+  }
+  if(t.matches('.slot-pip')){
+    const lv=parseInt(t.dataset.slot),i=parseInt(t.dataset.i);
+    const s=char.spellcasting.slots[lv];
+    if(!Array.isArray(s.used))s.used=Array(s.max).fill(false);
+    s.used[i]=!s.used[i];
+    saveChar();renderSpells();return;
+  }
+  if(t.matches('.pip[data-res]')){
+    const c=activeChar();
+    const ri=parseInt(t.dataset.res),i=parseInt(t.dataset.i);
+    const r=c.classResources[ri];
+    if(!Array.isArray(r.used))r.used=Array(r.max).fill(false);
+    r.used[i]=!r.used[i];
+    saveChar();renderResources();return;
+  }
+  if(t.matches('.death-pip')){
+    const k=t.dataset.ds,i=parseInt(t.dataset.i);
+    const ds=char.combat.deathSaves;
+    if(!Array.isArray(ds[k]))ds[k]=[false,false,false];
+    ds[k][i]=!ds[k][i];
+    saveChar();renderStatus();return;
+  }
+  if(t.id==='insp-toggle'){char.meta.inspiration=!char.meta.inspiration;saveChar();renderStatus();return}
+  if(t.id==='btn-conc-release'){
+    const c=char.combat.concentration;
+    if(c)pushHistory('释放专注',0,`主动释放对 ${c.spellName} 的专注`);
+    char.combat.concentration=null;saveChar();renderStatus();return;
+  }
+  if(t.id==='btn-conc-save'){doConcentrationSave();return}
+  if(t.id==='add-status'){showStatusPicker();return}
+  if(t.matches('[data-status-rm]')){
+    const s=t.dataset.statusRm;
+    char.combat.statusEffects=(char.combat.statusEffects||[]).filter(x=>x!==s);
+    saveChar();renderStatus();return;
+  }
+  if(t.closest('[data-roll="save"]')){
+    const c=activeChar();
+    const ab=t.closest('[data-roll="save"]').dataset.ab;
+    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(c,ab));return;
+  }
+  if(t.closest('[data-roll="ability"]')){
+    const c=activeChar();
+    const ab=t.closest('[data-roll="ability"]').dataset.ab;
+    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod((c.abilities[ab]||{score:10}).score));return;
+  }
+  if(t.closest('[data-roll="skill"]')){
+    const c=activeChar();
+    const sk=t.closest('[data-roll="skill"]').dataset.skill;
+    const skName=RULES.skills.find(s=>s.key===sk).name;
+    showRollDialog(`${skName}检定`,skillBonus(c,sk));return;
+  }
+  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(activeChar()));return}
+  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(activeChar(),'perception'));return}
+  if(t.closest('[data-roll="attack"]')){
+    const i=parseInt(t.closest('[data-roll="attack"]').dataset.i);
+    showAttackDialog(i);return;
+  }
+  if(t.closest('[data-spell-i]')){
+    const i=parseInt(t.closest('[data-spell-i]').dataset.spellI);
+    const sp=document.getElementById('spell-list')._allSpells[i];
+    showSpellDialog(sp);return;
+  }
+  if(t.closest('#hp-bar')){showHPDialog();return}
+  if(t.matches('[data-special-roll]')){triggerSpecialRoll(parseInt(t.dataset.specialRoll));return}
+  if(t.matches('[data-special-table]')){showSpecialRollTable(parseInt(t.dataset.specialTable));return}
+});
+
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.matches('[data-coin]')){
+    char.wealth[t.dataset.coin]=parseInt(t.value)||0;
+    saveChar();
+    document.getElementById('wealth-total').textContent=totalGP(char)+' GP';
+    return;
+  }
+  if(t.id==='notes-input'){
+    if(isMainView()){char.meta.notes=t.value}
+    else{const c=activeChar();c.notes=t.value}
+    saveChar();return;
+  }
+});
+
+/* === 短休 === */
+function consumeHdInteractive(){
+  const groups=classHdGroups(char);
+  const conMod=abMod(char.abilities.con.score);
+  let totalSpent=0,totalRecover=0;
+  const detail=[];
+  let remaining=char.combat.hdCur;
+  if(remaining<=0){alert('无可用 HD');return}
+  if(groups.length<=1){
+    const g=groups[0]||{hd:8,names:['']};
+    const v=parseInt(prompt(`要消耗几个 HD？（当前 ${char.combat.hdCur}/${char.combat.hdMax}，每个回 d${g.hd} + 体调 ${fmt(conMod)}）`,'0'))||0;
+    if(v<=0)return;
+    const useN=Math.min(v,remaining);
+    let sub=0;const rolls=[];
+    for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+    sub=Math.max(useN,sub);
+    totalSpent=useN;totalRecover=sub;
+    detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]+${conMod}×${useN}`);
+  }else{
+    for(const g of groups){
+      if(remaining<=0)break;
+      const cap=Math.min(g.levels,remaining);
+      if(cap<=0)continue;
+      const v=parseInt(prompt(`【${g.names.join('/')} d${g.hd}】消耗几个？\n该职业等级 ${g.levels}，HD 总池剩 ${remaining}，可消耗至多 ${cap}。`,'0'))||0;
+      if(v<=0)continue;
+      const useN=Math.min(v,cap);
+      let sub=0;const rolls=[];
+      for(let i=0;i<useN;i++){const r=rollDie(g.hd);rolls.push(r);sub+=r+conMod}
+      sub=Math.max(useN,sub);
+      totalSpent+=useN;
+      totalRecover+=sub;
+      detail.push(`${useN}d${g.hd}: [${rolls.join(',')}]`);
+      remaining-=useN;
+    }
+    if(totalSpent>0)detail.push(`+${conMod}×${totalSpent}`);
+  }
+  if(totalSpent===0)return;
+  char.combat.hpCur=Math.min(char.combat.hpMax,char.combat.hpCur+totalRecover);
+  char.combat.hdCur-=totalSpent;
+  pushHistory('短休HD',totalRecover,detail.join(' '));
+  alert(`恢复 ${totalRecover} HP`);
+}
+
+/* 全 entity 列表（主体 + 所有 companions），用于长/短休批量重置资源 / HP */
+function allEntities(){return [char,...(char.companions||[])]}
+
+function shortRest(){
+  if(!confirm('短休 1 小时？\n- 可消耗 HD 恢复 HP（仅主体）\n- 恢复主体 + 全部伴生的「短休」资源'))return;
+  for(const e of allEntities()){
+    for(const r of e.classResources||[]){if(r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  }
+  consumeHdInteractive();
+  saveChar();render();
+}
+
+/* === 长休 === */
+function longRest(){
+  if(!confirm('长休 8 小时？\n- 主体 + 全部伴生 HP 全满\n- 主体 HD 恢复半数（向下取整，至少 1）\n- 主体全部法术位回满\n- 主体 + 伴生的「长休/短休」资源恢复\n- 主体重置死亡豁免'))return;
+  // 主体
+  char.combat.hpCur=char.combat.hpMax;
+  char.combat.hpTemp=0;
+  char.combat.hdCur=Math.min(char.combat.hdMax,char.combat.hdCur+Math.max(1,Math.floor(char.combat.hdMax/2)));
+  char.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};
+  if(char.spellcasting&&char.spellcasting.slots){
+    for(const lv of Object.keys(char.spellcasting.slots)){
+      const s=char.spellcasting.slots[lv];
+      s.used=Array(s.max).fill(false);
+    }
+  }
+  if(char.spellcasting&&char.spellcasting.spellPoints)char.spellcasting.spellPoints.cur=char.spellcasting.spellPoints.max;
+  // 主体 + 全部伴生：HP 全满 + 资源回满
+  for(const e of allEntities()){
+    if(e.combat){e.combat.hpCur=e.combat.hpMax;e.combat.hpTemp=0}
+    for(const r of e.classResources||[]){if(r.resetType==='longRest'||r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  }
+  // 清空所有变身/召唤的 active 状态（永久伴生 type=companion 保持不变）
+  const summons=(char.companions||[]).filter(c=>(c.type==='wildShape'||c.type==='summon')&&isCompanionActive(c));
+  if(summons.length){
+    if(confirm(`长休期间通常无法持续变身/召唤。\n是否解除以下 ${summons.length} 个：\n${summons.map(c=>'  · '+c.name).join('\n')}`)){
+      for(const c of summons)c.active=false;
+      // 如果当前 view 是被解除的 companion，切回主体
+      const idx=char.meta.viewIndex;
+      if(idx>=0&&char.companions[idx]&&!isCompanionActive(char.companions[idx])){
+        char.meta.viewIndex=-1;
+        displayChar=char;
+      }
+    }
+  }
+  saveChar();render();
+  alert('长休完成');
+}
+
+/* === 骰史 === */
+function showHistory(){
+  const items=char.rollHistory||[];
+  openModal(`<h3>骰史 (最近 ${items.length})</h3>
+    <div class="history-list">
+      ${items.length===0?'<div style="color:var(--text-dim)">暂无</div>':
+        items.map(h=>`<div class="history-item">
+          <span class="label">${h.label}</span>
+          <span class="val num">${h.total}</span>
+          <div style="color:var(--text-dim);font-size:11px;margin-top:2px">${h.detail||''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button id="btn-clear-h">清空</button>
+    </div>`);
+  document.getElementById('btn-clear-h').addEventListener('click',()=>{
+    if(confirm('清空骰史？')){char.rollHistory=[];saveChar();closeModal()}
+  });
+}
+
+
+/* === 骰娘命令 === */
+function diceBotCmd(){
+  const ab=char.abilities;
+  const parts=[];
+  for(const k of ['str','dex','con','int','wis','cha']){
+    parts.push(`${RULES.abilityNames[k]}${ab[k].saveProf?'*':''}:${ab[k].score}`);
+  }
+  parts.push(`hp:${char.combat.hpCur}`);
+  parts.push(`hpmax:${char.combat.hpMax}`);
+  parts.push(`先攻:${initiative(char)}`);
+  parts.push(`ac:${ac(char)}`);
+  const dc=spellDC(char);if(dc!=null)parts.push(`dc:${dc}`);
+  parts.push(`pp:${passivePerception(char)}`);
+  parts.push(`熟练:${profBonus(char)}`);
+  for(const sk of RULES.skills){
+    const d=char.skills[sk.key]||{prof:'none'};
+    const mark=d.prof==='prof'?'*':d.prof==='expert'?'*2':d.prof==='half'?'*0.5':'';
+    parts.push(`${sk.name}${mark}:${skillBonus(char,sk.key)}`);
+  }
+  const cmd='.nn '+(char.meta.name||'人物卡')+'\n.dst '+parts.join(' ');
+  openModal(`<h3>骰娘命令导出</h3>
+    <p style="font-size:12px;color:var(--text-dim)">复制以下两行发到群里给骰娘（海豹/Olivia/Dice!/MDice/塔骰 等）。</p>
+    <textarea id="dst-ta" readonly style="width:100%;height:200px;font-family:monospace;font-size:12px"></textarea>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-copy-dst">复制</button>
+    </div>`);
+  document.getElementById('dst-ta').value=cmd;
+  document.getElementById('btn-copy-dst').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(cmd);alert('已复制')}
+    catch(e){document.getElementById('dst-ta').select();document.execCommand('copy');alert('已复制（兼容模式）')}
+  });
+}
+
+/* === 顶部按钮绑定 === */
+document.getElementById('btn-rest-short').addEventListener('click',shortRest);
+document.getElementById('btn-rest-long').addEventListener('click',longRest);
+document.getElementById('btn-history').addEventListener('click',showHistory);
+document.getElementById('btn-dice-cmd').addEventListener('click',diceBotCmd);
+document.getElementById('btn-theme').addEventListener('click',()=>{
+  const cur=document.body.dataset.theme||'dark';
+  document.body.dataset.theme=cur==='dark'?'light':'dark';
+  try{localStorage.setItem('dnd5r-theme',document.body.dataset.theme)}catch(e){}
+});
+
+/* === 启动 === */
+char=loadChar();
+// 恢复上次的 tab 视图
+{
+  const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
+  const comps=char.companions||[];
+  displayChar=(idx>=0&&comps[idx])?comps[idx]:char;
+}
+try{const t=localStorage.getItem('dnd5r-theme');if(t)document.body.dataset.theme=t}catch(e){}
+render();
+</script>
+</body>
+</html>
