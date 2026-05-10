@@ -309,7 +309,7 @@ details summary:hover{color:var(--accent)}
     "background": "隐士",
     "inspiration": false,
     "viewIndex": -1,
-    "charId": "林蘅-78375811"
+    "charId": "林蘅-78376121"
   },
   "abilities": {
     "str": {
@@ -1569,6 +1569,282 @@ details summary:hover{color:var(--accent)}
           "source": "附赠动作",
           "name": "迅捷逃逸 Nimble Escape",
           "desc": "附赠动作执行<strong>撤离</strong>或<strong>躲藏</strong>。"
+        }
+      ]
+    },
+    {
+      "name": "鹰 ⚠ 飞行",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 6,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 12,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "10 (飞60)",
+        "size": "微型",
+        "initBonus": 2,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "禽爪",
+          "ability": "dex",
+          "attackBonus": 0,
+          "damage": "1d4",
+          "damageBonus": 0,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "鹰 Eagle · CR 0",
+          "desc": "微型野兽。<strong>飞行 60</strong>，被察 16（视力极佳）。纯侦察用 — 战斗能力很弱。"
+        },
+        {
+          "source": "<span style=\"color:var(--bad)\">⚠ 规则限制</span>",
+          "name": "飞行形态需 8 级德鲁伊",
+          "desc": "<strong>PHB24 严格规则：</strong>德鲁伊 8 级才能变飞行类形态。<br>本卡是 5 级 — 此形态需 <strong>DM 同意</strong>方可使用（常见放宽）。"
+        }
+      ]
+    },
+    {
+      "name": "血鹰 ⚠ 飞行",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 6,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "10 (飞60)",
+        "size": "微型",
+        "initBonus": 2,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "喙啄",
+          "ability": "dex",
+          "attackBonus": 0,
+          "damage": "1d4",
+          "damageBonus": 0,
+          "damageType": "穿刺",
+          "properties": "近战 5 尺；目标处于<u>浴血</u>时改为 1d8+敏",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "血鹰 Blood Hawk · CR 1/8",
+          "desc": "微型野兽。<strong>飞行 60 + 集群战术</strong>。咬伤目标若处于浴血状态额外伤害（1d4 → 1d8）。可作侦察 + 收尾打击。"
+        },
+        {
+          "source": "<span style=\"color:var(--bad)\">⚠ 规则限制</span>",
+          "name": "飞行形态需 8 级德鲁伊",
+          "desc": "<strong>PHB24 严格规则：</strong>需 8 级才能变飞行类。本卡 5 级 — 需 <strong>DM 同意</strong>。"
+        }
+      ]
+    },
+    {
+      "name": "巨蝙蝠 ⚠ 飞行",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 16,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 11,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "10 (飞60)",
+        "size": "大型",
+        "initBonus": 3,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "啃咬",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d6",
+          "damageBonus": 0,
+          "damageType": "穿刺",
+          "properties": "近战 5 尺",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "巨蝙蝠 Giant Bat · CR 1/4",
+          "desc": "大型野兽。<strong>飞行 60</strong>，盲视（回声定位）。比鹰耐打很多 (HP 22 数据卡)；可作飞行运输/侦察。"
+        },
+        {
+          "source": "<span style=\"color:var(--bad)\">⚠ 规则限制</span>",
+          "name": "飞行形态需 8 级德鲁伊",
+          "desc": "<strong>PHB24 严格规则：</strong>需 8 级才能变飞行类。本卡 5 级 — 需 <strong>DM 同意</strong>。"
         }
       ]
     }
