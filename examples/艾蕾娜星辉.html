@@ -150,7 +150,7 @@ details summary:hover{color:var(--accent)}
 .features-list .desc{font-size:12px;color:var(--text-dim);margin-top:2px}
 .features-list .feature.summonable{cursor:pointer}
 .features-list .feature.summonable:hover{background:var(--panel-hi)}
-.features-list .feature.summonable .name::after{content:' ▸ 召唤…';color:var(--accent);font-size:11px;font-weight:normal}
+.features-list .feature.summonable .name .summon-hint{color:var(--accent);font-size:11px;font-weight:normal;margin-left:4px}
 .special-roll-row{padding:8px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;background:var(--panel-hi)}
 .special-roll-row .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .special-roll-row .label{font-weight:bold;color:var(--gold);flex:1}
@@ -1897,6 +1897,18 @@ function isCompanionActive(c){
   return c.type==='companion';
 }
 function typeLabel(t){return t==='wildShape'?'变身':t==='companion'?'伴生':t==='summon'?'召唤':'伴生'}
+/* 根据 source 名查 char.companions 里挂在该 source 下的 companion type，
+   用于决定"召唤…"/"变形…"/"唤出…"提示文字。混合或未知 → "变形/召唤" */
+function summonVerb(sourceName){
+  const comps=(char.companions||[]).filter(c=>c.source===sourceName);
+  if(!comps.length)return '变形/召唤';
+  const types=new Set(comps.map(c=>c.type));
+  if(types.size===1){
+    const t=[...types][0];
+    return t==='wildShape'?'变形':t==='summon'?'召唤':'唤出';
+  }
+  return '变形/召唤';
+}
 
 function renderTabBar(){
   const bar=document.getElementById('tab-bar');
@@ -1913,10 +1925,16 @@ function renderTabBar(){
     const closable=(c.type!=='companion');  // 永久伴生不能 ✕（避免误删；想删让玩家手动改 JSON）
     tabs.push(`<button class="tab-btn ${idx===i?'active':''}" data-tab="${i}">${c.name||'?'} <span class="tag">${t}</span>${closable?`<span class="x" data-deactivate="${i}" title="取消该${t}">✕</span>`:''}</button>`);
   });
-  // 「+召唤」按钮（如果有 inactive companion）
-  const inactiveCount=comps.filter(c=>!isCompanionActive(c)).length;
-  if(inactiveCount>0){
-    tabs.push(`<button class="tab-btn summon-add" id="btn-summon-add" title="变身/召唤一个新形态">+ 召唤</button>`);
+  // 「+召唤/变形」按钮（如果有 inactive companion）。文字根据 inactive 的 type 决定
+  const inactives=comps.filter(c=>!isCompanionActive(c));
+  if(inactives.length){
+    const inactiveTypes=new Set(inactives.map(c=>c.type));
+    let label='+ 变形/召唤';
+    if(inactiveTypes.size===1){
+      const t=[...inactiveTypes][0];
+      label=t==='wildShape'?'+ 变形':t==='summon'?'+ 召唤':'+ 唤出';
+    }
+    tabs.push(`<button class="tab-btn summon-add" id="btn-summon-add" title="选择一个形态/伴生">${label}</button>`);
   }
   bar.innerHTML=tabs.join('');
 }
@@ -2315,7 +2333,7 @@ function renderResources(){
     const tag=r.resetType==='shortRest'?'短休':r.resetType==='longRest'?'长休':'其它';
     const remaining=r.used.filter(x=>!x).length;
     const hasSummon=!!r.summonSource;
-    const labelExtra=hasSummon?` <span style="font-size:11px;color:var(--accent)">▸ 召唤…</span>`:'';
+    const labelExtra=hasSummon?` <span style="font-size:11px;color:var(--accent)">▸ ${summonVerb(r.summonSource)}…</span>`:'';
     const labelAttr=hasSummon?` data-resource-summon="${r.summonSource}"`:'';
     const labelStyle=hasSummon?'cursor:pointer':'';
     return `<div class="res-row" title="${(r.desc||'').replace(/"/g,'&quot;')}">
@@ -2454,9 +2472,10 @@ function renderFeatures(){
   list.innerHTML=(c.features||[]).map(f=>{
     const cls=f.summonSource?'feature summonable':'feature';
     const dataAttr=f.summonSource?` data-feature-summon="${f.summonSource}"`:'';
+    const hint=f.summonSource?`<span class="summon-hint">▸ ${summonVerb(f.summonSource)}…</span>`:'';
     return `<div class="${cls}"${dataAttr}>
     <div class="src">[${f.source||''}]</div>
-    <div class="name">${f.name||''}</div>
+    <div class="name">${f.name||''}${hint}</div>
     <div class="desc">${f.desc||''}</div>
   </div>`;
   }).join('')||'<div style="color:var(--text-dim)">无</div>';
@@ -2608,7 +2627,7 @@ function showSpellDialog(spell){
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
       <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
-      ${spell.summonSource?`<button id="btn-spell-summon" title="召唤一个 ${spell.summonSource} 形态">召唤…</button>`:''}
+      ${spell.summonSource?`<button id="btn-spell-summon" title="${summonVerb(spell.summonSource)}一个 ${spell.summonSource} 形态">${summonVerb(spell.summonSource)}…</button>`:''}
       ${!isCantrip&&spell.ritual?`<button id="btn-cast-ritual" title="花 10 分钟以仪式施展，不消耗法术位">仪式（不扣位）</button>`:''}
       ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
     </div>`);
