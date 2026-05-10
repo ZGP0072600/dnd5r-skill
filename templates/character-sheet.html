@@ -171,6 +171,15 @@ details summary:hover{color:var(--accent)}
 .tab-btn.active{color:var(--gold);background:var(--bg);border-color:var(--gold);border-bottom-color:var(--bg);font-weight:bold}
 .tab-btn .tag{font-size:10px;color:var(--text-dim);font-weight:normal}
 .tab-btn.active .tag{color:var(--gold)}
+.tab-btn .x{margin-left:2px;color:var(--text-dim);font-size:14px;line-height:1;padding:0 2px;border-radius:3px}
+.tab-btn .x:hover{background:var(--bad);color:#fff}
+.tab-btn.summon-add{color:var(--accent);border-color:var(--accent);border-style:dashed}
+.tab-btn.summon-add:hover{background:var(--accent);color:#fff}
+.summon-picker-group{margin-bottom:14px}
+.summon-picker-group h4{margin:0 0 6px;font-size:13px;color:var(--gold)}
+.summon-picker-group .opts{display:flex;flex-wrap:wrap;gap:6px}
+.summon-picker-group button{font-size:13px}
+.summon-picker-group .meta{font-size:11px;color:var(--text-dim);margin-bottom:6px}
 .hidden{display:none!important}
 </style>
 </head>
@@ -438,18 +447,83 @@ function applyMainOnlyVisibility(){
     el.classList.toggle('hidden',!isMain);
   });
 }
+
+function activateCompanion(idx){
+  const c=(char.companions||[])[idx];
+  if(!c)return;
+  c.active=true;
+  saveChar();
+  switchTab(idx);
+}
+
+function deactivateCompanion(idx){
+  const c=(char.companions||[])[idx];
+  if(!c)return;
+  if(c.type==='companion')return;  // 永久伴生不可解除
+  if(!confirm(`确认取消"${c.name}"（${typeLabel(c.type)}）吗？\n该 tab 会消失，下次需要再从「+召唤」选择。`))return;
+  c.active=false;
+  pushHistory(`解除${typeLabel(c.type)}`,0,c.name);
+  // 如果当前正显示这个，切回主体
+  if(char.meta&&char.meta.viewIndex===idx){
+    char.meta.viewIndex=-1;
+    displayChar=char;
+  }
+  saveChar();
+  applyMainOnlyVisibility();
+  render();
+}
+
+function showSummonPicker(){
+  const comps=char.companions||[];
+  const inactive=comps.map((c,i)=>({c,i})).filter(x=>!isCompanionActive(x.c));
+  if(!inactive.length){alert('没有可激活的形态/召唤。\n车卡时让 Claude 把可变形态/可召唤生物加进 JSON 后再试。');return}
+  // 按 source 分组
+  const groups=new Map();
+  for(const {c,i} of inactive){
+    const src=c.source||'其它';
+    if(!groups.has(src))groups.set(src,[]);
+    groups.get(src).push({c,i});
+  }
+  const groupHTML=Array.from(groups.entries()).map(([src,arr])=>{
+    const sample=arr[0].c;
+    const meta=sample.type==='wildShape'?'变身（消耗 1 次荒野变形）':sample.type==='summon'?'召唤':'';
+    return `<div class="summon-picker-group">
+      <h4>${src}</h4>
+      ${meta?`<div class="meta">${meta}</div>`:''}
+      <div class="opts">${arr.map(x=>`<button data-activate="${x.i}">${x.c.name||'?'}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+  openModal(`<h3>选择变身 / 召唤</h3>
+    ${groupHTML}
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+}
+/* companion 默认 active：未显式指定 active 字段时，type=companion 视为永久伴生（active=true），其他默认 inactive */
+function isCompanionActive(c){
+  if(typeof c.active==='boolean')return c.active;
+  return c.type==='companion';
+}
+function typeLabel(t){return t==='wildShape'?'变身':t==='companion'?'伴生':t==='summon'?'召唤':'伴生'}
+
 function renderTabBar(){
   const bar=document.getElementById('tab-bar');
   const comps=char.companions||[];
+  // 隐藏条件：完全没有 companions
   if(!comps.length){bar.classList.add('hidden');bar.innerHTML='';return}
   bar.classList.remove('hidden');
   const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
   const tabs=[];
   tabs.push(`<button class="tab-btn ${idx===-1?'active':''}" data-tab="-1">${char.meta.name||'本人'} <span class="tag">主体</span></button>`);
   comps.forEach((c,i)=>{
-    const t=c.type==='wildShape'?'变身':c.type==='companion'?'伴生':c.type==='summon'?'召唤':'伴生';
-    tabs.push(`<button class="tab-btn ${idx===i?'active':''}" data-tab="${i}">${c.name||'?'} <span class="tag">${t}</span></button>`);
+    if(!isCompanionActive(c))return;  // inactive 不显示
+    const t=typeLabel(c.type);
+    const closable=(c.type!=='companion');  // 永久伴生不能 ✕（避免误删；想删让玩家手动改 JSON）
+    tabs.push(`<button class="tab-btn ${idx===i?'active':''}" data-tab="${i}">${c.name||'?'} <span class="tag">${t}</span>${closable?`<span class="x" data-deactivate="${i}" title="取消该${t}">✕</span>`:''}</button>`);
   });
+  // 「+召唤」按钮（如果有 inactive companion）
+  const inactiveCount=comps.filter(c=>!isCompanionActive(c)).length;
+  if(inactiveCount>0){
+    tabs.push(`<button class="tab-btn summon-add" id="btn-summon-add" title="变身/召唤一个新形态">+ 召唤</button>`);
+  }
   bar.innerHTML=tabs.join('');
 }
 function getEmbeddedChar(){
@@ -1305,6 +1379,15 @@ function showStatusPicker(){
 /* === 全局点击委托 === */
 document.addEventListener('click',e=>{
   const t=e.target;
+  if(t.matches('[data-deactivate]')){
+    e.stopPropagation();  // 不冒泡到 tab 切换
+    deactivateCompanion(parseInt(t.dataset.deactivate));return;
+  }
+  if(t.matches('[data-activate]')){
+    closeModal();
+    activateCompanion(parseInt(t.dataset.activate));return;
+  }
+  if(t.id==='btn-summon-add'){showSummonPicker();return}
   if(t.matches('[data-tab]')){
     switchTab(parseInt(t.dataset.tab));return;
   }
@@ -1494,6 +1577,19 @@ function longRest(){
   for(const e of allEntities()){
     if(e.combat){e.combat.hpCur=e.combat.hpMax;e.combat.hpTemp=0}
     for(const r of e.classResources||[]){if(r.resetType==='longRest'||r.resetType==='shortRest')r.used=Array(r.max).fill(false)}
+  }
+  // 清空所有变身/召唤的 active 状态（永久伴生 type=companion 保持不变）
+  const summons=(char.companions||[]).filter(c=>(c.type==='wildShape'||c.type==='summon')&&isCompanionActive(c));
+  if(summons.length){
+    if(confirm(`长休期间通常无法持续变身/召唤。\n是否解除以下 ${summons.length} 个：\n${summons.map(c=>'  · '+c.name).join('\n')}`)){
+      for(const c of summons)c.active=false;
+      // 如果当前 view 是被解除的 companion，切回主体
+      const idx=char.meta.viewIndex;
+      if(idx>=0&&char.companions[idx]&&!isCompanionActive(char.companions[idx])){
+        char.meta.viewIndex=-1;
+        displayChar=char;
+      }
+    }
   }
   saveChar();render();
   alert('长休完成');
