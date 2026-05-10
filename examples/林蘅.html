@@ -309,7 +309,7 @@ details summary:hover{color:var(--accent)}
     "background": "隐士",
     "inspiration": false,
     "viewIndex": -1,
-    "charId": "林蘅-78374527"
+    "charId": "林蘅-78375361"
   },
   "abilities": {
     "str": {
@@ -633,13 +633,14 @@ details summary:hover{color:var(--accent)}
     {
       "key": "wildShape",
       "label": "荒野变形",
+      "summonSource": "荒野变形",
       "resetType": "shortRest",
       "max": 2,
       "used": [
         false,
         false
       ],
-      "desc": "魔法动作变身野兽。月亮结社 5 级：CR ≤ ⌊5/3⌋=1；变身时获得 15 临时 HP（5×3）；AC = max(野兽AC, 13+4=17)。短/长休恢复。"
+      "desc": "魔法动作变身野兽。月亮结社 5 级：CR ≤ ⌊5/3⌋=1；变身时获得 15 临时 HP（5×3）；AC = max(野兽AC, 13+4=17)。短/长休恢复。<br>点击此条目即可选择形态。"
     },
     {
       "key": "wildResurgence",
@@ -1284,6 +1285,290 @@ details summary:hover{color:var(--accent)}
           "source": "怪物图鉴 2025",
           "name": "鳄鱼 Crocodile · CR 1/2",
           "desc": "大型野兽。咬合擒抱专精；水陆两栖（屏息 1 小时）。"
+        }
+      ]
+    },
+    {
+      "name": "黑熊",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 12,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "30 (攀30, 游30)",
+        "size": "中型",
+        "initBonus": 1,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "撕裂",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d6",
+          "damageBonus": 0,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺；多重攻击 2 次撕裂",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "黑熊 Black Bear · CR 1/2",
+          "desc": "中型野兽。多重攻击 2 次撕裂。AC 11（月亮加至 17）。<strong>三栖</strong>：陆 + 攀爬 + 游泳全 30 尺。比棕熊小一号但灵活。"
+        }
+      ]
+    },
+    {
+      "name": "狮子",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 17,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 15,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 11,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "50",
+        "size": "大型",
+        "initBonus": 2,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "撕裂",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d8",
+          "damageBonus": 0,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺；多重攻击 2 次撕裂（其中一次可换成咆哮）",
+          "mastery": "—"
+        },
+        {
+          "name": "咆哮（动作之一）",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "0",
+          "damageBonus": 0,
+          "damageType": "恐慌",
+          "properties": "15 尺内一名生物 WIS 豁免 DC11，败则恐慌至狮子下回合",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "狮子 Lion · CR 1",
+          "desc": "大型野兽。<strong>速度 50</strong> + 多重攻击 + 咆哮单体恐慌。强力近战 + 控制兼备。"
+        },
+        {
+          "source": "特质",
+          "name": "集群战术 / 助跑起跳",
+          "desc": "5 尺内有未失能盟友 → 攻击优势。助跑 10 尺后可跳远 25 尺。"
+        }
+      ]
+    },
+    {
+      "name": "豹",
+      "type": "wildShape",
+      "source": "荒野变形",
+      "active": false,
+      "abilities": {
+        "str": {
+          "score": 14,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "dex": {
+          "score": 16,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "con": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        },
+        "int": {
+          "score": 8,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "wis": {
+          "score": 19,
+          "saveProf": true,
+          "saveBonus": 0
+        },
+        "cha": {
+          "score": 10,
+          "saveProf": false,
+          "saveBonus": 0
+        }
+      },
+      "combat": {
+        "hpMax": 38,
+        "hpCur": 38,
+        "hpTemp": 15,
+        "hdMax": 0,
+        "hdCur": 0,
+        "acBase": 17,
+        "acBonus": 0,
+        "speed": "50 (攀40)",
+        "size": "中型",
+        "initBonus": 3,
+        "statusEffects": []
+      },
+      "skills": {
+        "nature": {
+          "prof": "prof"
+        },
+        "religion": {
+          "prof": "prof"
+        },
+        "perception": {
+          "prof": "prof"
+        },
+        "stealth": {
+          "prof": "prof"
+        },
+        "medicine": {
+          "prof": "prof"
+        },
+        "survival": {
+          "prof": "prof"
+        }
+      },
+      "attacks": [
+        {
+          "name": "撕裂",
+          "ability": "str",
+          "attackBonus": 0,
+          "damage": "1d6",
+          "damageBonus": 0,
+          "damageType": "挥砍",
+          "properties": "近战 5 尺",
+          "mastery": "—"
+        }
+      ],
+      "features": [
+        {
+          "source": "怪物图鉴 2025",
+          "name": "豹 Panther · CR 1/4",
+          "desc": "中型野兽。<strong>速度 50（攀爬 40）</strong>，敏捷 +3。隐蔽侦察专精。"
+        },
+        {
+          "source": "附赠动作",
+          "name": "迅捷逃逸 Nimble Escape",
+          "desc": "附赠动作执行<strong>撤离</strong>或<strong>躲藏</strong>。"
         }
       ]
     }
@@ -1932,8 +2217,12 @@ function renderResources(){
     for(let j=0;j<max;j++)pips.push(`<div class="pip ${r.used[j]?'':'full'}" data-res="${i}" data-i="${j}"></div>`);
     const tag=r.resetType==='shortRest'?'短休':r.resetType==='longRest'?'长休':'其它';
     const remaining=r.used.filter(x=>!x).length;
+    const hasSummon=!!r.summonSource;
+    const labelExtra=hasSummon?` <span style="font-size:11px;color:var(--accent)">▸ 召唤…</span>`:'';
+    const labelAttr=hasSummon?` data-resource-summon="${r.summonSource}"`:'';
+    const labelStyle=hasSummon?'cursor:pointer':'';
     return `<div class="res-row" title="${(r.desc||'').replace(/"/g,'&quot;')}">
-      <span class="label">${r.label}</span>
+      <span class="label" style="${labelStyle}"${labelAttr}>${r.label}${labelExtra}</span>
       <span class="reset-tag">${tag}</span>
       <span class="pips">${pips.join('')}</span>
       <span class="num" style="min-width:40px;text-align:right">${remaining}/${r.max}</span>
@@ -2415,6 +2704,11 @@ document.addEventListener('click',e=>{
   if(t.id==='btn-summon-add'){showSummonPicker();return}
   if(t.closest('[data-feature-summon]')){
     const src=t.closest('[data-feature-summon]').dataset.featureSummon;
+    showSummonPicker(src);return;
+  }
+  if(t.closest('[data-resource-summon]')){
+    e.stopPropagation();  // 不冒泡到资源 pip toggle
+    const src=t.closest('[data-resource-summon]').dataset.resourceSummon;
     showSummonPicker(src);return;
   }
   if(t.matches('[data-tab]')){

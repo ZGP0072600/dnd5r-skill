@@ -930,8 +930,12 @@ function renderResources(){
     for(let j=0;j<max;j++)pips.push(`<div class="pip ${r.used[j]?'':'full'}" data-res="${i}" data-i="${j}"></div>`);
     const tag=r.resetType==='shortRest'?'短休':r.resetType==='longRest'?'长休':'其它';
     const remaining=r.used.filter(x=>!x).length;
+    const hasSummon=!!r.summonSource;
+    const labelExtra=hasSummon?` <span style="font-size:11px;color:var(--accent)">▸ 召唤…</span>`:'';
+    const labelAttr=hasSummon?` data-resource-summon="${r.summonSource}"`:'';
+    const labelStyle=hasSummon?'cursor:pointer':'';
     return `<div class="res-row" title="${(r.desc||'').replace(/"/g,'&quot;')}">
-      <span class="label">${r.label}</span>
+      <span class="label" style="${labelStyle}"${labelAttr}>${r.label}${labelExtra}</span>
       <span class="reset-tag">${tag}</span>
       <span class="pips">${pips.join('')}</span>
       <span class="num" style="min-width:40px;text-align:right">${remaining}/${r.max}</span>
@@ -1413,6 +1417,11 @@ document.addEventListener('click',e=>{
   if(t.id==='btn-summon-add'){showSummonPicker();return}
   if(t.closest('[data-feature-summon]')){
     const src=t.closest('[data-feature-summon]').dataset.featureSummon;
+    showSummonPicker(src);return;
+  }
+  if(t.closest('[data-resource-summon]')){
+    e.stopPropagation();  // 不冒泡到资源 pip toggle
+    const src=t.closest('[data-resource-summon]').dataset.resourceSummon;
     showSummonPicker(src);return;
   }
   if(t.matches('[data-tab]')){
