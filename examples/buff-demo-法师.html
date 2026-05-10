@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DnD 5r 电子人物卡</title>
+<title>BUFF演示·法师 - DnD 5r</title>
 <style>
 :root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
 [data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
@@ -310,7 +310,383 @@ details summary:hover{color:var(--accent)}
 </main>
 
 <script id="character-data" type="application/json">
-{}
+{
+  "meta": {
+    "name": "BUFF演示·法师",
+    "charId": "buff-demo-wizard-v1",
+    "player": "",
+    "alignment": "中立善良",
+    "faith": "",
+    "xp": 6500,
+    "notes": "演示 BUFF 系统：\n1. 点法师护甲 → 施放（扣 1 环位）→ AC chip 出现 + AC 由 12 变 15（acOverride=13+敏调2）\n2. 点护盾 → 施放（扣 1 环位）→ AC +5 叠加，到 20\n3. 点加速术 → 施放（扣 3 环位）→ 又 +2 AC 到 22，自动占用专注；点 chip 上 ✕ 取消，会同时清专注\n4. 点神导术 → 施加 BUFF（戏法不扣位）→ 然后投任意属性/技能检定，对话框里能看到「神导术 +d4 一次性」选项\n5. 长休 → 全部 BUFF 清空 + 法术位回满",
+    "classes": [
+      {
+        "name": "法师",
+        "subclass": "唤起学派",
+        "level": 5
+      }
+    ],
+    "race": {
+      "name": "人类",
+      "subrace": ""
+    },
+    "background": "学者",
+    "inspiration": false
+  },
+  "abilities": {
+    "str": {
+      "score": 8,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "dex": {
+      "score": 14,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "con": {
+      "score": 14,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "int": {
+      "score": 16,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "wis": {
+      "score": 12,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "cha": {
+      "score": 10,
+      "saveProf": false,
+      "saveBonus": 0
+    }
+  },
+  "combat": {
+    "hpMax": 32,
+    "hpCur": 32,
+    "hpTemp": 0,
+    "hdMax": 5,
+    "hdCur": 5,
+    "acBase": 12,
+    "acBonus": 0,
+    "speed": 30,
+    "size": "中型",
+    "initBonus": 0,
+    "deathSaves": {
+      "success": [
+        false,
+        false,
+        false
+      ],
+      "fail": [
+        false,
+        false,
+        false
+      ]
+    },
+    "resistance": "",
+    "immunity": "",
+    "advantage": "",
+    "statusEffects": [],
+    "concentration": null,
+    "buffs": []
+  },
+  "skills": {
+    "arcana": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "history": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "investigation": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "insight": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "globalBonus": 0,
+    "jackOfAllTrades": false
+  },
+  "attacks": [
+    {
+      "name": "匕首",
+      "ability": "dex",
+      "attackBonus": 0,
+      "damage": "1d4",
+      "damageBonus": 0,
+      "damageType": "穿刺",
+      "properties": "灵巧, 投掷(20/60)",
+      "mastery": "虚招",
+      "attuned": false
+    }
+  ],
+  "spellcasting": {
+    "castingAbility": "int",
+    "extraDcBonus": 0,
+    "extraAttackBonus": 0,
+    "slots": {
+      "1": {
+        "max": 4,
+        "used": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      "2": {
+        "max": 3,
+        "used": [
+          false,
+          false,
+          false
+        ]
+      },
+      "3": {
+        "max": 2,
+        "used": [
+          false,
+          false
+        ]
+      },
+      "4": {
+        "max": 0,
+        "used": []
+      },
+      "5": {
+        "max": 0,
+        "used": []
+      },
+      "6": {
+        "max": 0,
+        "used": []
+      },
+      "7": {
+        "max": 0,
+        "used": []
+      },
+      "8": {
+        "max": 0,
+        "used": []
+      },
+      "9": {
+        "max": 0,
+        "used": []
+      }
+    },
+    "cantrips": [
+      {
+        "name": "火焰矢",
+        "school": "唤法",
+        "ct": "1动作",
+        "range": "120尺",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "damage": "2d10",
+        "desc": "远程法术攻击。命中造成 1d10 火焰伤害，5 级 2d10。"
+      },
+      {
+        "name": "神导术",
+        "school": "占卜",
+        "ct": "1动作",
+        "range": "触摸",
+        "comp": "V,S",
+        "dur": "专注，至多 1 分钟",
+        "conc": true,
+        "desc": "<em>（demo：原版法师无此戏法，仅用于演示一次性骰 BUFF。原属牧师/德鲁伊/巫医。）</em><br>触碰自愿目标，使其下一次属性检定 +1d4。检定完成后法术结束。",
+        "buff": {
+          "durationText": "1 分钟（专注 / 用后清除）",
+          "desc": "下次属性或技能检定 +1d4，用完法术结束",
+          "modifiers": {
+            "oneShot": {
+              "die": "d4",
+              "applies": [
+                "check"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "spells": [
+      {
+        "lvl": 1,
+        "name": "法师护甲",
+        "school": "防护",
+        "ct": "1动作",
+        "range": "触摸",
+        "comp": "V,S,M",
+        "dur": "8 小时",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "desc": "触碰一个未着装护甲的自愿生物，使其基础 AC 变为 13 + 敏调，持续 8 小时；穿上护甲则法术终止。",
+        "buff": {
+          "durationText": "8 小时",
+          "modifiers": {
+            "acOverride": "13+dex"
+          }
+        }
+      },
+      {
+        "lvl": 1,
+        "name": "护盾",
+        "school": "防护",
+        "ct": "反应",
+        "range": "自身",
+        "comp": "V,S",
+        "dur": "1轮",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "desc": "反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。",
+        "buff": {
+          "durationText": "1 轮（手动 ✕ 取消）",
+          "modifiers": {
+            "acBonus": 5
+          }
+        }
+      },
+      {
+        "lvl": 1,
+        "name": "魔法飞弹",
+        "school": "唤法",
+        "ct": "1动作",
+        "range": "120尺",
+        "comp": "V,S",
+        "dur": "瞬间",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "damage": "3·(1d4+1)",
+        "upcast": {
+          "repeat": "1d4+1",
+          "perLevel": 1
+        },
+        "desc": "3 支飞弹，每支 1d4+1 力场伤害自动命中。"
+      },
+      {
+        "lvl": 3,
+        "name": "火球术",
+        "school": "唤法",
+        "ct": "1动作",
+        "range": "150尺",
+        "comp": "V,S,M",
+        "dur": "瞬间",
+        "prepared": true,
+        "ritual": false,
+        "conc": false,
+        "damage": "8d6",
+        "upcast": {
+          "dice": "1d6",
+          "perLevel": 1
+        },
+        "desc": "20 尺半径球形 8d6 火焰，敏豁减半。"
+      },
+      {
+        "lvl": 3,
+        "name": "加速术",
+        "school": "变化",
+        "ct": "1动作",
+        "range": "30尺",
+        "comp": "V,S,M",
+        "dur": "专注，至多 1 分钟",
+        "prepared": true,
+        "ritual": false,
+        "conc": true,
+        "desc": "目标速度翻倍、AC +2、敏豁优势；每回合可多作出 1 个额外动作，仅限于：攻击（一次攻击）/ 疾走 / 撤离 / 躲藏 / 操作。法术终止时目标失能且速度为 0，至其下一回合结束。",
+        "buff": {
+          "durationText": "1 分钟（专注）",
+          "desc": "+2 AC（自动）。速度翻倍 / 敏豁优势 / 额外动作请手动管理。",
+          "modifiers": {
+            "acBonus": 2
+          }
+        }
+      }
+    ],
+    "spellPoints": {
+      "cur": 0,
+      "max": 0
+    }
+  },
+  "classResources": [
+    {
+      "key": "arcaneRecovery",
+      "label": "奥术恢复",
+      "resetType": "longRest",
+      "max": 1,
+      "used": [
+        false
+      ],
+      "desc": "短休时使用，恢复总环阶数 ≤ 半角色等级（向上取整）的法术位（不含6环及以上）。"
+    }
+  ],
+  "specialRolls": [],
+  "equipment": {
+    "armor": {
+      "name": "",
+      "ac": 0,
+      "dexLimit": null,
+      "weight": 0,
+      "attuned": false,
+      "equipped": false
+    },
+    "shield": {
+      "name": "",
+      "ac": 0,
+      "weight": 0,
+      "attuned": false,
+      "equipped": false
+    },
+    "items": [
+      {
+        "name": "法术书",
+        "weight": 3,
+        "qty": 1,
+        "attuned": false,
+        "desc": "记录已知法术"
+      },
+      {
+        "name": "奥术法器(水晶)",
+        "weight": 1,
+        "qty": 1,
+        "attuned": false,
+        "desc": "施法材料替代"
+      },
+      {
+        "name": "匕首",
+        "weight": 1,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      }
+    ]
+  },
+  "wealth": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 120,
+    "pp": 0
+  },
+  "features": [
+    {
+      "source": "BUFF demo",
+      "name": "测试要点",
+      "desc": "<strong>1. 法师护甲</strong>：扣 1 环位，acOverride='13+dex' 将 AC 由 12 改为 15（13+敏调2）。<br><strong>2. 护盾</strong>：扣 1 环位，AC+5（叠加到 20）；持续到「手动 ✕ 取消」（原文 1 轮，模板不计时）。<br><strong>3. 加速术</strong>：扣 3 环位，自动开始专注 + AC+2 到 22，chip 上有 ⊙ 标记；点 ✕ 同步释放专注。<br><strong>4. 神导术</strong>：戏法→「施加 BUFF」按钮（不扣位）→ 投任意属性检定 → 弹窗多一行「神导术 +d4 一次性」点选→投！→ 加值生效，buff 自动消失，专注也释放。<br><strong>5. 长休</strong>：清空全部 BUFF + 专注。"
+    }
+  ],
+  "companions": [],
+  "rollHistory": []
+}
 </script>
 
 <div id="modal-overlay" class="modal-overlay hidden">

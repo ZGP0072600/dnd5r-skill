@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>DnD 5r 电子人物卡</title>
+<title>BUFF演示·战士 - DnD 5r</title>
 <style>
 :root{--bg:#1a1a1a;--panel:#252525;--panel-hi:#2f2f2f;--border:#3a3a3a;--text:#e0e0e0;--text-dim:#888;--accent:#c83232;--gold:#c8a032;--good:#6abe6a;--bad:#c83232;--shadow:rgba(0,0,0,.5)}
 [data-theme=light]{--bg:#f4ecd8;--panel:#fff;--panel-hi:#f5f1e8;--border:#d4c8a8;--text:#2a1a0a;--text-dim:#756040;--accent:#8b1a1a;--gold:#8b6914;--shadow:rgba(0,0,0,.15)}
@@ -310,7 +310,249 @@ details summary:hover{color:var(--accent)}
 </main>
 
 <script id="character-data" type="application/json">
-{}
+{
+  "meta": {
+    "name": "BUFF演示·战士",
+    "charId": "buff-demo-fighter-v1",
+    "player": "",
+    "alignment": "守序善良",
+    "faith": "",
+    "xp": 6500,
+    "notes": "BUFF 接收方演示：\n1. 自己卡上没法术，AC=16（链甲+盾）\n2. 法师那边把护盾/加速/神导施给「他人」会弹复制串\n3. 复制串粘贴到状态面板「+ 导入」按钮里 → 蓝色 chip 出现 + AC 改变\n4. 同一串再粘贴一次 → 提示已导入过\n5. 点 chip 上 ✕ 自己取消（不影响法师）",
+    "classes": [
+      {
+        "name": "战士",
+        "subclass": "战斗大师",
+        "level": 5
+      }
+    ],
+    "race": {
+      "name": "山地矮人",
+      "subrace": ""
+    },
+    "background": "战士",
+    "inspiration": false
+  },
+  "abilities": {
+    "str": {
+      "score": 16,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "dex": {
+      "score": 12,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "con": {
+      "score": 16,
+      "saveProf": true,
+      "saveBonus": 0
+    },
+    "int": {
+      "score": 10,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "wis": {
+      "score": 12,
+      "saveProf": false,
+      "saveBonus": 0
+    },
+    "cha": {
+      "score": 8,
+      "saveProf": false,
+      "saveBonus": 0
+    }
+  },
+  "combat": {
+    "hpMax": 49,
+    "hpCur": 49,
+    "hpTemp": 0,
+    "hdMax": 5,
+    "hdCur": 5,
+    "acBase": 15,
+    "acBonus": 0,
+    "speed": 25,
+    "size": "中型",
+    "initBonus": 0,
+    "deathSaves": {
+      "success": [
+        false,
+        false,
+        false
+      ],
+      "fail": [
+        false,
+        false,
+        false
+      ]
+    },
+    "resistance": "毒素",
+    "immunity": "",
+    "advantage": "对毒素豁免具有优势",
+    "statusEffects": [],
+    "concentration": null,
+    "buffs": []
+  },
+  "skills": {
+    "athletics": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "intimidation": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "perception": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "survival": {
+      "prof": "prof",
+      "bonus": 0
+    },
+    "globalBonus": 0,
+    "jackOfAllTrades": false
+  },
+  "attacks": [
+    {
+      "name": "战锤",
+      "ability": "str",
+      "attackBonus": 0,
+      "damage": "1d8",
+      "damageBonus": 0,
+      "damageType": "钝击",
+      "properties": "通用(d10)",
+      "mastery": "突刺",
+      "attuned": false
+    },
+    {
+      "name": "重弩",
+      "ability": "dex",
+      "attackBonus": 0,
+      "damage": "1d10",
+      "damageBonus": 0,
+      "damageType": "穿刺",
+      "properties": "装填, 双手, 弹药(100/400)",
+      "mastery": "推开",
+      "attuned": false
+    }
+  ],
+  "spellcasting": {
+    "castingAbility": null,
+    "extraDcBonus": 0,
+    "extraAttackBonus": 0,
+    "slots": {},
+    "cantrips": [],
+    "spells": [],
+    "spellPoints": {
+      "cur": 0,
+      "max": 0
+    }
+  },
+  "classResources": [
+    {
+      "key": "secondWind",
+      "label": "二度奋起",
+      "resetType": "shortRest",
+      "max": 3,
+      "used": [
+        false,
+        false,
+        false
+      ],
+      "desc": "附赠动作恢复 1d10+战士等级 HP。"
+    },
+    {
+      "key": "actionSurge",
+      "label": "动作如潮",
+      "resetType": "shortRest",
+      "max": 1,
+      "used": [
+        false
+      ],
+      "desc": "本回合多一个动作。"
+    },
+    {
+      "key": "superiorityDice",
+      "label": "优势骰",
+      "resetType": "shortRest",
+      "max": 4,
+      "used": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "desc": "战斗大师 d8 优势骰，用于战技消耗。"
+    }
+  ],
+  "specialRolls": [],
+  "equipment": {
+    "armor": {
+      "name": "链甲",
+      "ac": 13,
+      "dexLimit": 0,
+      "weight": 40,
+      "attuned": false,
+      "equipped": true
+    },
+    "shield": {
+      "name": "盾牌",
+      "ac": 2,
+      "weight": 6,
+      "attuned": false,
+      "equipped": true
+    },
+    "items": [
+      {
+        "name": "战锤",
+        "weight": 2,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      },
+      {
+        "name": "重弩",
+        "weight": 18,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      },
+      {
+        "name": "弩矢×20",
+        "weight": 1.5,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      },
+      {
+        "name": "口粮×10",
+        "weight": 20,
+        "qty": 1,
+        "attuned": false,
+        "desc": ""
+      }
+    ]
+  },
+  "wealth": {
+    "cp": 0,
+    "sp": 0,
+    "ep": 0,
+    "gp": 80,
+    "pp": 0
+  },
+  "features": [
+    {
+      "source": "BUFF demo",
+      "name": "测试要点",
+      "desc": "<strong>1.</strong> AC=15(链甲含敏调0)+2(盾) ＝<strong>17</strong>。<br><strong>2.</strong> 法师施<u>加速术</u>（30尺）→ 选「他人」→ 复制串发到此处「+ 导入」框 → 粘贴 → AC +2 = <strong>19</strong>。注意：加速术是专注法术，但专注由<u>法师维持</u>，你这边只是被动接收 BUFF。<br><strong>3.</strong> 重复粘贴相同串 → 提示「已导入过此 BUFF」。<br><strong>4.</strong> 法师施<u>神导术</u>（触摸）给他人 → 粘贴 → 投属性检定时弹窗有「神导术 +d4 一次性」可勾。<br><strong>5.</strong> 任意 chip 点 ✕ 自己取消。<br><strong>规则限制</strong>：1) 法师释放专注后这边不会自动失效，需法师在群里口头通知；2) 像「护盾术」「魔法飞弹」这类施法距离为「自身」的法术，发起方对话框里「他人」按钮会显示 🚫 灰掉（基于 spell.range 字段自动判定）。「法师护甲」施法距离是「触摸」可以给穿戴非护甲的盟友（注意要让目标方先卸下链甲再导入，否则 13+敏 不如自己原本的 AC）。"
+    }
+  ],
+  "companions": [],
+  "rollHistory": []
+}
 </script>
 
 <div id="modal-overlay" class="modal-overlay hidden">

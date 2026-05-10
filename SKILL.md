@@ -191,6 +191,71 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
          * 法师寻获魔宠（14 选 1，2024 PHB 列表）：猫头鹰 / 蝙蝠 / 渡鸦 / 蜘蛛 / 猫 / 鹰 / 蛙 / 鼬 / 毒蛇（9 个常见）
          * 游侠 Beast Master 野兽魂魄：陆地 / 水中 / 空中 三模板（PHB24 一律 active=true 永久伴生）
          * 奇械师 BS 钢铁守护：1 个，active=true
+     - **BUFF 系统（spell.buff，可选）**：让法术施放时自动把状态写入 `char.combat.buffs`，影响 AC/攻击/豁免/检定。**核心原则：可结算的字段（acOverride/acBonus/attackBonus/saveBonus/checkBonus/.../oneShot）模板自动算；不可结算的（速度翻倍/优势/抗性/...）写在 `buff.desc` 里玩家自己脑补。**
+
+       schema：
+       ```json
+       {
+         "lvl": 1, "name": "法师护甲", "ritual": true, "conc": false,
+         "buff": {
+           "name": "法师护甲",            // 可省，默认 = spell.name
+           "durationText": "8 小时",       // 仅展示，不自动倒计时
+           "desc": "AC = 13 + 敏调",      // 可省；不填则用 spell.desc
+           "modifiers": { "acOverride": "13+dex" }
+         }
+       }
+       ```
+
+       **modifiers 字段（全部可选，全部可叠加）**：
+       | 字段 | 类型 | 含义 | 典型法术 |
+       |---|---|---|---|
+       | `acOverride` | `"13+dex"` 或数字 | 替代 acBase；公式仅支持 `<num>(±<ability3letter>)*`（多 buff 时取第一条命中） | 法师护甲、僧侣 unarmored defense |
+       | `acBonus` | 数字 | AC 平加值，可叠加 | 护盾(+5)、加速术(+2)、防御风格(+1) |
+       | `attackBonus` | 数字 | 全部攻击 +N | 战斗祝福、术士专长 |
+       | `saveBonus` | 数字 或 `{all:N}` 或 `{dex:N,wis:N,...}` | 豁免 +N（对应属性时） | 法师之鞘、抵抗术 |
+       | `checkBonus` | 同上 shape | 属性/技能检定 +N | 引导术（持续版）、激励曲 |
+       | `attackDice` | `"d4"` 等 | 持续：每次攻击自动 +dN | 祝福术 |
+       | `saveDice` | 同上 | 持续：每次豁免 +dN | 祝福术 |
+       | `checkDice` | 同上 | 持续：每次检定 +dN | 占卜师特性 |
+       | `oneShot` | `{die:"d4", applies:["attack","save","check"]}` | 一次性：勾选→投出→自动清 buff（若 conc 同步释放专注） | 神导术、诗人激励、防护戏法 |
+
+       **行为细节**：
+       - 法术对话框会自动按入口注入 buff：
+         * 普通施法 `btn-cast` → 扣位 + push buff
+         * 仪式 `btn-cast-ritual` → 不扣位 + push buff（法师护甲走这条）
+         * 戏法 `btn-cast-cantrip-buff` → 戏法只要带 `buff` 字段就自动出现「施加 BUFF」按钮（神导/防护等）
+       - 同 `spellName` 重复施放会**先去重**再 push（不会叠两条法师护甲）
+       - `spell.conc:true` 时：`pushSpellBuff` 会同时调 `setConcentration`，buff 上挂 `conc:true + spellName`；专注释放（手动/失败/被替换/✕ chip）会自动清掉所有挂在该 spellName 上的 buff
+       - 状态面板「增益:」一行显示 chip：绿色（普通）/金色（专注，前缀 ⊙）+ 修饰摘要 + ✕；点 ✕ 同步释放关联专注
+       - 投骰对话框（豁免/属性/技能/先攻/察觉/攻击）自动扫描适用 buff 列出 line：持续默认勾选、一次性默认不勾；勾上的 flat 直接加、dice 当场投、oneShot 用后销毁
+       - 长休清空所有 buff + 专注（人为约定，简化）
+
+       **车卡时**：
+       - 给法师/术士/吟诗的常用自身 buff 法术加 `buff` 字段：法师护甲、护盾、模糊术、加速术、激励曲、雷鸣盾、奥石护身（+1 AC）
+       - 给牧师/圣武士的辅助 buff 加：祝福术（attackDice/saveDice d4）、神导术（oneShot d4 check）、神圣武器（attackBonus +CHA）、抵抗术（saveDice d4）、信念之障
+       - 给野蛮人/战士/武僧的本职 buff 写在 `classResources` 或 `features` 上时也可加 `buff` 字段（不过模板目前只 hook 到 spell 的施放路径——若需 feature/resource 触发 buff，未来扩展）
+       - 不在 modifiers 表内的复杂效果（祝福术的攻击/豁免选 die、加速术的速度翻倍 + 额外动作）写到 `buff.desc` 里告诉玩家手动管理
+       - 跨职业法术 / GM 临时给 buff：让 Claude 直接编辑 char.combat.buffs 数组手动 push（比改 JSON 装 spell 快）
+
+       **demo**：`.tmp/buff-demo-法师.html`（见 templates 同目录的 build 流程）覆盖 4 种典型 modifier。
+
+       **跨卡分享 BUFF（P2，已实现）**——给团队成员加 buff 不需要 HTML 互联网通信，靠**复制串**串场：
+       - 任何带 `buff` 字段的法术，对话框里都会自动出现「BUFF 目标：自身 / 他人（导出）」单选
+         * 默认「自身」，行为不变（push 进自己 buffs）
+         * 选「他人」：仍然扣位 + 仍然占用施法者的专注（如 spell.conc）+ 仍然 confirm 消耗材料，但**不**挂自己 buffs，弹一个 modal 给玩家复制 `dnd5buff:<base64>` 串
+         * **施法距离 `自身` 类法术自动屏蔽「他人」**：模板检测 `spell.range` 以「自身」/「Self」开头时，「他人」按钮 disabled 并显示 🚫 + tooltip 解释（护盾、感知敌意、雾步 等）。**车卡时**让 spell.range 字段忠实于 PHB24 原文（「自身」/「触摸」/「30尺」/「自身(30尺)」等），就能让模板自动判断；不用额外加 selfOnly flag
+       - 状态面板「增益:」一行末尾有绿色「+ 导入」按钮（id=`btn-buff-import`）
+         * 点击 → 粘贴串 → 解码后 push 到接收方 `char.combat.buffs`，source 字段填发起方角色名
+         * 接收方的 chip 用蓝色（`buff-chip.from-other`）+ 「↩」前缀 + meta 显示「来自 XX」与自身 buff 区分
+         * 接收方 ✕ 取消只清自己这边，不影响发起方
+         * **去重**：同 originId 不会重复挂载（提示「已导入过」）
+       - **专注的分布式限制（必须告诉玩家）**：
+         * 专注法术由**施法者维持**——施法者那边释放专注后，接收方那边的 BUFF 不会自动消失
+         * 复制串对话框上有金色警告横条提醒此事
+         * 实际玩法：施法者自己 ✕ 释放后**在群里口头说一声**，接收方自己 ✕ 取消
+       - 串格式 `dnd5buff:<base64>`：JSON 字段 `{v:1, originId, from, name, spellName, castLvl, conc, durationText, desc, modifiers}`，UTF-8 安全编码（中文角色名 OK）
+       - **车卡时**：什么都不用额外做。只要法术有 `buff` 字段，分享/导入功能就自动可用。
+
      - **法术材料**（spell.material，可选）：D&D 5e 里材料分三类，模板按 `material` 字段自动给视觉/交互区分。spell（含 cantrips）支持：
        ```json
        // 普通可替代材料（奥术法器/成分包代）— 字符串简写即可
