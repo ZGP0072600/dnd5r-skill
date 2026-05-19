@@ -1949,7 +1949,9 @@ def main():
     if inp.is_file():
         process_one(inp, args)
     elif inp.is_dir() and args.batch:
-        for htm in sorted(inp.rglob("*.htm")):
+        # Glob '*.htm' does NOT match '*.html' — must enumerate both.
+        files = sorted(list(inp.rglob("*.htm")) + list(inp.rglob("*.html")))
+        for htm in files:
             process_one(htm, args)
     else:
         print(f"Not a file (or use --batch for dir): {inp}", file=sys.stderr)
