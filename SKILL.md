@@ -7,6 +7,26 @@ description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五�
 
 帮用户处理 D&D 5e / 5r（即 5e 2024 修订版）相关请求。**5r ≠ 训练数据里的 5e**——2024 版改了职业架构、专长系统、背景规则、若干法术，且中译本（"不全书"）有专属术语。**绝不能用训练记忆答**，必须查 `docs/extracted/`。
 
+## 战役运行时文件系统（DM 跑团必读）
+
+DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / 世界 / DM 风格 / 房规）持久化到 `campaigns/<战役名>/` 目录而不是仅靠对话上下文。完整设计见 [STEP1_DESIGN.md](STEP1_DESIGN.md)。
+
+**核心文件**（详细 schema 见 STEP1_DESIGN.md §4）：
+- `campaigns/<战役名>/README.md` — 战役元信息 + DM 风格引用 + 玩家阵容
+- `campaigns/<战役名>/progress.md` — 章节进度
+- `campaigns/<战役名>/world-state.md` — in-game 时间 / 组织态势
+- `campaigns/<战役名>/house-rules.md` — 房规（玩家定义；涉及规则判定时优先查）
+- `campaigns/<战役名>/players/<角色名>.md` — 玩家状态（AI 视角）
+- `campaigns/<战役名>/npcs/<NPC名>.md` — NPC 公开档案（懒加载）
+- `campaigns/<战役名>/combat/active.md` — 当前战斗（结束后归档到 `history/NNN_*.md`）
+- `campaigns/<战役名>/sessions/session-NN.md` — 桌末日志
+- `campaigns/<战役名>/dm-only/dm-notes.md` — DM 私笔（🔒 不应给玩家看）
+- `campaigns/<战役名>/dm-only/npcs-secrets/<NPC名>.md` — NPC 秘密档案（🔒）
+
+**DM 风格预设**：[profiles/dm-styles/](profiles/dm-styles/README.md) 下 6 个预设（本期完整 2 个：[标准.md](profiles/dm-styles/标准.md) / [粉红恋爱向.md](profiles/dm-styles/粉红恋爱向.md)）。战役通过 `dm_style.preset` 引用 + `overrides` 微调。
+
+**示范战役**：[campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
+
 ## 资料库结构
 
 根目录：`docs/extracted/`（相对项目根；HTML 已转 UTF-8）
@@ -427,12 +447,36 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
 - 切换信号：用户明确说"开桌""开始跑团"后进入；用户出戏问规则时短暂切回查证模式回答完毕再回 DM。
 
 #### G1. 开桌前准备（首次进新模组时一次性做）
+
 1. **确定模组**：用户给名字 → `Read docs/modules/<模组名>/README.md`。没读过先全文读 README + NPC速查 + 地点速查（约 3 个文件），其余按需 Grep。
-2. **确定阵容**：问玩家人数、当前角色等级、职业组合。
-3. **车卡兜底**：若玩家没卡 → 走工作流 B 按模组推荐起始等级（如风骸岛 = 1 级）建卡。若是 NPC 协力 / 预设卡，直接用模组指定。
-4. **建战役目录**：`.tmp/<战役名>/`，落地这些文件：
-   - `玩家状态.md` — 每个角色当前 HP/法术位/职业资源/装备/已知信息（每次开桌前同步）
-   - `session-log.md` — 跨桌剧情进度（哪些章节通了、哪些 NPC 揭过秘密、玩家未解钩子）
+2. **确定 DM 风格**：
+   - 已有战役 → Read `campaigns/<战役名>/README.md` 拿 `dm_style.preset`
+   - 新战役 → 给玩家看 [profiles/dm-styles/README.md](profiles/dm-styles/README.md) 的 6 个预设清单（标准 / 严格RAW / 宽松爽团 / 粉红恋爱向 / 黑暗残酷 / 治愈日常），让玩家选；可加 overrides
+   - Read 选中的 `profiles/dm-styles/<风格>.md` 加载到上下文
+3. **确定房规**：
+   - 问玩家"有要加的房规吗？"
+   - 给玩家看 7 段模板（战斗 / 治疗 / 休息 / 法术与施法 / 角色资源 / 桌面文化 / 其他）作提示
+   - 玩家无房规 → `house-rules.md` 各段保留「(空，按 RAW)」
+   - 玩家给条款 → 按模板分段记录
+4. **确定阵容**：问玩家人数、当前角色等级、职业组合。
+5. **车卡兜底**：若玩家没卡 → 走工作流 B 按模组推荐起始等级（如风骸岛 = 1 级）建卡。若是 NPC 协力 / 预设卡，直接用模组指定。
+6. **初始化战役目录**：`campaigns/<战役名>/`（命名建议 `<模组名>-<队伍标识>`，如 `风骸岛之龙-小明组`）。完整结构：
+   ```
+   campaigns/<战役名>/
+   ├── README.md              战役元信息 + DM 风格引用 + 玩家阵容
+   ├── progress.md            章节进度（模组所有章节 + 升级节点，未完成状态）
+   ├── world-state.md         起始 in-game 时间 + 地点 + 组织态势
+   ├── house-rules.md         按 7 段模板填（无则全 `(空，按 RAW)`）
+   ├── players/<角色名>.md    每人一份（HP / 法术位 / 资源 / 装备 / 角色已知信息）
+   ├── npcs/                  空，懒加载（玩家见 NPC 时创建公开档案）
+   ├── combat/                空（战斗开始时创建 active.md）
+   ├── sessions/              空（每桌结束写 session-NN.md）
+   └── dm-only/
+       ├── dm-notes.md        从模组 README + NPC 速查批量提取主线伏笔 / 待触发事件 / 救场配额 / 玩家观察
+       └── npcs-secrets/<X>.md  从模组 NPC 速查批量拆出秘密档案（每个有 🔒 标记的 NPC 一份）
+   ```
+   完整 schema 见 [STEP1_DESIGN.md §4](STEP1_DESIGN.md)。模板参考 [campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/)。
+7. **开场叙事**：按 DM 风格读模组"读给玩家"段开场（保持风格基调一致）。
 
 #### G2. 开桌节奏（每轮循环 4 步）
 1. **场景描述**：优先用 PDF 原文的「读给玩家」段落（章节文件里整段蓝调叙述），再用 1-2 句自然语言润色当前氛围。
@@ -443,11 +487,54 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
    - 「随便能做到」别让骰、「不可能」也别让骰
 4. **结果叙事 + 推进**：成功/失败都给情景化描述，不要只甩数字。
 
-#### G3. 战斗管理
-1. 数据全用 `docs/modules/<模组>/06_附录B_生物图鉴.md`，没有的回退 `docs/extracted/怪物图鉴2025/`。
-2. **每场战斗内自管理**：先攻表、每个怪 HP（多个同种用 A/B/C 区分）、状态（充能 d6/集中/麻痹/魅惑/...）、玩家死亡豁免。
-3. **按当前等级调整**：模组每个遭遇都有「二级/三级冒险者」加成段落，按队伍当前级取。
-4. **战斗结束**：按「遭遇与战斗.md」列出的宝藏分配。XP 不必逐场算（模组靠章节末「升级 Gain a Level」节点统一升级）。
+#### G3. 战斗管理（文件持久化）
+
+**规则查询协议**（每次涉及具体规则判定时遵守）：
+1. 先查当前战役的 `campaigns/<战役名>/house-rules.md` 对应段落
+2. 有 override → 按房规
+3. 无 → 按 `base_ruleset`（默认 PHB24）RAW
+
+具体触发：致命一击 / 自然 20 / 1 / 机会攻击 / 附赠动作 / 治疗 / 短休长休 / 法术备战 / 死豁 / inspiration / 投骰公开度。
+
+**操作建议**：开桌时已整体 Read house-rules.md 进上下文（G1 第 3 步 / G7 第 3 步），战斗中直接引用，不必每回合 Grep。
+
+**战斗开始**：
+1. Read `campaigns/<战役名>/combat/active.md` 检查异常（不应存在；存在 = 上次桌断在战斗中）
+2. 从 `docs/modules/<模组>/06_附录B_生物图鉴.md` 拿怪物数据；没有的回退 `docs/extracted/怪物图鉴2025/`
+3. 按队伍当前等级取模组的「二级/三级冒险者」加成段落
+4. 投先攻：
+   - PC：让玩家自投并报数（AI 不替玩家投）
+   - 怪物：AI 投（Bash `python -c "import random; print(random.randint(1,20))"` + 加值）
+5. Write `combat/active.md`：先攻表、各方初始 HP、空回合日志、`in_game_round=1`、`turn_index=0`、`status=ongoing`
+6. 按 DM 风格描述战斗开场
+
+**每回合**：
+1. Read `combat/active.md` 拿当前 turn_index + 当前出手者
+2. 描述当前行动者；若是 PC 等玩家声明；若是怪物按战术 + DM 风格执行
+3. 投骰判定（攻击 / 豁免 / 检定）：
+   - PC：让玩家投并报数
+   - 怪物 / NPC：AI 投（Bash python）
+4. 计算伤害（按规则查询协议先查 house-rules）→ Edit `combat/active.md`：
+   - 更新对应 HP
+   - 更新状态字段（束缚 / 中毒 / 擒抱 / ...）
+   - 追加回合日志行
+   - 推进 `turn_index`（到表尾则 `round += 1`、`turn_index = 0`）
+5. 处理触发效果（专注豁免、机会攻击、领域效果）
+6. 若有 PC HP=0 → active.md 死亡豁免段追加该 PC，下次轮到他时投死豁
+7. 若全部敌方 HP=0 或 PC 全 down → 进入「战斗结束」流程
+
+**战斗结束**：
+1. Read `combat/active.md` 最终状态
+2. 计算下个编号 NNN（Glob `combat/history/*.md` 找最大编号 + 1）
+3. Edit active.md frontmatter `status` = ended / fled / tpk，加 `ended` 时间戳 + `outcome` 字段
+4. 把 active.md 内容 Write 到 `combat/history/NNN_<encounter_id>_<场景>.md`
+5. 删除 `combat/active.md`（Bash `rm`）
+6. 按模组「遭遇与战斗.md」分宝藏
+7. Edit `players/<X>.md`：同步最终 HP / 法术位消耗 / 新装备 / 新揭示信息
+8. Edit `progress.md`：追加该遭遇到「已完成遭遇」
+9. 按 DM 风格做战后叙事
+
+**XP / 升级**：不必逐场算（模组靠章节末「升级 Gain a Level」节点统一升级）。
 
 #### G4. 信息揭示边界（🔒 秘密的处理）
 - NPC 速查文件里 `🔒 DM` 标记的内容**绝不直接告诉玩家**。
@@ -460,21 +547,38 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
 - **第二次救场** → 提示玩家"是否需要协力 NPC / 调整难度"。
 - 玩家明显**碾压**时，按模组的二级/三级加成上调；明显**被压**时，让怪物提早撤退或环境给优势。
 
-#### G6. Session 日志（每桌结束写）
-Write `.tmp/<战役名>/session-N.md`，含：
-- 现实日期、in-game 时间推进、参与角色
-- 完成事件清单 / 触发的遭遇 / 获得宝藏
-- 玩家身上未结的钩子 / 触发条件待发的事件
-- DM 私笔记：揭过的秘密 / 用过的兜底次数 / 难度调整记录
+#### G6. 桌末记录（扩展同步清单）
 
-同时更新 `玩家状态.md`（HP/法术位/资源回满或扣减、新装备、新等级）。
+每桌结束依次同步以下文件：
 
-#### G7. 跨 session 恢复
-用户新对话说"继续上次跑团"：
-1. Read `docs/modules/<模组>/README.md` 拿到模组骨架
-2. Read `.tmp/<战役名>/session-log.md` 拿到进度
-3. Read `.tmp/<战役名>/玩家状态.md` 拿到当前状态
-4. 用一段「上回提要」开场，然后继续 G2 节奏
+1. **Write** `campaigns/<战役名>/sessions/session-NN.md`（NN = `session_count + 1`），含：
+   - 现实日期 / in-game 时间推进 / 参与角色
+   - 事件清单 / 触发的遭遇 / 获得宝藏
+   - 玩家身上未结的钩子 / 触发条件待发的事件
+   - DM 私笔（揭过的秘密 / 用过的兜底次数 / 难度调整记录 / 玩家观察）
+2. **Edit** `players/<*>.md` 全员同步最终状态（HP / 法术位 / 资源 / 装备 / 新揭示信息）
+   - **询问玩家**是否需要修正（HTML 卡 ↔ .md 同步：玩家可能在 HTML 里改过 HP / 法术位）
+3. **Edit** `progress.md`：标记章节进度、升级节点、新解钩子、追加已完成遭遇
+4. **Edit** `world-state.md`：推进 in-game 时间、地点变化、组织态势事件
+5. **Edit** `dm-only/dm-notes.md`：追加本桌触发的伏笔 / 救场用次 / 难度调整 / 玩家观察
+6. **Edit** `npcs/<X>.md`（本桌互动过的 NPC）：更新态度、互动历史；新见到的 NPC 创建公开档案
+7. **Edit** 战役 `README.md` frontmatter：`session_count += 1`
+
+#### G7. 跨 session 恢复（11 步固定顺序）
+
+新对话续接时按以下顺序读取（保证 LLM 完整上下文恢复）：
+
+1. Read `campaigns/<战役名>/README.md`（战役元信息 + DM 风格引用）
+2. Read `profiles/dm-styles/<引用风格>.md`（加载 DM 风格）
+3. Read `campaigns/<战役名>/house-rules.md`（加载房规）
+4. Read `campaigns/<战役名>/progress.md`（章节进度）
+5. Read `campaigns/<战役名>/world-state.md`（世界状态）
+6. Read `campaigns/<战役名>/sessions/` 最近 1-2 个文件（最近事件）
+7. Read `campaigns/<战役名>/players/*.md` 全员（玩家状态）
+8. Read `campaigns/<战役名>/combat/active.md`（若存在 = 上次桌断在战斗中，恢复战斗）
+9. Read `campaigns/<战役名>/dm-only/dm-notes.md`（DM 私笔）
+10. **询问玩家**："上桌结束时大家身上状态有变化吗？" —— HTML 卡 ↔ .md 同步
+11. 按 DM 风格语调写「上回提要」开场，然后继续 G2 节奏
 
 #### G8. 资料引用
 - 怪物数据：先 `docs/modules/<模组>/06_附录B_生物图鉴.md`，缺则 `docs/extracted/怪物图鉴2025/`。
