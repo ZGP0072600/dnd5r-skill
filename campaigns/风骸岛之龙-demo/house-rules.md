@@ -1,6 +1,7 @@
 ---
 campaign: 风骸岛之龙-demo
 base_ruleset: PHB24
+dice_mode: pause
 last_updated: 2026-05-20
 ---
 

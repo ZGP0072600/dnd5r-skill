@@ -511,6 +511,7 @@ outcome: 章节 1 完成，升 2 级
 ---
 campaign: 风骸岛之龙-小明组
 base_ruleset: PHB24                  # 基础规则版本（PHB24 / PHB14 / 自定义）
+dice_mode: pause                     # pause（默认，AI 描述检定需求后自然停下让玩家选） / ai（AI 全代投） / player（玩家全自投）
 last_updated: 2026-05-20
 ---
 
