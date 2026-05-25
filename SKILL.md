@@ -1,6 +1,14 @@
 ---
 name: dnd5r
 description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五版 / 5e 2024 / 不全书 / 费伦 等关键词，或要求车卡（建卡/创角）、查法术（法表/法术速查）、查规则、查怪物、查专长、查装备、推荐职业子职业、推荐种族背景、对比 2014 与 2024 版差异、**扮演 DM 带跑模组 / 冒险 / 一本团**时使用本 skill。所有规则数值、法术效果、生物数据必须从 docs/extracted/ 下的"DND 五版不全书"中文资料库查证后再回答，模组剧情/NPC/遭遇必须以 docs/modules/<模组名>/ 下文件为准，禁止凭训练记忆编造。
+panel:
+  entry: ui/panel.html
+  title: DnD5r 战役面板
+  defaultWidth: 340
+  watch:
+    - state/threads/{threadId}/panel-data.json
+  writable:
+    - state/threads/{threadId}/panel-data.json
 ---
 
 # DnD 5r 助手
@@ -26,6 +34,103 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 **DM 风格预设**：[profiles/dm-styles/](profiles/dm-styles/README.md) 下 6 个预设（本期完整 2 个：[标准.md](profiles/dm-styles/标准.md) / [粉红恋爱向.md](profiles/dm-styles/粉红恋爱向.md)）。战役通过 `dm_style.preset` 引用 + `overrides` 微调。
 
 **示范战役**：[campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
+
+## Panel 数据同步（Fathom 右侧面板）
+
+skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源是 **`state/threads/<threadId>/panel-data.json`** 这一份 JSON 快照。**Claude Code（CLI/桌面）看不到这个面板**——`panel:` 字段是纯增量字段，对 Claude Code 零影响；但**只要在 Fathom 里跑过团 / 沙盒，就需要按下面契约同步这份快照**，否则用户切到 Fathom 看不到当前状态。
+
+### 🚨 Per-conversation 状态（每个对话独立 panel-data）
+
+每个对话（thread）有自己的 panel-data.json，文件路径里的 `<threadId>` 不是字面量，需要在每次写之前**主动查出当前对话的 thread id**：
+
+1. **读 `<workspace>/.fathom-context.json`**（workspace 根目录的隐藏文件，由 Fathom 在切对话时自动写入），结构：
+   ```json
+   { "threadId": "thr_xxx...", "workspace": "...", "updatedAt": "..." }
+   ```
+2. 拿到 `threadId` 字段后，拼出实际路径：
+   `.claude/skills/dnd5r/state/threads/<那个 threadId>/panel-data.json`
+3. Read / Write 这个路径（不存在就当 idle 空状态对待，初始化好后 Write）
+
+**为什么要 per-thread**：用户可能开多个对话，有的跑团（mode=G）、有的跑沙盒（mode=I）、有的纯查资料（mode=idle）——共享一个 panel-data.json 会互相覆盖、切对话看到错的状态。per-thread 后切到哪个对话 Fathom 立刻显示那个对话的状态。
+
+**Claude Code 环境**：`.fathom-context.json` 不存在（只有 Fathom 写）。这种情况下**完全跳过 panel 同步**——CLI 用户看不到 panel，省略副作用即可。
+
+### 🚨 每回合硬约束
+
+不论 G/I 工作流的哪一步，**每个 turn 结束前都要确认 panel-data.json 反映当前真实状态**。漏了同步会让用户切到 Fathom 看到旧/错状态。如果有任何变化：mode 切换、inGameTime、HP/status、章节进度、sandbox 字段、战斗状态——立刻 Write 重写整份 JSON。哪怕只刷 `lastUpdate` 也写一下。
+
+### 文件位置 + Schema（v1）
+
+`.claude/skills/dnd5r/state/threads/<threadId>/panel-data.json`：
+
+```jsonc
+{
+  "_schema": "v1",
+  "mode": "G" | "I" | "idle",                  // 带团 / 沙盒 / 未开桌
+  "campaign": {                                // mode=idle 时 null
+    "name": "风骸岛之龙-小明组",
+    "dmStyle": "粉红恋爱向",                    // 引用的 dm-styles 预设名
+    "inGameTime": "晨晖月 12 日 / 上午",
+    "location": "巨龙休息处修道院"               // 玩家视角自然描述（**不要写编号 D5/A1**，遵守 G4）
+  },
+  "players": [                                 // mode=idle 时 []
+    { "name": "羽痕", "class": "术士 3",
+      "hpCur": 18, "hpMax": 24, "ac": 13,
+      "status": ["专注:祝福术", "中毒"] }       // 简短状态 chip；"专注:" 开头会高亮金色
+  ],
+  "module": null | {                           // 仅 mode=G 时有
+    "name": "风骸岛之龙",
+    "currentChapter": "第二章：海藻洞穴",
+    "progress": "已完成 3/6 遭遇"
+  },
+  "combat": null | {                           // 仅战斗进行中
+    "round": 3, "turnIndex": 2,
+    "currentActor": "僵尸 A",
+    "initiative": [
+      { "name": "羽痕", "init": 17, "hp": "18/24", "isPC": true,  "isCurrent": false },
+      { "name": "僵尸 A", "init": 14, "hp": "重伤", "isPC": false, "isCurrent": true }
+    ]
+  },
+  "sandbox": null | {                          // 仅 mode=I 时有
+    "activeCommissions": [
+      { "name": "城门口失窃案", "deadline": "5 日内" }
+    ],
+    "keyRelationships": [
+      { "name": "艾莉安娜", "stage": "暧昧期(3/5)", "lastSeen": "晨晖月 10 日 / 晚宴" }
+    ],
+    "assetsBrief": "现金 287gp / 据点：无"
+  },
+  "lastUpdate": "2026-05-25T14:30:00+08:00"
+}
+```
+
+### 关键规则（必读）
+
+1. **怪物 HP 用模糊档**（遵守 G4 信息揭示边界）：`"健康" / "轻伤" / "重伤" / "濒死"`，**绝不写精确数值** "8/22"。PC 用精确值 `"18/24"`。
+2. **location 字段写玩家视角自然描述**：`"巨龙休息处修道院"` / `"圆顶大厅"`，**绝不写 DM 索引编号** `"D5"` / `"A1"` —— 这是给玩家面板看的，不是 DM 私笔。
+3. **status chip 简短**：`"中毒"` / `"专注:祝福术"` / `"擒抱"` / `"持续治疗"`。"专注:" 开头会在 panel 渲染金色。
+4. **写入方式**：`Read` → 解析 JSON → 改字段 → `Write` 整份。**不要直接 Write 部分字段**（会丢字段）。
+5. **lastUpdate 每次同步必更新**：用当前 ISO 时间 `YYYY-MM-DDTHH:MM:SS+08:00`。
+
+### 同步时机一览
+
+| 时机 | 改哪些字段 | 详见 |
+|---|---|---|
+| 切入带团 G1 | `mode=G`、campaign 整段、players 全员、module 初值、combat=null、sandbox=null | G1 第 6 步 |
+| 切入沙盒 I1 | `mode=I`、campaign 整段、players、module=null、sandbox 初值 | WORKFLOW_I_SANDBOX.md I1 |
+| 收桌 / 切回查证模式 | `mode=idle`、其他字段保留（让用户回 panel 还能看到上次状态）；或全清空 | 视场景 |
+| G2 推进每轮 | players（HP / status）、campaign（inGameTime / location）、module（progress） | G2 第 4 步 |
+| G3 战斗开始 | combat 整段写入 | G3 §战斗开始 |
+| G3 每回合末 | combat.round / turnIndex / currentActor / initiative HP | G3 §每回合 |
+| G3 战斗结束 | combat=null、players 同步最终 HP | G3 §战斗结束 |
+| G6 桌末 | campaign.inGameTime、players、module.progress 同步到本桌末态 | G6 第 7 步追加 |
+| I 时间推进 / 接委托 / 关系演进 | sandbox 整段、campaign.inGameTime | WORKFLOW_I_SANDBOX.md I3/I5/I6 |
+
+### 实践提示
+
+- 不要每条 DM 叙事都重写 JSON——**状态实际变化时再写**（HP/位置/章节/战斗回合/沙盒事件）。叙事润色不算变化。
+- 写入是 fire-and-forget；Fathom watcher 在 ~200ms 内自动推到 panel，不需要确认。
+- 出错（字段类型错 / JSON 无效）panel 顶部会显示"解析失败"——用户告诉你时去 Read 看看 JSON。
 
 ## 资料库结构
 
@@ -485,6 +590,8 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
        └── npcs-secrets/<X>.md  从模组 NPC 速查批量拆出秘密档案（每个有 🔒 标记的 NPC 一份）
    ```
    完整 schema 见 [STEP1_DESIGN.md §4](STEP1_DESIGN.md)。模板参考 [campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/)。
+
+   **同步 Panel 快照**：Write `state/threads/<threadId>/panel-data.json`（详见 §Panel 数据同步）：`mode="G"`、campaign 整段（名字 / dmStyle 引用名 / inGameTime / location）、players 数组按队伍填、module 初值（name / currentChapter / progress）、combat=null、sandbox=null、lastUpdate。**Fathom 用户切到右侧 panel 看到的就是这份。**
 7. **开场叙事**：按 DM 风格读模组"读给玩家"段开场（保持风格基调一致）。
 
 #### G2. 开桌节奏（每轮循环 4 步）
@@ -502,7 +609,7 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
    - **AI 代投协议**：用 Bash `python -c "import random; print(random.randint(1,20))"` 投骰；**强制显示原始骰面 + 加值**（"你投了 d20=14, +2 = 16"）；归玩家（"你投了"，不是"我替你投了"）；**自然 20/1 不修整**
    - **怪物始终 AI 投**（不在玩家选择范围）
    - **玩家随时可改**：玩家说"接下来都你投" / "改回每次问我" → AI 立即 Edit `house-rules.md` 更新 `dice_mode`
-4. **结果叙事 + 推进**：成功/失败都给情景化描述，不要只甩数字。
+4. **结果叙事 + 推进**：成功/失败都给情景化描述，不要只甩数字。**若 HP / 状态 / 地点 / 章节进度有变化**，同步重写 `state/threads/<threadId>/panel-data.json` 对应字段（详见 §Panel 数据同步）；纯叙事润色不触发同步。
 
 **📝 输出风格：纯散文，无 markdown**（**重点**）：
 
@@ -588,6 +695,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
    - 怪物：AI 投（Bash `python -c "import random; print(random.randint(1,20))"` + 加值）
 5. Write `combat/active.md`：先攻表、各方初始 HP、空回合日志、`in_game_round=1`、`turn_index=0`、`status=ongoing`
 6. 按 DM 风格描述战斗开场
+7. **同步 Panel**（详见 §Panel 数据同步）：写 `state/threads/<threadId>/panel-data.json` 的 `combat` 整段——`round=1, turnIndex=0, currentActor, initiative` 数组（**PC 用精确 HP "18/24"、怪物用模糊档 "健康/轻伤/重伤/濒死"**），同步 players 数组 HP
 
 **每回合**：
 1. Read `combat/active.md` 拿当前 turn_index + 当前出手者
@@ -603,6 +711,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
 5. 处理触发效果（专注豁免、机会攻击、领域效果）
 6. 若有 PC HP=0 → active.md 死亡豁免段追加该 PC，下次轮到他时投死豁
 7. 若全部敌方 HP=0 或 PC 全 down → 进入「战斗结束」流程
+8. **同步 Panel**：更新 `state/threads/<threadId>/panel-data.json` 的 `combat.round / turnIndex / currentActor`，以及 `initiative` 中受影响成员的 HP（PC 精确 / 怪物模糊档），players 数组同步任何受伤 PC 的 HP
 
 **战斗结束**：
 1. Read `combat/active.md` 最终状态
@@ -614,6 +723,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
 7. Edit `players/<X>.md`：同步最终 HP / 法术位消耗 / 新装备 / 新揭示信息
 8. Edit `progress.md`：追加该遭遇到「已完成遭遇」
 9. 按 DM 风格做战后叙事
+10. **同步 Panel**：`state/threads/<threadId>/panel-data.json` 的 `combat` 置为 `null`，players 同步战后最终 HP / 新增 status（如"专注"消散、"低 HP"等），module.progress 若推进也更新
 
 **XP / 升级**：不必逐场算（模组靠章节末「升级 Gain a Level」节点统一升级）。
 
@@ -761,6 +871,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 5. **Edit** `dm-only/dm-notes.md`：追加本桌触发的伏笔 / 救场用次 / 难度调整 / 玩家观察
 6. **Edit** `npcs/<X>.md`（本桌互动过的 NPC）：更新态度、互动历史；新见到的 NPC 创建公开档案
 7. **Edit** 战役 `README.md` frontmatter：`session_count += 1`
+8. **同步 Panel**（详见 §Panel 数据同步）：Write `state/threads/<threadId>/panel-data.json` 同步桌末态——`campaign.inGameTime`（与 world-state.md 一致）、players（与 .md 一致的 HP/status）、`module.progress`（与 progress.md 一致）。**这一步保证用户下次切到 Fathom 看 panel 就能知道上次到哪。**
 
 #### G7. 跨 session 恢复（11 步固定顺序）
 
@@ -924,6 +1035,13 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 - I10~I12 文件 schema / 跨 session 恢复 / 与 G 工作流接口
 
 **与 H（改模组）的关系**：H 是开桌**前**一次性装配模组副本；I 是开桌**后**的运行时框架。沙盒里可嵌套模组（玩家接高 stakes 委托 → 切 G 跑完整模组 → 回沙盒）；模组结束后也可转沙盒（继承 NPC / 地点 / 战利品）。详 WORKFLOW_I_SANDBOX.md §I12。
+
+**Fathom Panel 同步**（详见 §Panel 数据同步）：沙盒模式下 `state/threads/<threadId>/panel-data.json` 的 `mode="I"`、`module=null`，`sandbox` 字段含 activeCommissions / keyRelationships / assetsBrief。同步时机：
+- I1 沙盒五问完成后 → 初始化 panel-data.json（mode=I、campaign 整段、players、sandbox 初值）
+- I3 时间推进 → 更新 `campaign.inGameTime`、sandbox 字段（委托 / 关系到期 / 资产变化）
+- I5 接 / 完成委托 → 更新 sandbox.activeCommissions
+- I6 关系演进阶段变化 → 更新 sandbox.keyRelationships
+- 嵌套模组期间切到 G → `mode` 临时切 "G" + module 字段填入；模组结束切回 → 还原 "I"
 
 **MVP 范围**：先跑通第一阶段（I0~I6 + I10~I12，沙盒五问 → 接委托 → 月底结算 → 时间推进核心循环），验证后再扩展第二阶段（I7~I8）/ 第三阶段（I9）。
 

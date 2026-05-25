@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>DnD5r 战役面板</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-card: #fff;
+    --border: #e5e5e5;
+    --text: #1a1a1a;
+    --text-muted: #888;
+    --accent-g: #1677ff;
+    --accent-i: #722ed1;
+    --accent-idle: #999;
+    --hp-good: #52c41a;
+    --hp-warn: #faad14;
+    --hp-bad: #f5222d;
+    --chip-bg: #f0f2f5;
+    --chip-conc: #fadb14;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg-card: #262626;
+      --border: #434343;
+      --text: #f0f0f0;
+      --text-muted: #999;
+      --chip-bg: #303030;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 12px;
+    font: 13px/1.4 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* === 顶部状态条 === */
+  .header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .mode-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .mode-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #fff;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .mode-badge.G { background: var(--accent-g); }
+  .mode-badge.I { background: var(--accent-i); }
+  .mode-badge.idle { background: var(--accent-idle); }
+  .campaign-name {
+    font-weight: 600;
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+  }
+  .dm-style {
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+  .meta-line {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .meta-line .sep { margin: 0 6px; opacity: 0.5; }
+
+  /* === 通用 section === */
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+  .section h4 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* === 玩家阵容 === */
+  .player-row {
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+  }
+  .player-row:first-of-type { border-top: 0; padding-top: 0; }
+  .player-row .top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .player-name { font-weight: 600; }
+  .player-class { color: var(--text-muted); margin-left: 6px; }
+  .player-ac {
+    display: inline-block;
+    background: var(--chip-bg);
+    border-radius: 3px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hp-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .hp-bar .fill {
+    height: 100%;
+    background: var(--hp-good);
+    transition: width 0.3s, background 0.3s;
+  }
+  .hp-bar.warn .fill { background: var(--hp-warn); }
+  .hp-bar.bad .fill { background: var(--hp-bad); }
+  .hp-text {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .status-chips { margin-top: 4px; }
+  .chip {
+    display: inline-block;
+    background: var(--chip-bg);
+    border-radius: 3px;
+    padding: 1px 6px;
+    margin: 2px 4px 2px 0;
+    font-size: 10px;
+  }
+  .chip.conc { background: var(--chip-conc); color: #523a00; }
+
+  /* === 战斗视图 === */
+  .combat-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .init-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .init-table th, .init-table td {
+    padding: 5px 6px;
+    text-align: left;
+    border-top: 1px solid var(--border);
+  }
+  .init-table th {
+    border-top: 0;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .init-table tr.current {
+    background: rgba(245, 34, 45, 0.08);
+    font-weight: 600;
+  }
+  .init-table tr.current td:first-child::before {
+    content: '▶ ';
+    color: var(--hp-bad);
+  }
+  .init-table .pc { color: var(--accent-g); }
+  .init-table .npc { color: var(--text-muted); }
+
+  /* === 沙盒视图 === */
+  .sb-row {
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .sb-row.first { border-top: 0; }
+  .sb-meta {
+    color: var(--text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .sb-group-title {
+    font-weight: 600;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .sb-group-title.first { margin-top: 0; }
+
+  /* === 模组进度 === */
+  .module-line {
+    font-size: 12px;
+    margin: 4px 0;
+  }
+  .module-line strong { color: var(--text-muted); font-weight: 600; }
+
+  /* === 空态 === */
+  .empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 16px 0;
+    line-height: 1.7;
+  }
+
+  /* === 底部按钮区 === */
+  .actions {
+    position: sticky;
+    bottom: -12px;
+    margin: 0 -12px -12px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+  }
+  .actions h4 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .btn:hover {
+    border-color: var(--accent-g);
+    color: var(--accent-g);
+    background: rgba(22, 119, 255, 0.05);
+  }
+  .btn-row {
+    display: flex;
+    gap: 4px;
+  }
+  .btn-row .btn { margin-bottom: 0; flex: 1; }
+
+  .last-update {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    margin: 6px 0;
+  }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="empty">等待数据…</div>
+</div>
+
+<script>
+  // === DOM helpers ===
+  function el(tag, attrs, children) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'class') e.className = attrs[k];
+      else if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'html') e.innerHTML = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    });
+    if (children) children.forEach(function (c) {
+      if (c) e.appendChild(c);
+    });
+    return e;
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      var p = function (n) { return n < 10 ? '0' + n : n; };
+      return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) +
+             ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    } catch (e) { return iso; }
+  }
+
+  // === Section renderers ===
+  function renderHeader(data) {
+    var modeText = { G: '带团', I: '沙盒', idle: '未开桌' }[data.mode] || data.mode;
+    var children = [
+      el('span', { class: 'mode-badge ' + data.mode, text: modeText }),
+      el('span', { class: 'campaign-name',
+        text: data.campaign && data.campaign.name ? data.campaign.name : '(未选择战役)' })
+    ];
+    if (data.campaign && data.campaign.dmStyle) {
+      children.push(el('span', { class: 'dm-style', text: data.campaign.dmStyle }));
+    }
+    var modeRow = el('div', { class: 'mode-row' }, children);
+
+    var metaParts = [];
+    if (data.campaign && data.campaign.inGameTime) metaParts.push(data.campaign.inGameTime);
+    if (data.campaign && data.campaign.location) metaParts.push(data.campaign.location);
+    var metaLine = metaParts.length
+      ? el('div', { class: 'meta-line',
+          html: metaParts.map(function (x) {
+            return x.replace(/[<>]/g, function (c) { return c === '<' ? '&lt;' : '&gt;'; });
+          }).join('<span class="sep">·</span>') })
+      : null;
+
+    return el('div', { class: 'header' }, [modeRow, metaLine]);
+  }
+
+  function renderPlayers(players) {
+    if (!players || !players.length) {
+      return el('div', { class: 'section' }, [
+        el('h4', { text: '玩家阵容' }),
+        el('div', { class: 'empty', text: '(尚无玩家)' })
+      ]);
+    }
+    var rows = players.map(function (p) {
+      var ratio = p.hpMax > 0 ? p.hpCur / p.hpMax : 0;
+      var barClass = ratio < 0.25 ? 'hp-bar bad' : ratio < 0.5 ? 'hp-bar warn' : 'hp-bar';
+      var fill = el('div', { class: 'fill' });
+      fill.style.width = Math.max(0, Math.min(100, ratio * 100)) + '%';
+
+      var nameSpan = el('span', null, [
+        el('span', { class: 'player-name', text: p.name }),
+        el('span', { class: 'player-class', text: p.class || '' })
+      ]);
+      var top = el('div', { class: 'top' }, [
+        nameSpan,
+        el('span', { class: 'player-ac', text: 'AC ' + (p.ac != null ? p.ac : '?') })
+      ]);
+
+      var bar = el('div', { class: barClass }, [fill]);
+      var hpText = el('div', { class: 'hp-text', text: 'HP ' + p.hpCur + ' / ' + p.hpMax });
+
+      var chips = (p.status || []).map(function (s) {
+        var isConc = String(s).indexOf('专注') === 0;
+        return el('span', { class: 'chip' + (isConc ? ' conc' : ''), text: s });
+      });
+      var chipsRow = chips.length ? el('div', { class: 'status-chips' }, chips) : null;
+
+      return el('div', { class: 'player-row' }, [top, bar, hpText, chipsRow]);
+    });
+    return el('div', { class: 'section' }, [el('h4', { text: '玩家阵容' })].concat(rows));
+  }
+
+  function renderModule(mod) {
+    if (!mod) return null;
+    var lines = [
+      el('div', { class: 'module-line', html: '<strong>模组：</strong>' + (mod.name || '?') }),
+      el('div', { class: 'module-line', html: '<strong>当前章节：</strong>' + (mod.currentChapter || '-') }),
+      el('div', { class: 'module-line', html: '<strong>进度：</strong>' + (mod.progress || '-') })
+    ];
+    return el('div', { class: 'section' }, [el('h4', { text: '模组进度' })].concat(lines));
+  }
+
+  function renderCombat(c) {
+    if (!c) return null;
+    var head = el('div', { class: 'combat-meta',
+      text: '第 ' + (c.round || '?') + ' 回合 · 当前出手：' + (c.currentActor || '?') });
+    var thead = el('thead', null, [el('tr', null, [
+      el('th', { text: '名字' }),
+      el('th', { text: '先攻' }),
+      el('th', { text: 'HP' })
+    ])]);
+    var rows = (c.initiative || []).map(function (e, i) {
+      var isCur = e.isCurrent || i === c.turnIndex;
+      return el('tr', { class: isCur ? 'current' : '' }, [
+        el('td', { class: e.isPC ? 'pc' : 'npc', text: e.name }),
+        el('td', { text: e.init != null ? String(e.init) : '-' }),
+        el('td', { text: e.hp || '-' })
+      ]);
+    });
+    var tbody = el('tbody', null, rows);
+    var table = el('table', { class: 'init-table' }, [thead, tbody]);
+    return el('div', { class: 'section' },
+      [el('h4', { text: '⚔ 战斗进行中' }), head, table]);
+  }
+
+  function renderSandbox(s) {
+    if (!s) return null;
+    var children = [el('h4', { text: '沙盒状态' })];
+    var groupCount = 0;
+
+    if (s.activeCommissions && s.activeCommissions.length) {
+      children.push(el('div', {
+        class: 'sb-group-title' + (groupCount === 0 ? ' first' : ''),
+        text: '进行中委托'
+      }));
+      s.activeCommissions.forEach(function (c, i) {
+        children.push(el('div', { class: 'sb-row' + (i === 0 ? ' first' : '') }, [
+          el('span', { text: c.name }),
+          el('span', { class: 'sb-meta', text: c.deadline || '' })
+        ]));
+      });
+      groupCount++;
+    }
+
+    if (s.keyRelationships && s.keyRelationships.length) {
+      children.push(el('div', {
+        class: 'sb-group-title' + (groupCount === 0 ? ' first' : ''),
+        text: '关键关系'
+      }));
+      s.keyRelationships.forEach(function (r, i) {
+        children.push(el('div', { class: 'sb-row' + (i === 0 ? ' first' : '') }, [
+          el('span', { text: r.name + (r.stage ? ' · ' + r.stage : '') }),
+          el('span', { class: 'sb-meta', text: r.lastSeen || '' })
+        ]));
+      });
+      groupCount++;
+    }
+
+    if (s.assetsBrief) {
+      children.push(el('div', {
+        class: 'sb-group-title' + (groupCount === 0 ? ' first' : ''),
+        text: '资产'
+      }));
+      children.push(el('div', { class: 'sb-row first', text: s.assetsBrief }));
+      groupCount++;
+    }
+
+    if (groupCount === 0) {
+      children.push(el('div', { class: 'empty', text: '(沙盒数据为空)' }));
+    }
+
+    return el('div', { class: 'section' }, children);
+  }
+
+  function renderIdleHint() {
+    return el('div', { class: 'section' }, [
+      el('div', { class: 'empty', html:
+        '尚未开桌。<br>' +
+        '跟 AI 说<strong>"开桌跑 XX 模组"</strong>进入带团（G），<br>' +
+        '或<strong>"开沙盒"</strong>进入沙盒模式（I）。<br>' +
+        '<br>开桌后，此面板会自动显示战役状态。' })
+    ]);
+  }
+
+  function renderActions(mode) {
+    var box = el('div', { class: 'actions' }, [el('h4', { text: '快捷操作' })]);
+    function mkBtn(text, msg) {
+      var b = el('button', { class: 'btn', text: text });
+      b.onclick = function () { skillPanel.send(msg); };
+      return b;
+    }
+    if (mode === 'G' || mode === 'I') {
+      box.appendChild(el('div', { class: 'btn-row' }, [
+        mkBtn('🛌 短休', '我们短休一下'),
+        mkBtn('🌙 长休', '我们长休一晚')
+      ]));
+    }
+    if (mode === 'G') {
+      box.appendChild(mkBtn('📜 查 NPC 速查', '请 Read 当前模组的 NPC速查.md 给我看看玩家视角的 NPC 信息（不要剧透 🔒 部分）'));
+      box.appendChild(mkBtn('🗺 查地点速查', '请 Read 当前模组的 地点速查.md，给我看看当前所在区域的描述'));
+    }
+    if (mode === 'I') {
+      box.appendChild(mkBtn('⏱ 时间推进 1 周', '我们时间推进 1 周，按 I3 协议结算'));
+      box.appendChild(mkBtn('💼 查公会委托', '我去公会看委托池'));
+    }
+    if (mode === 'idle') {
+      box.appendChild(mkBtn('▶ 开桌带团', '我们开桌跑团吧'));
+      box.appendChild(mkBtn('🏞 开沙盒', '我们开沙盒模式'));
+    }
+    return box;
+  }
+
+  // === Top-level render ===
+  function render(data) {
+    var root = document.getElementById('root');
+    root.innerHTML = '';
+
+    root.appendChild(renderHeader(data));
+
+    if (data.mode !== 'idle') {
+      root.appendChild(renderPlayers(data.players || []));
+    }
+
+    if (data.mode === 'G') {
+      if (data.combat) {
+        root.appendChild(renderCombat(data.combat));
+      } else {
+        var modSection = renderModule(data.module);
+        if (modSection) root.appendChild(modSection);
+      }
+    } else if (data.mode === 'I') {
+      var sbSection = renderSandbox(data.sandbox);
+      if (sbSection) root.appendChild(sbSection);
+    } else {
+      root.appendChild(renderIdleHint());
+    }
+
+    if (data.lastUpdate) {
+      root.appendChild(el('div', { class: 'last-update',
+        text: '最后更新：' + fmtTime(data.lastUpdate) }));
+    }
+
+    root.appendChild(renderActions(data.mode));
+  }
+
+  // === Data wiring ===
+  skillPanel.onData(function (payload) {
+    // 注意 key 是带 {threadId} 字面占位符的模板字符串——Fathom push 数据时用
+    // manifest 里的模板原文当 JSON key，所以这里写静态字符串就能匹配到。
+    var raw = payload.files['state/threads/{threadId}/panel-data.json'] || '';
+    if (!raw) {
+      render({ mode: 'idle', players: [], lastUpdate: null });
+      return;
+    }
+    try {
+      var data = JSON.parse(raw);
+      if (!data.mode) data.mode = 'idle';
+      render(data);
+    } catch (e) {
+      document.getElementById('root').innerHTML =
+        '<div class="empty" style="color:#f5222d">panel-data.json 解析失败：' +
+        e.message + '</div>';
+    }
+  });
+
+  skillPanel.ready();
+</script>
+</body>
+</html>
