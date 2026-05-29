@@ -1,4 +1,4 @@
----
+﻿---
 name: dnd5r
 description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五版 / 5e 2024 / 不全书 / 费伦 等关键词，或要求车卡（建卡/创角）、查法术（法表/法术速查）、查规则、查怪物、查专长、查装备、推荐职业子职业、推荐种族背景、对比 2014 与 2024 版差异、**扮演 DM 带跑模组 / 冒险 / 一本团**时使用本 skill。所有规则数值、法术效果、生物数据必须从 docs/extracted/ 下的"DND 五版不全书"中文资料库查证后再回答，模组剧情/NPC/遭遇必须以 docs/modules/<模组名>/ 下文件为准，禁止凭训练记忆编造。
 panel:
@@ -34,6 +34,35 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 **DM 风格预设**：[profiles/dm-styles/](profiles/dm-styles/README.md) 下 6 个预设（本期完整 2 个：[标准.md](profiles/dm-styles/标准.md) / [粉红恋爱向.md](profiles/dm-styles/粉红恋爱向.md)）。战役通过 `dm_style.preset` 引用 + `overrides` 微调。
 
 **示范战役**：[campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
+
+**全局存档索引**：`.claude/skills/dnd5r/state/all-saves.json`（跨 thread、跨战役）。panel 在 idle 模式下 fetch 此文件渲染战役浏览器——无需 AI 参与显示。Schema：
+
+```json
+{
+  "_schema": "all-saves-v1",
+  "campaigns": [
+    {
+      "name": "风骸岛之龙-小明组",
+      "module": "风骸岛之龙",
+      "dmStyle": "粉红恋爱向",
+      "lastPlayed": "2026-05-29",
+      "saves": [
+        { "name": "第一章开头", "createdAt": "2026-05-29 14:30", "chapter": "第一章·巨龙休息处", "location": "渡口码头" }
+      ]
+    }
+  ]
+}
+```
+
+维护规则（**AI 硬约束**）：
+- **G1 开新战役**：Read `all-saves.json` → 若 `campaigns[]` 中已有同名条目则跳过，否则追加 `{name, module, dmStyle, lastPlayed: 今日, saves: []}` → Write
+- **S1 新建存档**：Read `all-saves.json` → 找到对应 campaign → 在其 `saves[]` 末尾追加 `{name, createdAt, chapter, location}` → Write
+- **G6 桌末**：Read `all-saves.json` → 更新对应 campaign 的 `lastPlayed` 为今日 → Write
+- **写入方式**：Read → 改字段 → Write 整份（不要部分 patch）
+
+**模组索引**：`.claude/skills/dnd5r/state/modules-index.json`。panel idle 模式"开桌带团"展开时 fetch 此文件显示可选模组，无需 AI。Schema：`{modules:[{name, levels?, chapters?, desc?, base?, variant?}]}`。维护规则：
+- **H4 创建新副本后**：Read `modules-index.json` → 追加 `{name:"<副本全名>", base:"<原模组>", variant:"<标签>"}` → Write
+- **新增原版模组时**：同上追加 `{name, levels, chapters, desc}`
 
 ## Panel 数据同步（Fathom 右侧面板）
 
@@ -150,6 +179,10 @@ skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源
       "货物存货 ~120 GP"
     ]
   },
+  "saves": [                                   // 可选；存档列表，panel 直接渲染无需 AI 查询
+    { "name": "第一章开头", "createdAt": "2026-05-29 14:30", "chapter": "第一章·巨龙休息处", "location": "渡口码头" },
+    { "name": "BOSS战前",   "createdAt": "2026-05-29 19:45", "chapter": "第四章·崖顶天文台",  "location": "圆顶大厅" }
+  ],
   "lastUpdate": "2026-05-25T14:30:00+08:00"
 }
 ```
@@ -169,6 +202,10 @@ skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源
 7. **assetsBrief**：字符串（一行密集）或数组（每条独占一行）都支持。沙盒里资产种类多时用数组更可读。
 8. **写入方式**：`Read` → 解析 JSON → 改字段 → `Write` 整份。**不要直接 Write 部分字段**（会丢字段）。
 9. **lastUpdate 每次同步必更新**：用当前 ISO 时间 `YYYY-MM-DDTHH:MM:SS+08:00`。
+10. **saves[] 字段维护**：panel 用此字段直接渲染存档列表（无需 AI 参与显示），因此 AI 必须在以下时机同步：
+    - **S1 `/save` 后**：在 panel-data.json 的 `saves[]` 里追加新条目 `{name, createdAt, chapter, location}`
+    - **G1 开桌初始化** / **G7 跨 session 恢复** / **S2 `/load` 读档后重建 panel-data.json 时**：先 Glob `campaigns/<战役名>/saves/*/SAVE_META.md`，Read 每份元信息，重建 `saves[]`（而不是清空或保留旧值）
+    - **saves[] 在重写 panel-data.json 时不能丢失**：Read → 解析 JSON → 只更新变化字段 → 保留 `saves` 数组 → Write
 
 ### 同步时机一览
 
@@ -1199,6 +1236,114 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 
 **MVP 范围**：先跑通第一阶段（I0~I6 + I10~I12，沙盒五问 → 接委托 → 月底结算 → 时间推进核心循环），验证后再扩展第二阶段（I7~I8）/ 第三阶段（I9）。
 
+### S. 存档系统（手动存档点）
+
+**命令**（在 G / I 会话中任意时刻输入）：
+- `/save <名称>` — 快照当前战役状态
+- `/load <名称>` — 从快照恢复（会覆盖当前战役文件）
+- `/saves` — 列出当前战役所有存档
+
+**适用模式**：G（带团）和 I（沙盒）均支持，存档路径 `campaigns/<战役名>/saves/<存档名>/`。
+
+**设计原则**：
+- 每个存档是独立目录，互不覆盖，可随时回溯任意检查点
+- `sessions/`（桌末日志）和 `combat/history/`（战斗存档）**不纳入存档**，它们是不可逆流水账，恢复后仍保留完整历史
+- panel-data.json 不纳入存档（它是 per-thread 的临时快照，读档后走正常同步流程重建）
+
+#### S1. `/save <名称>` — 存档
+
+1. **确定战役名**：从当前上下文取（跑团中已知）；若不确定，Read `campaigns/` 下最近活跃目录
+2. **创建存档目录结构**（PowerShell）：
+   ```powershell
+   $dst = "campaigns\<战役名>\saves\<存档名>"
+   New-Item -ItemType Directory -Force "$dst\players" | Out-Null
+   New-Item -ItemType Directory -Force "$dst\npcs" | Out-Null
+   New-Item -ItemType Directory -Force "$dst\dm-only\npcs-secrets" | Out-Null
+   ```
+3. **拷贝状态文件**：
+   - `README.md` / `progress.md` / `world-state.md` / `house-rules.md` → `$dst\`
+   - `players\*.md` → `$dst\players\`
+   - `npcs\*.md`（若有）→ `$dst\npcs\`
+   - `dm-only\dm-notes.md` → `$dst\dm-only\`
+   - `dm-only\npcs-secrets\*.md`（若有）→ `$dst\dm-only\npcs-secrets\`
+   - `combat\active.md`（若存在，保存中途战斗）→ `$dst\combat\active.md`
+   - **Panel 详情弹窗 JSON**（PowerShell）：
+     ```powershell
+     $stateDir = ".claude\skills\dnd5r\state\campaigns\<战役名>"
+     if (Test-Path $stateDir) {
+         Copy-Item $stateDir -Recurse -Destination "$dst\state-json" -Force
+     }
+     ```
+     这把 `state/campaigns/<战役名>/`（含 `characters/` / `npcs/` / `companions/`）完整拷进存档，确保读档后点击角色/NPC 弹窗也能还原到存档时刻的数据。
+4. **写存档元信息** `campaigns/<战役名>/saves/<存档名>/SAVE_META.md`：
+   ```markdown
+   ---
+   save_name: <名称>
+   created_at: YYYY-MM-DD HH:MM
+   campaign: <战役名>
+   chapter: <当前章节（来自 progress.md）>
+   location: <当前地点（来自 world-state.md）>
+   ---
+   队伍状态：<简短摘要，如 "羽痕 18/24HP，法术位 2×1环已用">
+   ```
+5. **同步 panel-data.json 的 saves[] 字段**（Fathom 环境）：读 `.fathom-context.json` 取 threadId；存在则 Read panel-data.json → 在 `saves[]` 末尾追加 `{"name":"<名称>","createdAt":"YYYY-MM-DD HH:MM","chapter":"<章节>","location":"<地点>"}` → Write 整份。panel 将立即刷新显示新存档，无需 AI 再次查询。
+6. **回复确认**：
+   ```
+   存档「<名称>」已保存 → campaigns/<战役名>/saves/<名称>/
+   章节：<当前章节> · 位置：<当前地点>
+   当前战役共 N 个存档，用 /saves 查看全部。
+   ```
+
+#### S2. `/load <名称>` 或 `/load <战役名>/<名称>` — 读档
+
+⚠️ 读档会**覆盖** `campaigns/<战役名>/` 下的状态文件。当前未存档的进度将丢失。
+
+**语法解析**：
+- `/load 第一章开头` — 在当前战役内读档（G/I 模式中使用）
+- `/load 风骸岛之龙-小明组/第一章开头` — 跨战役读档（idle 模式下 panel "继续" 按钮触发），战役名和存档名用 `/` 分隔
+
+1. **解析目标战役和存档名**：
+   - 含 `/` → 前半为战役名，后半为存档名
+   - 不含 `/` → 战役名取当前上下文（`campaigns/<当前战役名>/`）
+   - **检查存档存在**：Read `campaigns/<战役名>/saves/<存档名>/SAVE_META.md`；不存在则提示"未找到存档，用 /saves 查看可用存档"
+2. **确认提示**（必须等用户回复）：
+   ```
+   将从存档「<名称>」恢复——章节：<存档章节> · 位置：<存档地点>
+   这会覆盖当前状态（<当前章节/地点>），sessions/ 和 combat/history/ 保留不动。继续？
+   ```
+3. **用户确认后，还原文件**：从 `saves/<名称>/` 拷贝回对应位置（覆盖）：
+   - 顶层 .md 文件、`players/`、`npcs/`、`dm-only/` 整段还原
+   - 若存档有 `combat/active.md` → 还原（恢复中途战斗）；若没有 → `Remove-Item combat\active.md -ErrorAction SilentlyContinue`
+   - **不触动** `sessions/` 和 `combat/history/`
+   - **还原 Panel 详情弹窗 JSON**（PowerShell）：
+     ```powershell
+     $stateSrc = "campaigns\<战役名>\saves\<名称>\state-json"
+     $stateDst = ".claude\skills\dnd5r\state\campaigns\<战役名>"
+     if (Test-Path $stateSrc) {
+         New-Item -ItemType Directory -Force $stateDst | Out-Null
+         Copy-Item "$stateSrc\*" -Recurse -Destination $stateDst -Force
+     }
+     ```
+4. **刷新上下文**：执行 G7 第 1~9 步（读 README / dm-styles / house-rules / progress / world-state / sessions 最近 1 条 / players / combat/active），让 LLM 上下文与恢复后文件一致
+5. **重建 panel-data.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `state/threads/<threadId>/panel-data.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ players（HP/XP/status）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
+6. **回复**：告知恢复成功 + 简短「已回到……」一句 in-character 开场，然后继续 G2/I2 节奏
+
+#### S3. `/saves` — 列出存档
+
+1. Glob `campaigns/<战役名>/saves/*/SAVE_META.md`
+2. Read 每个文件，取 `save_name / created_at / chapter / location`
+3. 格式化输出：
+   ```
+   战役：<战役名>  共 N 个存档
+
+   ① 第一章开头    2026-05-29 14:30  第一章·巨龙休息处  渡口码头
+   ② BOSS战前      2026-05-29 19:45  第四章·崖顶天文台  圆顶大厅
+   ...
+
+   /load <名称> 读档    /save <名称> 新建
+   ```
+4. 若 `saves/` 目录不存在或为空：提示"当前战役暂无存档，用 /save <名称> 创建第一个"
+
 ## 触发示例
 
 - "帮我用魔契师车一张 5 级卡" → B
@@ -1214,6 +1359,10 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 - "起源专长有哪些" → E3
 - "你来当 DM 带我跑风骸岛之龙" / "我们开桌吧" → **G**
 - "继续上次跑团 / 上次跑到哪了" → **G7**（读 `.tmp/<战役名>/session-log.md` 续接）
+- `/save 第一章开头` / `/save BOSS战前` → **S1**（存档当前状态）
+- `/load 第一章开头` → **S2**（当前战役内读档，需用户确认）
+- `/load 风骸岛之龙-小明组/第一章开头` → **S2**（跨战役读档，panel idle 模式"继续"按钮触发）
+- `/saves` → **S3**（列出当前战役所有存档）
 - "队伍现在 1 级，我 4 个人玩风骸岛" → G1 准备
 - "做个单人版的风骸岛" / "我要克苏鲁风味的版本" / "把这模组改成粉红向" → **H**
 - "在单人粉红版基础上再加一个性转" → **H6**（叠加 / 重做）
@@ -1235,3 +1384,4 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 - 转换工具：`tools/htm2md/convert.py`（增量再转：`python tools/htm2md/convert.py <file_or_dir> --batch --overwrite`）
 - 已知 schema 见 `docs/extracted/SCHEMA.md`
 - 如新增文件出现乱码（多为 GBK/GB2312），需重做编码转换
+

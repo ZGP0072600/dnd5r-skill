@@ -364,6 +364,134 @@
     white-space: nowrap;
   }
 
+  /* === 存档列表 === */
+  .save-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .save-row:first-of-type { border-top: 0; }
+  .save-info { flex: 1; min-width: 0; }
+  .save-name {
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .save-chapter {
+    font-size: 11px;
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .save-time {
+    font-size: 11px;
+    color: var(--text-mute);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-sm {
+    padding: 4px 9px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-block;
+    width: auto;
+    margin-bottom: 0;
+    border: 1px solid var(--border-hi);
+    background: var(--bg-card);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow:
+      inset 1px 1px 0 rgba(255,255,255,0.05),
+      inset -1px -1px 0 var(--bg-deep),
+      1px 1px 0 var(--bg-deep);
+  }
+  .btn-sm:hover { background: var(--bg-hi); color: var(--gold); border-color: var(--gold); }
+  .btn-sm:active { transform: translate(1px,1px); }
+
+  /* === 战役浏览器（idle 模式）=== */
+  .campaign-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    margin-bottom: 10px;
+    box-shadow: 2px 2px 0 var(--bg-deep);
+  }
+  .campaign-card-header {
+    padding: 9px 12px;
+    background: var(--bg-hi);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .campaign-card-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .campaign-card-last {
+    font-size: 11px;
+    color: var(--text-mute);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .campaign-card-style {
+    padding: 5px 12px 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .campaign-save-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .campaign-save-row:first-of-type { border-top: 0; }
+  .campaign-save-info { flex: 1; min-width: 0; }
+  .campaign-save-name {
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .campaign-save-chapter {
+    font-size: 11px;
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .campaign-save-time {
+    font-size: 11px;
+    color: var(--text-mute);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .campaign-no-saves {
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-mute);
+    font-style: italic;
+  }
+
   /* === 同行 NPC === */
   .companion-row {
     display: flex;
@@ -1492,14 +1620,92 @@
     ].concat(groups));
   }
 
-  function renderIdleHint() {
+  function renderSaves(saves) {
+    if (!saves || !saves.length) return null;
+    var rows = saves.map(function (s, i) {
+      var chapterLoc = [s.chapter, s.location].filter(Boolean).join('  ·  ');
+      var info = el('div', { class: 'save-info' }, [
+        el('span', { class: 'save-name', text: s.name }),
+        chapterLoc ? el('span', { class: 'save-chapter', text: chapterLoc }) : null
+      ].filter(Boolean));
+      var timeEl = s.createdAt ? el('span', { class: 'save-time', text: s.createdAt }) : null;
+      var loadBtn = el('button', { class: 'btn-sm', text: '读档' });
+      loadBtn.onclick = (function (name) {
+        return function () {
+          if (typeof skillPanel !== 'undefined') skillPanel.send('/load ' + name);
+        };
+      })(s.name);
+      return el('div', { class: 'save-row' }, [info, timeEl, loadBtn].filter(Boolean));
+    });
+    return el('div', { class: 'card' }, [
+      el('div', { class: 'card-title' }, [document.createTextNode('💾 存档点')])
+    ].concat(rows));
+  }
+
+  function renderNoCampaignsHint() {
     return el('div', { class: 'card' }, [
       el('div', { class: 'empty', html:
-        '✦ 尚未开桌 ✦<br><br>' +
+        '✦ 尚无战役存档 ✦<br><br>' +
         '跟 AI 说<strong>「开桌跑 XX 模组」</strong><br>进入带团模式 (G)<br>' +
         '或<strong>「开沙盒」</strong>进入沙盒模式 (I)<br>' +
         '<br>开桌后此面板将自动显示战役状态' })
     ]);
+  }
+
+  function renderCampaignCard(c) {
+    var header = el('div', { class: 'campaign-card-header' }, [
+      el('span', { class: 'campaign-card-name', text: c.name }),
+      c.lastPlayed ? el('span', { class: 'campaign-card-last', text: '上次：' + c.lastPlayed }) : null
+    ].filter(Boolean));
+
+    var meta = [c.dmStyle, c.module].filter(Boolean).join('  ·  ');
+    var styleRow = meta ? el('div', { class: 'campaign-card-style', text: meta }) : null;
+
+    var saveRows;
+    if (c.saves && c.saves.length) {
+      saveRows = c.saves.map(function (s) {
+        var chapterLoc = [s.chapter, s.location].filter(Boolean).join('  ·  ');
+        var info = el('div', { class: 'campaign-save-info' }, [
+          el('div', { class: 'campaign-save-name', text: s.name }),
+          chapterLoc ? el('div', { class: 'campaign-save-chapter', text: chapterLoc }) : null
+        ].filter(Boolean));
+        var timeEl = s.createdAt ? el('span', { class: 'campaign-save-time', text: s.createdAt }) : null;
+        var btn = el('button', { class: 'btn-sm', text: '继续' });
+        btn.onclick = (function (cn, sn) {
+          return function () {
+            if (typeof skillPanel !== 'undefined') skillPanel.send('/load ' + cn + '/' + sn);
+          };
+        })(c.name, s.name);
+        return el('div', { class: 'campaign-save-row' }, [info, timeEl, btn].filter(Boolean));
+      });
+    } else {
+      saveRows = [el('div', { class: 'campaign-no-saves', text: '暂无存档' })];
+    }
+
+    var children = [header];
+    if (styleRow) children.push(styleRow);
+    saveRows.forEach(function (r) { children.push(r); });
+    return el('div', { class: 'campaign-card' }, children);
+  }
+
+  function renderIdleHint() {
+    var wrapper = el('div', null, [el('div', { class: 'empty', text: '加载战役列表…' })]);
+    fetchJson('state/all-saves.json').then(function (data) {
+      wrapper.innerHTML = '';
+      if (!data || !data.campaigns || !data.campaigns.length) {
+        wrapper.appendChild(renderNoCampaignsHint());
+      } else {
+        var titleCard = el('div', { class: 'card-title', text: '⚔ 选择战役' });
+        wrapper.appendChild(titleCard);
+        data.campaigns.slice().reverse().forEach(function (c) {
+          wrapper.appendChild(renderCampaignCard(c));
+        });
+      }
+    }).catch(function () {
+      wrapper.innerHTML = '';
+      wrapper.appendChild(renderNoCampaignsHint());
+    });
+    return wrapper;
   }
 
   function renderActions(mode) {
@@ -1514,6 +1720,14 @@
         mkBtn('🛌 短休', '我们短休一下'),
         mkBtn('🌙 长休', '我们长休一晚')
       ]));
+      var saveBtn = el('button', { class: 'btn', text: '💾 新建存档' });
+      saveBtn.onclick = function () {
+        var name = prompt('存档名称（例：第一章开头、BOSS战前）：', '');
+        if (name && name.trim() && typeof skillPanel !== 'undefined') {
+          skillPanel.send('/save ' + name.trim());
+        }
+      };
+      box.appendChild(saveBtn);
     }
     if (mode === 'G') {
       box.appendChild(mkBtn('📜 查 NPC 速查', '请 Read 当前模组的 NPC速查.md 给我看玩家视角的 NPC 信息（不要剧透 🔒 部分）'));
@@ -1524,7 +1738,52 @@
       box.appendChild(mkBtn('💼 查公会委托', '我去公会看委托池'));
     }
     if (mode === 'idle') {
-      box.appendChild(mkBtn('▶ 开桌带团', '我们开桌跑团吧'));
+      // 可展开模组目录
+      var moduleList = el('div', { style: 'display:none;margin-top:2px;border:1px solid var(--border);background:var(--bg-deep);padding:0 10px' });
+      var toggled = false;
+      var toggleBtn = el('button', { class: 'btn', text: '▶ 开桌带团' });
+      toggleBtn.onclick = function () {
+        toggled = !toggled;
+        toggleBtn.textContent = (toggled ? '▾ ' : '▶ ') + '开桌带团';
+        moduleList.style.display = toggled ? '' : 'none';
+        if (toggled && !moduleList._loaded) {
+          moduleList._loaded = true;
+          var loadingRow = el('div', { style: 'padding:7px 0;font-size:12px;color:var(--text-mute)', text: '加载中…' });
+          moduleList.appendChild(loadingRow);
+          fetchJson('state/modules-index.json').then(function (data) {
+            moduleList.innerHTML = '';
+            if (!data || !data.modules || !data.modules.length) {
+              moduleList.appendChild(el('div', { style: 'padding:7px 0;font-size:12px;color:var(--text-dim)', text: '暂无模组数据' }));
+              return;
+            }
+            data.modules.forEach(function (m, i) {
+              // label: 变体用 ↳ variant；否则取 __ 前段作显示名
+              var baseName = m.name.indexOf('__') >= 0 ? m.name.split('__')[0] : m.name;
+              var label = m.variant ? ('↳ ' + m.variant) : baseName;
+              var metaParts = [];
+              if (m.levels) metaParts.push(m.levels + ' 级');
+              if (m.variant) metaParts.push('变体副本');
+              else if (m.desc) metaParts.push(m.desc);
+              var meta = metaParts.join(' · ');
+              var nameSpan = el('span', { style: 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);' + (m.variant ? 'padding-left:10px;color:var(--text-dim)' : 'font-weight:600'), text: label });
+              var metaSpan = meta ? el('span', { style: 'font-size:11px;color:var(--text-mute);white-space:nowrap;flex-shrink:0', text: meta }) : null;
+              var startBtn = el('button', { class: 'btn-sm', text: '开桌' });
+              startBtn.onclick = (function (mn) {
+                return function () { if (typeof skillPanel !== 'undefined') skillPanel.send('带我跑「' + mn + '」模组'); };
+              })(m.name);
+              var row = el('div', {
+                style: 'display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;' + (i > 0 ? 'border-top:1px solid var(--border)' : '')
+              }, [nameSpan, metaSpan, startBtn].filter(Boolean));
+              moduleList.appendChild(row);
+            });
+          }).catch(function () {
+            moduleList.innerHTML = '';
+            moduleList.appendChild(el('div', { style: 'padding:7px 0;font-size:12px;color:var(--hp-bad)', text: '加载失败' }));
+          });
+        }
+      };
+      box.appendChild(toggleBtn);
+      box.appendChild(moduleList);
       box.appendChild(mkBtn('🏞 开沙盒', '我们开沙盒模式'));
     }
     return box;
@@ -1554,6 +1813,11 @@
       if (sbSection) root.appendChild(sbSection);
     } else {
       root.appendChild(renderIdleHint());
+    }
+
+    if (data.saves && data.saves.length) {
+      var savesSection = renderSaves(data.saves);
+      if (savesSection) root.appendChild(savesSection);
     }
 
     if (data.lastUpdate) {
