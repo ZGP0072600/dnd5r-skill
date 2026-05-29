@@ -1,4 +1,4 @@
-﻿---
+---
 name: dnd5r
 description: 当用户提到 D&D / DnD / DND / 龙与地下城 / 5e / 5r / 五版 / 5e 2024 / 不全书 / 费伦 等关键词，或要求车卡（建卡/创角）、查法术（法表/法术速查）、查规则、查怪物、查专长、查装备、推荐职业子职业、推荐种族背景、对比 2014 与 2024 版差异、**扮演 DM 带跑模组 / 冒险 / 一本团**时使用本 skill。所有规则数值、法术效果、生物数据必须从 docs/extracted/ 下的"DND 五版不全书"中文资料库查证后再回答，模组剧情/NPC/遭遇必须以 docs/modules/<模组名>/ 下文件为准，禁止凭训练记忆编造。
 panel:
@@ -33,7 +33,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 **DM 风格预设**：[profiles/dm-styles/](profiles/dm-styles/README.md) 下 6 个预设（本期完整 2 个：[标准.md](profiles/dm-styles/标准.md) / [粉红恋爱向.md](profiles/dm-styles/粉红恋爱向.md)）。战役通过 `dm_style.preset` 引用 + `overrides` 微调。
 
-**示范战役**：[campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
+**示范战役**：[campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
 
 **全局存档索引**：`.claude/skills/dnd5r/state/all-saves.json`（跨 thread、跨战役）。panel 在 idle 模式下 fetch 此文件渲染战役浏览器——无需 AI 参与显示。Schema：
 
@@ -68,21 +68,35 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源是 **`state/threads/<threadId>/panel-data.json`** 这一份 JSON 快照。**Claude Code（CLI/桌面）看不到这个面板**——`panel:` 字段是纯增量字段，对 Claude Code 零影响；但**只要在 Fathom 里跑过团 / 沙盒，就需要按下面契约同步这份快照**，否则用户切到 Fathom 看不到当前状态。
 
-### 🚨 Per-conversation 状态（每个对话独立 panel-data）
+### 🚨 第一步永远是：解析 panel-data.json 的真实路径
 
-每个对话（thread）有自己的 panel-data.json，文件路径里的 `<threadId>` 不是字面量，需要在每次写之前**主动查出当前对话的 thread id**：
+panel-data.json 是 **per-thread** 的，路径里有 thread id 这一层，**绝不能写死成一个固定路径**。每次 Read / Write 它之前，先走下面三步解析出真实路径。
 
-1. **读 `<workspace>/.fathom-context.json`**（workspace 根目录，绝对路径 `E:\projects\dnd5rskills\.fathom-context.json`），文件由 Fathom 在切对话时自动写入，结构：
+**❌ 这些写法都是错的（写了等于没写——面板永远空白，用户追着你问"为什么没更新"）：**
+
+| 错误路径 | 错在哪 |
+|---|---|
+| `state/panel-data.json` | **少了 `threads/<threadId>/` 这一层**（最常犯！面板根本不监听这个路径） |
+| `state/threads/{threadId}/panel-data.json` | `{threadId}` 占位符没展开成真实 id |
+| `state/threads/<threadId>/panel-data.json` | `<threadId>` 字面量没替换成真实 id |
+
+**✅ 唯一正确**：先查出真实 thread id（形如 `thr_75183c08`），拼成
+`.claude/skills/dnd5r/state/threads/thr_75183c08/panel-data.json`
+
+**解析三步（每次都走一遍，不许跳）：**
+
+1. **Read `<workspace>/.fathom-context.json`**（绝对路径 `E:\projects\dnd5rskills\.fathom-context.json`），由 Fathom 在切对话时自动写入，取出 `threadId` 字段：
    ```json
-   { "threadId": "thr_xxx...", "workspace": "...", "updatedAt": "..." }
+   { "threadId": "thr_75183c08", "workspace": "...", "updatedAt": "..." }
    ```
-2. 拿到 `threadId` 字段后，拼出实际路径：
-   `.claude/skills/dnd5r/state/threads/<那个 threadId>/panel-data.json`
-3. Read / Write 这个路径（不存在就当 idle 空状态对待，初始化好后 Write）
+   - **读不到这个文件 = Claude Code 环境（非 Fathom）→ 整个 panel 同步全部跳过**，不写任何 panel-data.json。
+2. 把真实 threadId 代进去（注意中间有 `threads/` 这一层目录）：
+   `.claude/skills/dnd5r/state/threads/thr_75183c08/panel-data.json`
+3. Read / Write 这个真实路径（不存在就当 idle 空状态，初始化好后 Write；父目录不存在没关系，Write 自动建）。
+
+**🔎 写完自检（强制）**：回头看你这一轮 Write panel-data.json 的路径——里面**必须同时出现 `threads/` 目录层 + 一个 `thr_` 开头的真实 id**。如果路径是 `state/panel-data.json`（没有 `threads/`），或还带着 `{threadId}` / `<threadId>` 没替换 —— **一定错了，倒回去重读 .fathom-context.json 再写**。
 
 **为什么要 per-thread**：用户可能开多个对话，有的跑团（mode=G）、有的跑沙盒（mode=I）、有的纯查资料（mode=idle）——共享一个 panel-data.json 会互相覆盖、切对话看到错的状态。per-thread 后切到哪个对话 Fathom 立刻显示那个对话的状态。
-
-**Claude Code 环境**：`.fathom-context.json` 不存在（只有 Fathom 写）。这种情况下**完全跳过 panel 同步**——CLI 用户看不到 panel，省略副作用即可。
 
 ### 🚨 每回合硬约束（不可跳过的最后一步）
 
@@ -92,9 +106,9 @@ skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源
 
 **强制清单**（任何回合走完叙事/规则/决议之后跑一遍）：
 
-1. **拉文件**：`Read .claude/skills/dnd5r/state/threads/<threadId>/panel-data.json`
-   - `<threadId>` 从 `<workspace>/.fathom-context.json` 取
-   - 文件不存在 = Claude Code 环境 → **整段清单跳过**
+1. **解析路径 + 拉文件**：**先按上面《🚨 第一步永远是：解析 panel-data.json 的真实路径》解析出真实路径**（Read `.fathom-context.json` 拿 `thr_xxx` → 拼 `state/threads/thr_xxx/panel-data.json`），再 `Read` 它。
+   - `.fathom-context.json` 不存在 = Claude Code 环境 → **整段清单跳过**
+   - ⚠️ 再次提醒：路径里**必须有 `threads/thr_xxx/`**，写成 `state/panel-data.json` 是无效的
 2. **对账**：把本回合产生的变化逐项映射到字段
    - in-game 时间推进 → `campaign.inGameTime` / `timeOfDay`
    - HP / XP / 状态变化 → `players[i]` 对应字段
@@ -102,13 +116,13 @@ skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源
    - 沙盒变化 → `sandbox.*`
    - **一定要刷的**：`lastUpdate`（当前 ISO 时间）
 3. **整份重写**：`Write` 整份 JSON（不要部分 patch，会丢字段——见 §关键规则 第 8 条）
-4. **回复里必须打出对账行**——就这个格式，不能改：
+4. **回复里必须打出对账行**——就这个格式，不能改。**末尾带上你实际写入的 `thr_xxx`**（强制你确认路径解析对了，也方便排查）：
 
    ```
-   ✅ panel-data.json 已同步 [XP=1450/2700 Lv3 · 时间=风岚月15日晚7:30 · 位置=庄园地下调教室]
+   ✅ panel-data.json 已同步 [XP=1450/2700 Lv3 · 时间=风岚月15日晚7:30 · 位置=庄园地下调教室] → thr_75183c08
    ```
 
-   括号里挑本回合**真变了**的字段写 2–4 项；只换了 `lastUpdate` 也照样要打这行。
+   括号里挑本回合**真变了**的字段写 2–4 项；只换了 `lastUpdate` 也照样要打这行。末尾 `→ thr_xxx` 用你这轮真实写入路径里的那个 id（不是 `<threadId>` 字面量）。
 
 **自检规则**（违反任一条就是没做完）：
 
@@ -382,7 +396,7 @@ panel 上的玩家行 / 关键关系 / 同行 NPC 都可点击 → panel 用 fet
 
 ### 自定义内容库（Homebrew）
 
-玩家 / DM 自创的、官方书里没有的内容（种族 / 职业 / 子职业 / 专长 / 装备 / 法宝 / 怪物 / 法术 / 背景），格式与 `docs/extracted/` 一致（`.md` + frontmatter）。详见 [homebrew/README.md](homebrew/README.md) 与工作流 J。
+玩家 / DM 自创的、官方书里没有的内容（种族 / 职业 / 子职业 / 专长 / 装备 / 法宝 / 怪物 / 法术 / 背景），格式与 `docs/extracted/` 一致（`.md` + frontmatter）。详见 [homebrew/README.md](../../../homebrew/README.md) 与工作流 J。
 
 **两级作用域 + 查询优先级**（查规则 / 车卡 / 查怪物 / 枚举时按序命中）：
 1. `campaigns/<当前战役名>/homebrew/`（战役专属，最高优先级）
@@ -797,7 +811,7 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
        ├── dm-notes.md        从模组 README + NPC 速查批量提取主线伏笔 / 待触发事件 / 救场配额 / 玩家观察
        └── npcs-secrets/<X>.md  从模组 NPC 速查批量拆出秘密档案（每个有 🔒 标记的 NPC 一份）
    ```
-   完整 schema 见 [STEP1_DESIGN.md §4](STEP1_DESIGN.md)。模板参考 [campaigns/风骸岛之龙-demo/](campaigns/风骸岛之龙-demo/)。
+   完整 schema 见 [STEP1_DESIGN.md §4](STEP1_DESIGN.md)。模板参考 [campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/)。
 
    **同步 Panel 快照**：Write `state/threads/<threadId>/panel-data.json`（详见 §Panel 数据同步）：`mode="G"`、campaign 整段（名字 / dmStyle 引用名 / inGameTime / location）、players 数组按队伍填、module 初值（name / currentChapter / progress）、combat=null、sandbox=null、lastUpdate。**Fathom 用户切到右侧 panel 看到的就是这份。**
 7. **开场叙事**：按 DM 风格读模组"读给玩家"段开场（保持风格基调一致）。
@@ -1273,7 +1287,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    - 作用域 → 问用户"这个只在当前战役用，还是以后所有战役都能用？"（没在跑团则默认全局）
 2. **采集设计意图**：问用户核心概念（这是个什么东西、想要什么效果 / 风味）。**像工作流 B 车卡一样分步引导**，不要一次让用户填完所有字段。
 3. **对标官方做平衡校验**（关键，不可跳过）：
-   - 按 [homebrew/README.md](homebrew/README.md) 的平衡基准表，Grep + Read **同类官方内容**（如自创战士子职 → Read 几个 PHB24 战士子职对比特性数量 / 强度；自创军用近战武器 → Read `玩家手册2024/装备/武器.md` 对比同类伤害骰 / 词条）
+   - 按 [homebrew/README.md](../../../homebrew/README.md) 的平衡基准表，Grep + Read **同类官方内容**（如自创战士子职 → Read 几个 PHB24 战士子职对比特性数量 / 强度；自创军用近战武器 → Read `玩家手册2024/装备/武器.md` 对比同类伤害骰 / 词条）
    - 给出强度定位结论，**主动指出**偏强 / 偏弱处并建议调整
    - 用户坚持要超模也可以，但 `balance_note` 里如实记录"应用户要求，强度高于官方同类"
 4. **写文件**：按 SCHEMA.md 对应 type 的 frontmatter + body 结构，**额外加 homebrew 标记块**（`homebrew: true` / `scope` / `created` / `author` / `balance_ref` / `balance_note`，见 README）。日期用 currentDate。
@@ -1444,4 +1458,3 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 - 转换工具：`tools/htm2md/convert.py`（增量再转：`python tools/htm2md/convert.py <file_or_dir> --batch --overwrite`）
 - 已知 schema 见 `docs/extracted/SCHEMA.md`
 - 如新增文件出现乱码（多为 GBK/GB2312），需重做编码转换
-
