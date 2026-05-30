@@ -1750,7 +1750,19 @@
     var box = el('div', { class: 'actions' }, [el('h4', { text: '▾ 快捷操作' })]);
     function mkBtn(text, msg) {
       var b = el('button', { class: 'btn', text: text });
-      b.onclick = function () { trySend(msg); };
+      b.onclick = function () {
+        trySend(msg);
+        // 视觉反馈：短暂变成"✓"再还原，让用户知道已触发
+        var orig = b.textContent;
+        b.textContent = '✓ 已发送';
+        b.disabled = true;
+        b.style.opacity = '0.7';
+        setTimeout(function () {
+          b.textContent = orig;
+          b.disabled = false;
+          b.style.opacity = '';
+        }, 1500);
+      };
       return b;
     }
     if (mode === 'G' || mode === 'I') {

@@ -5,6 +5,8 @@ panel:
   entry: ui/panel.html
   title: DnD5r 战役面板
   defaultWidth: 340
+  sandbox:
+    - allow-modals
   watch:
     - state/threads/{threadId}/panel-data.json
   writable:
