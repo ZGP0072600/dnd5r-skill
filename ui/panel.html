@@ -1708,11 +1708,49 @@
     return wrapper;
   }
 
+  // 尝试通过 skillPanel.send 发送消息；若不支持则弹出复制框作为 fallback
+  function trySend(msg) {
+    try {
+      if (typeof skillPanel !== 'undefined' && typeof skillPanel.send === 'function') {
+        skillPanel.send(msg);
+      } else {
+        showSendFallback(msg);
+      }
+    } catch (e) {
+      showSendFallback(msg);
+    }
+  }
+
+  // Fallback：弹出一个小提示框，用户可以复制文字手动发送
+  function showSendFallback(msg) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:var(--bg-card,#1e1e2e);border:1px solid var(--border,#333);border-radius:8px;padding:16px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+    box.innerHTML = '<div style="font-size:12px;color:var(--text-mute,#888);margin-bottom:8px">复制下方内容发送给 AI：</div>' +
+      '<textarea readonly style="width:100%;box-sizing:border-box;background:var(--bg-deep,#111);border:1px solid var(--border,#333);color:var(--text,#ddd);border-radius:4px;padding:8px;font-size:13px;min-height:60px;resize:vertical">' +
+      msg.replace(/</g,'&lt;') + '</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:10px">' +
+      '<button id="sp-copy-btn" style="flex:1;padding:6px;background:var(--gold,#c9a84c);color:#111;border:none;border-radius:4px;cursor:pointer;font-size:12px">📋 复制</button>' +
+      '<button id="sp-close-btn" style="flex:1;padding:6px;background:var(--bg-hi,#2a2a3e);color:var(--text,#ddd);border:1px solid var(--border,#333);border-radius:4px;cursor:pointer;font-size:12px">关闭</button>' +
+      '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    var ta = box.querySelector('textarea');
+    ta.select();
+    box.querySelector('#sp-copy-btn').onclick = function () {
+      try { navigator.clipboard.writeText(msg); } catch(e) { document.execCommand('copy'); }
+      this.textContent = '✅ 已复制';
+    };
+    box.querySelector('#sp-close-btn').onclick = function () { document.body.removeChild(overlay); };
+    overlay.onclick = function (e) { if (e.target === overlay) document.body.removeChild(overlay); };
+  }
+
   function renderActions(mode) {
     var box = el('div', { class: 'actions' }, [el('h4', { text: '▾ 快捷操作' })]);
     function mkBtn(text, msg) {
       var b = el('button', { class: 'btn', text: text });
-      b.onclick = function () { skillPanel.send(msg); };
+      b.onclick = function () { trySend(msg); };
       return b;
     }
     if (mode === 'G' || mode === 'I') {
@@ -1723,8 +1761,8 @@
       var saveBtn = el('button', { class: 'btn', text: '💾 新建存档' });
       saveBtn.onclick = function () {
         var name = prompt('存档名称（例：第一章开头、BOSS战前）：', '');
-        if (name && name.trim() && typeof skillPanel !== 'undefined') {
-          skillPanel.send('/save ' + name.trim());
+        if (name && name.trim()) {
+          trySend('/save ' + name.trim());
         }
       };
       box.appendChild(saveBtn);
