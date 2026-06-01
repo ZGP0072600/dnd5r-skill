@@ -84,7 +84,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 > # 🛑 第一条铁律：面板业务数据写在 `.fathom-panels/dnd5r/` 下
 >
-> 你的 cwd 是 **workspace**（`E:\projects\dnd5rskills`）。下列**结构化数据**一律写到 **`.fathom-panels/dnd5r/`** 前缀下（相对 cwd 直接写，Fathom 监听此目录、写完自动投影）：
+> 你的 cwd 是 **workspace**。下列**结构化数据**一律写到 **`.fathom-panels/dnd5r/`** 前缀下（相对 cwd 直接写，Fathom 监听此目录、写完自动投影）：
 >
 > | 数据 | 实际路径（相对 cwd=workspace） |
 > |---|---|
@@ -100,7 +100,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 是**每对话一份**的会话存档态：mode + 当前战役 + 玩家实时状态 + 战斗轨道 + 沙盒。**它是业务数据（这局的"存档"），不是 panel 镜像**——按需写它，写完面板自动投影，**无需任何确认动作、不打对账行**。
 
-**threadId 解析**（沿用 v1）：Read `<workspace>/.fathom-context.json`（`E:\projects\dnd5rskills\.fathom-context.json`）取 `threadId`（形如 `thr_75183c08`），拼成 `.fathom-panels/dnd5r/threads/thr_75183c08/session.json`。
+**threadId 解析**（沿用 v1）：Read `<workspace>/.fathom-context.json` 取 `threadId`（形如 `thr_75183c08`），拼成 `.fathom-panels/dnd5r/threads/thr_75183c08/session.json`。
 - **读不到 `.fathom-context.json` = Claude Code 环境（非 Fathom）→ 整个 session.json 跳过**，不写。
 - 不存在就当 idle 空态，初始化后 Write（父目录不存在没关系，Write 自动建）。
 
