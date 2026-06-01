@@ -7,10 +7,20 @@ panel:
   defaultWidth: 340
   sandbox:
     - allow-modals
-  watch:
-    - state/threads/{threadId}/panel-data.json
-  writable:
-    - state/threads/{threadId}/panel-data.json
+  sources:
+    - id: session
+      path: threads/{threadId}/session.json
+      as: json
+    - id: campaignFiles
+      path: campaigns/
+      as: collection
+      glob: "**/*.json"
+    - id: allSaves
+      path: all-saves.json
+      as: json
+    - id: modulesIndex
+      path: modules-index.json
+      as: json
 ---
 
 # DnD 5r 助手
@@ -37,7 +47,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 **示范战役**：[campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
 
-**全局存档索引**：`.claude/skills/dnd5r/state/all-saves.json`（跨 thread、跨战役）。panel 在 idle 模式下 fetch 此文件渲染战役浏览器——无需 AI 参与显示。Schema：
+**全局存档索引**：`.fathom-panels/dnd5r/all-saves.json`（跨 thread、跨战役；相对 cwd=workspace 写）。panel 自动投影此文件渲染战役浏览器与 G/I 模式存档列表——无需 AI 参与显示。Schema：
 
 ```json
 {
@@ -62,209 +72,135 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - **G6 桌末**：Read `all-saves.json` → 更新对应 campaign 的 `lastPlayed` 为今日 → Write
 - **写入方式**：Read → 改字段 → Write 整份（不要部分 patch）
 
-**模组索引**：`.claude/skills/dnd5r/state/modules-index.json`。panel idle 模式"开桌带团"展开时 fetch 此文件显示可选模组，无需 AI。Schema：`{modules:[{name, levels?, chapters?, desc?, base?, variant?}]}`。维护规则：
+**模组索引**：`.fathom-panels/dnd5r/modules-index.json`（相对 cwd=workspace 写）。panel idle 模式"开桌带团"展开时自动投影此文件显示可选模组，无需 AI。Schema：`{modules:[{name, levels?, chapters?, desc?, base?, variant?}]}`。维护规则：
 - **H4 创建新副本后**：Read `modules-index.json` → 追加 `{name:"<副本全名>", base:"<原模组>", variant:"<标签>"}` → Write
 - **新增原版模组时**：同上追加 `{name, levels, chapters, desc}`
 
-## Panel 数据同步（Fathom 右侧面板）
+## Panel 数据同步（v2 投影 —— 你几乎不用管）
 
-skill 在 Fathom 客户端会渲染右侧面板（`ui/panel.html`），数据源是 **`state/threads/<threadId>/panel-data.json`** 这一份 JSON 快照。**Claude Code（CLI/桌面）看不到这个面板**——`panel:` 字段是纯增量字段，对 Claude Code 零影响；但**只要在 Fathom 里跑过团 / 沙盒，就需要按下面契约同步这份快照**，否则用户切到 Fathom 看不到当前状态。
+右侧 GUI 面板（`ui/panel.html`）的数据**全部由 Fathom 自动从业务文件投影**：你正常读写业务文件，面板就自动刷新。**没有 panel 镜像文件、没有"每回合同步"、没有对账行。** v1 的 `panel-data.json` + `✅ 已同步` 仪式已**彻底废弃**——别再写它、别再打那行。
 
-### 🚨 第一步永远是：解析 panel-data.json 的真实路径
+**Claude Code（CLI/桌面）看不到面板**——`panel:` 字段对它零影响。下面这些只在 Fathom 里有意义，而即便在 Fathom 里，你要做的也只是"正常写业务数据"。
 
-panel-data.json 是 **per-thread** 的，路径里有 thread id 这一层，**绝不能写死成一个固定路径**。每次 Read / Write 它之前，先走下面三步解析出真实路径。
+> # 🛑 第一条铁律：面板业务数据写在 `.fathom-panels/dnd5r/` 下
+>
+> 你的 cwd 是 **workspace**（`E:\projects\dnd5rskills`）。下列**结构化数据**一律写到 **`.fathom-panels/dnd5r/`** 前缀下（相对 cwd 直接写，Fathom 监听此目录、写完自动投影）：
+>
+> | 数据 | 实际路径（相对 cwd=workspace） |
+> |---|---|
+> | 本对话会话态 | **`.fathom-panels/dnd5r/threads/<threadId>/session.json`** |
+> | 玩家/NPC/同行 卡片 JSON | **`.fathom-panels/dnd5r/campaigns/<战役名>/{characters,npcs,companions}/<名>.json`** |
+> | 全局存档索引 | **`.fathom-panels/dnd5r/all-saves.json`** |
+> | 模组索引 | **`.fathom-panels/dnd5r/modules-index.json`** |
+>
+> ⚠️ 战役**叙事 `.md`**（`README.md`/`world-state.md`/`progress.md`/`players/*.md`/`npcs/*.md`/`dm-only/*`…）**位置不变**，仍在 workspace 根 **`campaigns/<战役名>/`** 下。只有上表那些**结构化 JSON** 在 `.fathom-panels/dnd5r/`。
+> ⚠️ **绝不要**把这些 JSON 写到 workspace 根、写到 `.claude/skills/dnd5r/state/`（v1 旧址，已废弃）、或别的盘——都不是面板监听目录，写了看不到。
 
-**❌ 这些写法都是错的（写了等于没写——面板永远空白，用户追着你问"为什么没更新"）：**
+### session.json：本对话会话态（替代 v1 的 panel-data.json）
 
-| 错误路径 | 错在哪 |
-|---|---|
-| `state/panel-data.json` | **少了 `threads/<threadId>/` 这一层**（最常犯！面板根本不监听这个路径） |
-| `state/threads/{threadId}/panel-data.json` | `{threadId}` 占位符没展开成真实 id |
-| `state/threads/<threadId>/panel-data.json` | `<threadId>` 字面量没替换成真实 id |
+`.fathom-panels/dnd5r/threads/<threadId>/session.json` 是**每对话一份**的会话存档态：mode + 当前战役 + 玩家实时状态 + 战斗轨道 + 沙盒。**它是业务数据（这局的"存档"），不是 panel 镜像**——按需写它，写完面板自动投影，**无需任何确认动作、不打对账行**。
 
-**✅ 唯一正确**：先查出真实 thread id（形如 `thr_75183c08`），拼成
-`.claude/skills/dnd5r/state/threads/thr_75183c08/panel-data.json`
+**threadId 解析**（沿用 v1）：Read `<workspace>/.fathom-context.json`（`E:\projects\dnd5rskills\.fathom-context.json`）取 `threadId`（形如 `thr_75183c08`），拼成 `.fathom-panels/dnd5r/threads/thr_75183c08/session.json`。
+- **读不到 `.fathom-context.json` = Claude Code 环境（非 Fathom）→ 整个 session.json 跳过**，不写。
+- 不存在就当 idle 空态，初始化后 Write（父目录不存在没关系，Write 自动建）。
 
-**解析三步（每次都走一遍，不许跳）：**
+**何时写**：状态**实际变化**时写（HP / 位置 / 章节 / 战斗回合 / 沙盒事件）——和写 `world-state.md` 一样自然，写完就完事。纯叙事润色 / 纯查证 / 纯规则问答**不用写**。per-thread，多对话互不干扰。
 
-1. **Read `<workspace>/.fathom-context.json`**（绝对路径 `E:\projects\dnd5rskills\.fathom-context.json`），由 Fathom 在切对话时自动写入，取出 `threadId` 字段：
-   ```json
-   { "threadId": "thr_75183c08", "workspace": "...", "updatedAt": "..." }
-   ```
-   - **读不到这个文件 = Claude Code 环境（非 Fathom）→ 整个 panel 同步全部跳过**，不写任何 panel-data.json。
-2. 把真实 threadId 代进去（注意中间有 `threads/` 这一层目录）：
-   `.claude/skills/dnd5r/state/threads/thr_75183c08/panel-data.json`
-3. Read / Write 这个真实路径（不存在就当 idle 空状态，初始化好后 Write；父目录不存在没关系，Write 自动建）。
+### session.json Schema（`session-v2`）
 
-**🔎 写完自检（强制）**：回头看你这一轮 Write panel-data.json 的路径——里面**必须同时出现 `threads/` 目录层 + 一个 `thr_` 开头的真实 id**。如果路径是 `state/panel-data.json`（没有 `threads/`），或还带着 `{threadId}` / `<threadId>` 没替换 —— **一定错了，倒回去重读 .fathom-context.json 再写**。
-
-**为什么要 per-thread**：用户可能开多个对话，有的跑团（mode=G）、有的跑沙盒（mode=I）、有的纯查资料（mode=idle）——共享一个 panel-data.json 会互相覆盖、切对话看到错的状态。per-thread 后切到哪个对话 Fathom 立刻显示那个对话的状态。
-
-### 🚨 每回合硬约束（不可跳过的最后一步）
-
-**每个 turn 在你打"已保存" / "更新完毕"之前**，必须把 `panel-data.json` 同步到当前真实状态——**这是回合的最后一道工序**，所有其它文件（`progress.md` / `world-state.md` / `npcs/*.md` / `characters/*.json` 等）都写完后才轮到它。
-
-漏掉的后果：用户切到 Fathom 右侧面板看到的就是旧 HP / 旧时间 / 旧地点，**他会立刻发现**——而且他没法判断是 panel 坏了还是你忘了写，只能追着你问"为什么没更新"。
-
-**强制清单**（任何回合走完叙事/规则/决议之后跑一遍）：
-
-1. **解析路径 + 拉文件**：**先按上面《🚨 第一步永远是：解析 panel-data.json 的真实路径》解析出真实路径**（Read `.fathom-context.json` 拿 `thr_xxx` → 拼 `state/threads/thr_xxx/panel-data.json`），再 `Read` 它。
-   - `.fathom-context.json` 不存在 = Claude Code 环境 → **整段清单跳过**
-   - ⚠️ 再次提醒：路径里**必须有 `threads/thr_xxx/`**，写成 `state/panel-data.json` 是无效的
-2. **对账**：把本回合产生的变化逐项映射到字段
-   - in-game 时间推进 → `campaign.inGameTime` / `timeOfDay`
-   - HP / XP / 状态变化 → `players[i]` 对应字段
-   - 进/出战斗 → `combat`
-   - 沙盒变化 → `sandbox.*`
-   - **一定要刷的**：`lastUpdate`（当前 ISO 时间）
-3. **整份重写**：`Write` 整份 JSON（不要部分 patch，会丢字段——见 §关键规则 第 8 条）
-4. **回复里必须打出对账行**——就这个格式，不能改。**末尾带上你实际写入的 `thr_xxx`**（强制你确认路径解析对了，也方便排查）：
-
-   ```
-   ✅ panel-data.json 已同步 [XP=1450/2700 Lv3 · 时间=风岚月15日晚7:30 · 位置=庄园地下调教室] → thr_75183c08
-   ```
-
-   括号里挑本回合**真变了**的字段写 2–4 项；只换了 `lastUpdate` 也照样要打这行。末尾 `→ thr_xxx` 用你这轮真实写入路径里的那个 id（不是 `<threadId>` 字面量）。
-
-**自检规则**（违反任一条就是没做完）：
-
-- 回复里**没有** `✅ panel-data.json 已同步` 这一行 → 说明跳过了这步，**倒回去补**，不要直接说"已保存"
-- Write 了 `progress.md` / `world-state.md` / `npcs/*.md` 等**但没 Write `panel-data.json`** → 漏了，补上
-- 本回合**真的零状态变化**（纯查证 / 纯叙事润色 / 纯回答规则问题）→ 也要在回复里明确表态：
-
-   ```
-   ↪ panel-data.json 无需同步（本回合无状态变化）
-   ```
-
-   显式说出来，不让用户怀疑你是否漏写。
-
-### 文件位置 + Schema（v1）
-
-`.claude/skills/dnd5r/state/threads/<threadId>/panel-data.json`：
+= v1 panel-data 去掉 `saves[]`，其余字段不变：
 
 ```jsonc
 {
-  "_schema": "v1",
+  "_schema": "session-v2",
   "mode": "G" | "I" | "idle",                  // 带团 / 沙盒 / 未开桌
   "campaign": {                                // mode=idle 时 null
-    "name": "风骸岛之龙-小明组",
-    "dmStyle": "粉红恋爱向",                    // 引用的 dm-styles 预设名
-    "inGameTime": "晨晖月 12 日 · 上午",         // 完整 in-game 时间字符串
-    "timeOfDay": "上午",                        // 可选：晨/上午/下午/傍晚/夜/深夜 —— 单独字段触发图标
-    "weather": "雾",                            // 可选：晴/阴/雨/雷雨/雪/雾/风 —— 单独字段触发图标
-    "location": "巨龙休息处修道院"               // 玩家视角自然描述（**不要写编号 D5/A1**，遵守 G4）
+    "name": "风骸岛之龙-小明组", "dmStyle": "粉红恋爱向",
+    "inGameTime": "晨晖月 12 日 · 上午",
+    "timeOfDay": "上午",                        // 可选：晨/上午/下午/傍晚/夜/深夜 —— 触发图标
+    "weather": "雾",                            // 可选：晴/阴/雨/雷雨/雪/雾/风 —— 触发图标
+    "location": "巨龙休息处修道院"               // 玩家视角自然描述（不写编号 D5/A1，遵守 G4）
   },
   "players": [                                 // mode=idle 时 []
     {
-      "name": "羽痕", "class": "术士 3",
-      "hpCur": 18, "hpMax": 24, "ac": 13,
-      "xp": { "cur": 1450, "next": 2700, "level": 3 },  // 可选；PHB24 XP 系统，next 为升下级所需总 XP
+      "name": "羽痕", "class": "术士 3", "hpCur": 18, "hpMax": 24, "ac": 13,
+      "xp": { "cur": 1450, "next": 2700, "level": 3 },  // 可选；PHB24 XP
       "status": [
-        "中毒",                                 // 简短形式（字符串）
-        { "name": "专注:祝福术", "type": "conc" },  // 完整形式（对象，支持 type/duration）
+        "中毒",
+        { "name": "专注:祝福术", "type": "conc" },
         { "name": "炼金研究", "type": "long", "duration": "剩 12 天" }
       ]
     }
   ],
-  "module": null | {                           // 仅 mode=G 时有
-    "name": "风骸岛之龙",
-    "currentChapter": "第二章：海藻洞穴",
-    "progress": "已完成 3/6 遭遇"
-  },
+  "module": null | { "name": "风骸岛之龙", "currentChapter": "第二章：海藻洞穴", "progress": "已完成 3/6 遭遇" },  // 仅 mode=G
   "combat": null | {                           // 仅战斗进行中
-    "round": 3, "turnIndex": 2,
-    "currentActor": "僵尸 A",
+    "round": 3, "turnIndex": 2, "currentActor": "僵尸 A",
     "initiative": [
       { "name": "羽痕", "init": 17, "hp": "18/24", "isPC": true,  "isCurrent": false },
       { "name": "僵尸 A", "init": 14, "hp": "重伤", "isPC": false, "isCurrent": true }
     ]
   },
-  "sandbox": null | {                          // 仅 mode=I 时有
-    "companions": [                            // 可选：同行 NPC（伴侣/魔宠/雇佣兵/钢铁守卫…）
-      { "name": "钢铁守卫·铜豆", "type": "steeldefender", "hp": "21/21", "role": "" }
-    ],
-    "activeCommissions": [
-      { "name": "城门口失窃案", "deadline": "5 日内" }
-    ],
-    "keyRelationships": [
-      { "name": "艾莉安娜", "stage": "暧昧期(3/5)", "lastSeen": "晨晖月 10 日 · 晚宴" }
-    ],
-    "assetsBrief": [                           // 可为字符串（一行）或数组（多行）
-      "现金 287 GP + 信托基金",
-      "据点：无",
-      "货物存货 ~120 GP"
-    ]
+  "sandbox": null | {                          // 仅 mode=I
+    "companions": [ { "name": "钢铁守卫·铜豆", "type": "steeldefender", "hp": "21/21", "role": "" } ],
+    "activeCommissions": [ { "name": "城门口失窃案", "deadline": "5 日内" } ],
+    "keyRelationships": [ { "name": "艾莉安娜", "stage": "暧昧期(3/5)", "lastSeen": "晨晖月 10 日 · 晚宴" } ],
+    "assetsBrief": [ "现金 287 GP + 信托基金", "据点：无", "货物存货 ~120 GP" ]
   },
-  "saves": [                                   // 可选；存档列表，panel 直接渲染无需 AI 查询
-    { "name": "第一章开头", "createdAt": "2026-05-29 14:30", "chapter": "第一章·巨龙休息处", "location": "渡口码头" },
-    { "name": "BOSS战前",   "createdAt": "2026-05-29 19:45", "chapter": "第四章·崖顶天文台",  "location": "圆顶大厅" }
-  ],
   "lastUpdate": "2026-05-25T14:30:00+08:00"
 }
 ```
 
-### 关键规则（必读）
+> **`saves[]` 已从 session.json 移除**：存档列表由面板从 `all-saves.json` 按当前战役**自动派生**（面板对战役名做规范化匹配，容忍括号/连字符差异）。你只维护 `all-saves.json`（见上方《全局存档索引》），**不要**在 session.json 里再放 `saves`。
 
-1. **怪物 HP 用模糊档**（遵守 G4 信息揭示边界）：`"健康" / "轻伤" / "重伤" / "濒死"`，**绝不写精确数值** "8/22"。PC 用精确值 `"18/24"`。
-2. **location 字段写玩家视角自然描述**：`"巨龙休息处修道院"` / `"圆顶大厅"`，**绝不写 DM 索引编号** `"D5"` / `"A1"` —— 这是给玩家面板看的，不是 DM 私笔。
-3. **status chip 两种形式都支持**：
-   - 字符串简写：`"中毒"` / `"专注:祝福术"`（panel 自动识别"专注:"前缀为金色 chip）
-   - 对象完整：`{ "name": "炼金研究", "type": "long", "duration": "剩 12 天" }`
-   - `type` 枚举：`"conc"`（专注·金）/ `"buff"`（增益·绿）/ `"debuff"`（不利·红）/ `"long"`（长期项目·紫）/ `"pos"`（中性提示·蓝）
-   - 有 `duration` 字段时会在 chip 末尾显示小字 `(剩 12 天)`
-4. **companions（同行 NPC）**：`type` 枚举对应不同图标——`lover/partner/spouse`(💕) / `pet/familiar`(🐾) / `mercenary/hireling`(⚔) / `summon`(✨) / `wildshape`(🐺) / `steeldefender`(🤖) / `ally/follower`(🤝👤) / `prisoner/captive`(⛓) / `thrall`(🔒)。`hp` 字段可选，建议 PC 同行者用精确 "21/21"，敌方俘虏/临时盟友可用模糊档。
-5. **timeOfDay / weather** 是**可选**字段，独立于 `inGameTime`——专门给 panel 渲染图标用的简短词。**写法**：`timeOfDay` ∈ {晨, 上午, 下午, 傍晚, 夜, 深夜, ...}；`weather` ∈ {晴, 阴, 雨, 雷雨, 雪, 雾, 风, ...}（panel 模糊匹配关键字）。
-6. **xp 字段**：仅当用 PHB24 XP 系统时填写（沙盒里 house-rules.md 可能切 milestone，那种情况下不填 xp）。`level` 字段是 panel 在条上方显示"Lv 3"用的，可省。
-7. **assetsBrief**：字符串（一行密集）或数组（每条独占一行）都支持。沙盒里资产种类多时用数组更可读。
-8. **写入方式**：`Read` → 解析 JSON → 改字段 → `Write` 整份。**不要直接 Write 部分字段**（会丢字段）。
-9. **lastUpdate 每次同步必更新**：用当前 ISO 时间 `YYYY-MM-DDTHH:MM:SS+08:00`。
-10. **saves[] 字段维护**：panel 用此字段直接渲染存档列表（无需 AI 参与显示），因此 AI 必须在以下时机同步：
-    - **S1 `/save` 后**：在 panel-data.json 的 `saves[]` 里追加新条目 `{name, createdAt, chapter, location}`
-    - **G1 开桌初始化** / **G7 跨 session 恢复** / **S2 `/load` 读档后重建 panel-data.json 时**：先 Glob `campaigns/<战役名>/saves/*/SAVE_META.md`，Read 每份元信息，重建 `saves[]`（而不是清空或保留旧值）
-    - **saves[] 在重写 panel-data.json 时不能丢失**：Read → 解析 JSON → 只更新变化字段 → 保留 `saves` 数组 → Write
+### 字段规则（必读）
 
-### 同步时机一览
+1. **怪物 HP 用模糊档**（遵守 G4）：`"健康"/"轻伤"/"重伤"/"濒死"`，绝不写精确数值。PC 用精确值 `"18/24"`。
+2. **location 写玩家视角自然描述**（`"圆顶大厅"`），绝不写 DM 索引编号（`"D5"`）。
+3. **status chip 两形式**：字符串（`"中毒"`、`"专注:祝福术"`自动识别金 chip）或对象 `{name, type, duration?}`。`type` ∈ `conc`(金)/`buff`(绿)/`debuff`(红)/`long`(紫)/`pos`(蓝)。
+4. **companions type 图标**：`lover/partner/spouse`(💕)、`pet/familiar`(🐾)、`mercenary/hireling`(⚔)、`summon`(✨)、`wildshape`(🐺)、`steeldefender`(🤖)、`ally/follower`(🤝👤)、`prisoner/captive`(⛓)、`thrall`(🔒)。`hp` 可选。
+5. **timeOfDay / weather** 可选，给面板渲染图标用的简短词。
+6. **xp** 仅 PHB24 XP 系统时填，milestone 不填；`level` 可省。
+7. **assetsBrief** 字符串或数组都支持。
+8. **写入方式**：`Read` → 改字段 → `Write` 整份（不要部分 patch）；`lastUpdate` 每次更新为当前 ISO 时间。
+9. **写错位置自查**：路径里必须有 `.fathom-panels/dnd5r/threads/thr_xxx/`。写成 `state/...`（v1 旧址）或 workspace 根，面板看不到——倒回去重写。
 
-| 时机 | 改哪些字段 | 详见 |
-|---|---|---|
-| 切入带团 G1 | `mode=G`、campaign 整段（含 timeOfDay/weather）、players 全员（含 xp）、module 初值、combat=null、sandbox=null | G1 第 6 步 |
-| 切入沙盒 I1 | `mode=I`、campaign 整段、players、module=null、sandbox 初值（含 companions） | WORKFLOW_I_SANDBOX.md I1 |
-| 收桌 / 切回查证模式 | `mode=idle`、其他字段保留（让用户回 panel 还能看到上次状态）；或全清空 | 视场景 |
-| G2 推进每轮 | players（HP / status / xp）、campaign（inGameTime / timeOfDay / weather / location）、module（progress） | G2 第 4 步 |
-| G3 战斗开始 | combat 整段写入 | G3 §战斗开始 |
-| G3 每回合末 | combat.round / turnIndex / currentActor / initiative HP；players[].status 同步增益/不利 chip（专注/嘲讽/中毒等） | G3 §每回合 |
-| G3 战斗结束 | combat=null、players 同步最终 HP、清掉战斗相关的临时 status chip、若涨级则 players[].xp 同步 | G3 §战斗结束 |
-| G6 桌末 | campaign.inGameTime/timeOfDay、players（含 xp/长期 status）、module.progress 同步到本桌末态 | G6 第 7 步追加 |
-| I 时间推进 / 接委托 / 关系演进 | sandbox 整段（含 companions）、campaign.inGameTime/timeOfDay/weather | WORKFLOW_I_SANDBOX.md I3/I5/I6 |
-| 收/解雇/分别同行 NPC | sandbox.companions 增删 **+ `state/campaigns/<X>/companions/<名>.json` 创建或删除** | I 工作流 |
-| PC 涨级（PHB24 XP）| players[].xp.cur/next/level 同步 **+ `state/campaigns/<X>/characters/<X>.json` 更新** | I5.6 / G3 战斗结束 |
-| NPC 互动后 改 `campaigns/<X>/npcs/<X>.md` | **必须同时**重写 `state/campaigns/<X>/npcs/<X>.json` | Panel 详情弹窗 §AI 双写硬约束 |
-| 玩家改装备/学法术（改 players/<X>.md）| **必须同时**重写 `state/campaigns/<X>/characters/<X>.json` | 同上 |
+### 同步时机（写 session.json 的自然触点）
+
+> 只是"状态何时变化"的提醒——**写就完了，没有对账行、没有额外步骤**。涉及的卡片 `.json` 双写见《Panel 详情弹窗》。
+
+| 时机 | session.json 改哪些 |
+|---|---|
+| 切入带团 G1 | `mode=G`、campaign 整段、players 全员、module 初值、combat=null、sandbox=null |
+| 切入沙盒 I1 | `mode=I`、campaign、players、module=null、sandbox 初值（含 companions） |
+| 收桌 / 切回查证 | `mode=idle`（其他字段可保留，回面板还能看上次态） |
+| G2 推进每轮 | players（HP/status/xp）、campaign（inGameTime/timeOfDay/weather/location）、module.progress |
+| G3 战斗 | 开始写 `combat` 整段；每回合更 round/turnIndex/currentActor/initiative HP；结束置 null、同步最终 HP、清临时 chip |
+| G6 桌末 | campaign 时间、players、module.progress 同步到桌末态 |
+| I 时间推进/接委托/关系演进 | sandbox 整段、campaign 时间 |
 
 ### 实践提示
 
-- 不要每条 DM 叙事都重写 JSON——**状态实际变化时再写**（HP/位置/章节/战斗回合/沙盒事件）。叙事润色不算变化。
-- 写入是 fire-and-forget；Fathom watcher 在 ~200ms 内自动推到 panel，不需要确认。
-- 出错（字段类型错 / JSON 无效）panel 顶部会显示"解析失败"——用户告诉你时去 Read 看看 JSON。
+- 状态**实际变化时再写**，叙事润色不写。写入 fire-and-forget，~200ms 内自动投影，不需要确认。
+- JSON 写坏（类型错/无效）面板顶部显示"解析失败"——用户告诉你时去 Read 看看。
+## Panel 详情弹窗 + 卡片 JSON（玩家视角投影）
 
-## Panel 详情弹窗（fetch-on-demand）
-
-panel 上的玩家行 / 关键关系 / 同行 NPC 都可点击 → panel 用 fetch 拉对应详情 JSON 渲染弹窗，**不调 AI**。这给玩家"零延迟即时浏览"的 RPG 体验，但代价是 AI 必须在改 NPC / 玩家状态时**同步维护对应 JSON 投影**。
+面板上的玩家行 / 关键关系 / 同行 NPC 可点击 → 弹出详情卡片，**不调 AI**。**v2 下这些 JSON 由面板从推送数据内联读取**（不再 fetch、不再有"档案缺失 404"）——给玩家"零延迟浏览"，但代价不变：你改 NPC / 玩家状态时必须**同步维护对应 JSON**，否则面板显示旧数据。
 
 ### 文件位置
 
 ```
-.claude/skills/dnd5r/state/campaigns/<战役名>/
-├── characters/<玩家名>.json    ← 玩家行点击 → fetch 这个
-├── npcs/<NPC名>.json           ← 关键关系点击 → fetch 这个；同行的"人形 NPC"fallback 也用
+.fathom-panels/dnd5r/campaigns/<战役名>/
+├── characters/<玩家名>.json    ← 玩家行点击
+├── npcs/<NPC名>.json           ← 关键关系点击；同行的"人形 NPC"fallback 也用
 └── companions/<同行名>.json    ← 同行行点击：先尝试这个，没有再 fallback 到 npcs/
 ```
 
-**per-campaign**，跨 thread 共享（同战役在不同对话里看到的 NPC 状态一致）。campaign 名取自 panel-data.json 的 `campaign.name`。
+**per-campaign**，跨 thread 共享（同战役在不同对话里看到的 NPC 状态一致）。`<战役名>` 取自 session.json 的 `campaign.name`。
+⚠️ 这是**结构化 JSON**，放 `.fathom-panels/dnd5r/campaigns/`；对应的**叙事 `.md`** 仍在 workspace 根 `campaigns/<战役名>/`（双写跨这两个根，见下）。
 
 ### 三类 schema
 
-完整字段见 `state/campaigns/博德之门-王小明的日常3/{npcs,characters,companions}/*.json` 范例。要点：
+完整字段见 `.fathom-panels/dnd5r/campaigns/博德之门-王小明的日常3/{npcs,characters,companions}/*.json` 范例。要点：
 
 **npcs/<X>.json（NPC 公开档案，社交向）** — `_schema: "npc-v1"`
 - `name / fullName / aliases[]`：称谓
@@ -303,7 +239,7 @@ panel 上的玩家行 / 关键关系 / 同行 NPC 都可点击 → panel 用 fet
 
 ### 🚨 AI 双写硬约束（必读）
 
-**当你修改 `campaigns/<战役名>/npcs/<X>.md` 时，必须同步重写 `state/campaigns/<战役名>/npcs/<X>.json`**——不然玩家点 panel 看到的还是旧数据，造成认知不一致。
+**当你修改 `campaigns/<战役名>/npcs/<X>.md` 时，必须同步重写 `.fathom-panels/dnd5r/campaigns/<战役名>/npcs/<X>.json`**——不然玩家点 panel 看到的还是旧数据，造成认知不一致。
 
 | 修改了什么 | 必须同步什么 |
 |---|---|
@@ -323,7 +259,7 @@ panel 上的玩家行 / 关键关系 / 同行 NPC 都可点击 → panel 用 fet
 - 🔒 DM 备注 / 行为预测 / 转化后规划
 - 🔒 玩家尚未揭示的事实（即使 .md 公开档案段也写了，但玩家通过 RP 还没问出来 → 不写 .json）
 - 🔒 未来章节剧情 / 即将触发的事件
-- 🔒 怪物精确 HP / AC / 数值（panel-data.json 的怪物 HP 已用模糊档，同理）
+- 🔒 怪物精确 HP / AC / 数值（session.json 的怪物 HP 已用模糊档，同理）
 
 **判断标准**：玩家在游戏内能通过日常观察 / 对话 / 调查知道的，可以写。需要专门检定 / NSFW 暗线 / 章节推进才能解锁的，不写。
 
@@ -331,13 +267,13 @@ panel 上的玩家行 / 关键关系 / 同行 NPC 都可点击 → panel 用 fet
 
 | 玩家点哪 | panel 做什么 |
 |---|---|
-| 队伍阵容里的玩家名 | fetch `characters/<玩家>.json` → 渲染玩家详情弹窗 |
-| 关键关系里的 NPC 行 | fetch `npcs/<NPC>.json` → 渲染 NPC 弹窗 |
-| 同行行 | 先 fetch `companions/<名>.json`，404 → fallback fetch `npcs/<名>.json` → 渲染对应弹窗 |
+| 队伍阵容里的玩家名 | 从内联数据取 `characters/<玩家>.json` → 渲染玩家详情弹窗 |
+| 关键关系里的 NPC 行 | 取 `npcs/<NPC>.json` → 渲染 NPC 弹窗 |
+| 同行行 | 先取 `companions/<名>.json`，没有 → fallback `npcs/<名>.json` → 渲染对应弹窗 |
 | 弹窗的 "请 AI 打开完整角色卡" 按钮 | skillPanel.send("请打开 .tmp/<X>.html 给我看完整角色卡") |
 | ESC / 点弹窗外 / ✕ 按钮 | 关闭弹窗 |
 
-档案缺失（fetch 404）→ 弹窗显示红字 "档案缺失：<路径>"。**用户告诉你时**：去检查对应 `state/campaigns/<X>/{npcs,characters,companions}/<name>.json` 是否存在；不存在则按 schema 创建。
+某 JSON 不存在 → 弹窗显示"档案缺失"。**用户告诉你时**：去检查对应 `.fathom-panels/dnd5r/campaigns/<X>/{npcs,characters,companions}/<name>.json` 是否存在；不存在则按 schema 创建。
 
 ## 资料库结构
 
@@ -815,7 +751,7 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
    ```
    完整 schema 见 [STEP1_DESIGN.md §4](STEP1_DESIGN.md)。模板参考 [campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/)。
 
-   **同步 Panel 快照**：Write `state/threads/<threadId>/panel-data.json`（详见 §Panel 数据同步）：`mode="G"`、campaign 整段（名字 / dmStyle 引用名 / inGameTime / location）、players 数组按队伍填、module 初值（name / currentChapter / progress）、combat=null、sandbox=null、lastUpdate。**Fathom 用户切到右侧 panel 看到的就是这份。**
+   **同步 Panel 快照**：Write `.fathom-panels/dnd5r/threads/<threadId>/session.json`（详见 §Panel 数据同步）：`mode="G"`、campaign 整段（名字 / dmStyle 引用名 / inGameTime / location）、players 数组按队伍填、module 初值（name / currentChapter / progress）、combat=null、sandbox=null、lastUpdate。**Fathom 用户切到右侧 panel 看到的就是这份。**
 7. **开场叙事**：按 DM 风格读模组"读给玩家"段开场（保持风格基调一致）。
 
 #### G2. 开桌节奏（每轮循环 4 步）
@@ -833,7 +769,7 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
    - **AI 代投协议**：用 Bash `python -c "import random; print(random.randint(1,20))"` 投骰；**强制显示原始骰面 + 加值**（"你投了 d20=14, +2 = 16"）；归玩家（"你投了"，不是"我替你投了"）；**自然 20/1 不修整**
    - **怪物始终 AI 投**（不在玩家选择范围）
    - **玩家随时可改**：玩家说"接下来都你投" / "改回每次问我" → AI 立即 Edit `house-rules.md` 更新 `dice_mode`
-4. **结果叙事 + 推进**：成功/失败都给情景化描述，不要只甩数字。**若 HP / 状态 / 地点 / 章节进度有变化**，同步重写 `state/threads/<threadId>/panel-data.json` 对应字段（详见 §Panel 数据同步）；纯叙事润色不触发同步。
+4. **结果叙事 + 推进**：成功/失败都给情景化描述，不要只甩数字。**若 HP / 状态 / 地点 / 章节进度有变化**，同步重写 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 对应字段（详见 §Panel 数据同步）；纯叙事润色不触发同步。
 
 **📝 输出风格：纯散文，无 markdown**（**重点**）：
 
@@ -919,7 +855,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
    - 怪物：AI 投（Bash `python -c "import random; print(random.randint(1,20))"` + 加值）
 5. Write `combat/active.md`：先攻表、各方初始 HP、空回合日志、`in_game_round=1`、`turn_index=0`、`status=ongoing`
 6. 按 DM 风格描述战斗开场
-7. **同步 Panel**（详见 §Panel 数据同步）：写 `state/threads/<threadId>/panel-data.json` 的 `combat` 整段——`round=1, turnIndex=0, currentActor, initiative` 数组（**PC 用精确 HP "18/24"、怪物用模糊档 "健康/轻伤/重伤/濒死"**），同步 players 数组 HP
+7. **同步 Panel**（详见 §Panel 数据同步）：写 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 的 `combat` 整段——`round=1, turnIndex=0, currentActor, initiative` 数组（**PC 用精确 HP "18/24"、怪物用模糊档 "健康/轻伤/重伤/濒死"**），同步 players 数组 HP
 
 **每回合**：
 1. Read `combat/active.md` 拿当前 turn_index + 当前出手者
@@ -935,7 +871,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
 5. 处理触发效果（专注豁免、机会攻击、领域效果）
 6. 若有 PC HP=0 → active.md 死亡豁免段追加该 PC，下次轮到他时投死豁
 7. 若全部敌方 HP=0 或 PC 全 down → 进入「战斗结束」流程
-8. **同步 Panel**：更新 `state/threads/<threadId>/panel-data.json` 的 `combat.round / turnIndex / currentActor`，以及 `initiative` 中受影响成员的 HP（PC 精确 / 怪物模糊档），players 数组同步任何受伤 PC 的 HP
+8. **同步 Panel**：更新 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 的 `combat.round / turnIndex / currentActor`，以及 `initiative` 中受影响成员的 HP（PC 精确 / 怪物模糊档），players 数组同步任何受伤 PC 的 HP
 
 **战斗结束**：
 1. Read `combat/active.md` 最终状态
@@ -947,7 +883,7 @@ LLM 默认会用 markdown 排版（加粗 `**X**`、斜体 `*X*`、列表 `- `�
 7. Edit `players/<X>.md`：同步最终 HP / 法术位消耗 / 新装备 / 新揭示信息
 8. Edit `progress.md`：追加该遭遇到「已完成遭遇」
 9. 按 DM 风格做战后叙事
-10. **同步 Panel**：`state/threads/<threadId>/panel-data.json` 的 `combat` 置为 `null`，players 同步战后最终 HP / 新增 status（如"专注"消散、"低 HP"等），module.progress 若推进也更新
+10. **同步 Panel**：`.fathom-panels/dnd5r/threads/<threadId>/session.json` 的 `combat` 置为 `null`，players 同步战后最终 HP / 新增 status（如"专注"消散、"低 HP"等），module.progress 若推进也更新
 
 **XP / 升级**：不必逐场算（模组靠章节末「升级 Gain a Level」节点统一升级）。
 
@@ -1095,7 +1031,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 5. **Edit** `dm-only/dm-notes.md`：追加本桌触发的伏笔 / 救场用次 / 难度调整 / 玩家观察
 6. **Edit** `npcs/<X>.md`（本桌互动过的 NPC）：更新态度、互动历史；新见到的 NPC 创建公开档案
 7. **Edit** 战役 `README.md` frontmatter：`session_count += 1`
-8. **同步 Panel**（详见 §Panel 数据同步）：Write `state/threads/<threadId>/panel-data.json` 同步桌末态——`campaign.inGameTime`（与 world-state.md 一致）、players（与 .md 一致的 HP/status）、`module.progress`（与 progress.md 一致）。**这一步保证用户下次切到 Fathom 看 panel 就能知道上次到哪。**
+8. **同步 Panel**（详见 §Panel 数据同步）：Write `.fathom-panels/dnd5r/threads/<threadId>/session.json` 同步桌末态——`campaign.inGameTime`（与 world-state.md 一致）、players（与 .md 一致的 HP/status）、`module.progress`（与 progress.md 一致）。**这一步保证用户下次切到 Fathom 看 panel 就能知道上次到哪。**
 
 #### G7. 跨 session 恢复（11 步固定顺序）
 
@@ -1260,8 +1196,8 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 
 **与 H（改模组）的关系**：H 是开桌**前**一次性装配模组副本；I 是开桌**后**的运行时框架。沙盒里可嵌套模组（玩家接高 stakes 委托 → 切 G 跑完整模组 → 回沙盒）；模组结束后也可转沙盒（继承 NPC / 地点 / 战利品）。详 WORKFLOW_I_SANDBOX.md §I12。
 
-**Fathom Panel 同步**（详见 §Panel 数据同步）：沙盒模式下 `state/threads/<threadId>/panel-data.json` 的 `mode="I"`、`module=null`，`sandbox` 字段含 activeCommissions / keyRelationships / assetsBrief。同步时机：
-- I1 沙盒五问完成后 → 初始化 panel-data.json（mode=I、campaign 整段、players、sandbox 初值）
+**Fathom Panel 同步**（详见 §Panel 数据同步）：沙盒模式下 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 的 `mode="I"`、`module=null`，`sandbox` 字段含 activeCommissions / keyRelationships / assetsBrief。同步时机：
+- I1 沙盒五问完成后 → 初始化 session.json（mode=I、campaign 整段、players、sandbox 初值）
 - I3 时间推进 → 更新 `campaign.inGameTime`、sandbox 字段（委托 / 关系到期 / 资产变化）
 - I5 接 / 完成委托 → 更新 sandbox.activeCommissions
 - I6 关系演进阶段变化 → 更新 sandbox.keyRelationships
@@ -1322,7 +1258,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 **设计原则**：
 - 每个存档是独立目录，互不覆盖，可随时回溯任意检查点
 - `sessions/`（桌末日志）和 `combat/history/`（战斗存档）**不纳入存档**，它们是不可逆流水账，恢复后仍保留完整历史
-- panel-data.json 不纳入存档（它是 per-thread 的临时快照，读档后走正常同步流程重建）
+- session.json 不纳入存档（它是 per-thread 的临时会话态，读档后走正常流程重建）
 
 #### S1. `/save <名称>` — 存档
 
@@ -1343,12 +1279,12 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    - `combat\active.md`（若存在，保存中途战斗）→ `$dst\combat\active.md`
    - **Panel 详情弹窗 JSON**（PowerShell）：
      ```powershell
-     $stateDir = ".claude\skills\dnd5r\state\campaigns\<战役名>"
+     $stateDir = ".fathom-panels\dnd5r\campaigns\<战役名>"
      if (Test-Path $stateDir) {
          Copy-Item $stateDir -Recurse -Destination "$dst\state-json" -Force
      }
      ```
-     这把 `state/campaigns/<战役名>/`（含 `characters/` / `npcs/` / `companions/`）完整拷进存档，确保读档后点击角色/NPC 弹窗也能还原到存档时刻的数据。
+     这把 `.fathom-panels/dnd5r/campaigns/<战役名>/`（含 `characters/` / `npcs/` / `companions/`）完整拷进存档，确保读档后点击角色/NPC 弹窗也能还原到存档时刻的数据。
 4. **写存档元信息** `campaigns/<战役名>/saves/<存档名>/SAVE_META.md`：
    ```markdown
    ---
@@ -1360,7 +1296,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    ---
    队伍状态：<简短摘要，如 "羽痕 18/24HP，法术位 2×1环已用">
    ```
-5. **同步 panel-data.json 的 saves[] 字段**（Fathom 环境）：读 `.fathom-context.json` 取 threadId；存在则 Read panel-data.json → 在 `saves[]` 末尾追加 `{"name":"<名称>","createdAt":"YYYY-MM-DD HH:MM","chapter":"<章节>","location":"<地点>"}` → Write 整份。panel 将立即刷新显示新存档，无需 AI 再次查询。
+5. **更新 all-saves.json 的 saves[]**（Fathom 环境）：Read `.fathom-panels/dnd5r/all-saves.json` → 找到当前战役条目（按 `campaign.name`）→ 在其 `saves[]` 末尾追加 `{"name":"<名称>","createdAt":"YYYY-MM-DD HH:MM","chapter":"<章节>","location":"<地点>"}` → Write 整份（同 §全局存档索引 的 S1 规则）。panel 从 all-saves 自动派生存档列表、立即刷新。**注意**：session.json 不再放 `saves`。
 6. **回复确认**：
    ```
    存档「<名称>」已保存 → campaigns/<战役名>/saves/<名称>/
@@ -1392,14 +1328,14 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    - **还原 Panel 详情弹窗 JSON**（PowerShell）：
      ```powershell
      $stateSrc = "campaigns\<战役名>\saves\<名称>\state-json"
-     $stateDst = ".claude\skills\dnd5r\state\campaigns\<战役名>"
+     $stateDst = ".fathom-panels\dnd5r\campaigns\<战役名>"
      if (Test-Path $stateSrc) {
          New-Item -ItemType Directory -Force $stateDst | Out-Null
          Copy-Item "$stateSrc\*" -Recurse -Destination $stateDst -Force
      }
      ```
 4. **刷新上下文**：执行 G7 第 1~9 步（读 README / dm-styles / house-rules / progress / world-state / sessions 最近 1 条 / players / combat/active），让 LLM 上下文与恢复后文件一致
-5. **重建 panel-data.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `state/threads/<threadId>/panel-data.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ players（HP/XP/status）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
+5. **重建 session.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `.fathom-panels/dnd5r/threads/<threadId>/session.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ players（HP/XP/status）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
 6. **回复**：告知恢复成功 + 简短「已回到……」一句 in-character 开场，然后继续 G2/I2 节奏
 
 #### S3. `/saves` — 列出存档

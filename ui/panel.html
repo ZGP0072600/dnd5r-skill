@@ -891,6 +891,33 @@
   // === 当前数据快照（让 modal 能读 campaign 信息） ===
   var currentData = null;
 
+  // === v2 投影缓存（由 onData/ingest 填充）===
+  var campaignIndex = {};       // normCampaign(战役名) -> { characters|npcs|companions: { 名: parsed } }
+  var allSavesData = null;      // all-saves.json（idle 战役浏览器 + G/I 存档列表）
+  var modulesIndexData = null;  // modules-index.json（idle 模组列表）
+
+  // 战役名规范化：消除「目录(连字符) / 索引 / 会话(括号)」三处命名漂移，做模糊匹配
+  function normCampaign(s) { return String(s == null ? '' : s).replace(/[（）()\-—\s·]/g, ''); }
+
+  // 当前战役存档列表：从 all-saves 按规范化战役名派生（替代 v1 的 session.saves[]）
+  function deriveSaves(data, allSaves) {
+    if (!allSaves || !allSaves.campaigns || !data || !data.campaign || !data.campaign.name) return null;
+    var target = normCampaign(data.campaign.name);
+    for (var i = 0; i < allSaves.campaigns.length; i++) {
+      var c = allSaves.campaigns[i];
+      if (c && normCampaign(c.name) === target && c.saves && c.saves.length) return c.saves;
+    }
+    return null;
+  }
+
+  // 弹窗实体查找：从内联的 campaignIndex 取（不再 fetch / readJson）
+  function lookupEntity(type, name) {
+    var camp = currentData && currentData.campaign && currentData.campaign.name;
+    if (!camp) return undefined;
+    var idx = campaignIndex[normCampaign(camp)];
+    return idx && idx[type] && idx[type][name];
+  }
+
   // === Modal 基础设施 ===
   function openModal(title, subtitle, contentEl, footerEl) {
     document.getElementById('modal-title').textContent = title || '';
@@ -932,63 +959,24 @@
     return d;
   }
 
-  // 读 skill 内文件的统一入口。
-  //   - Fathom 环境：用 skillPanel.readJson（v0.1.11+ 引入），相对 skill 根目录，bootstrap
-  //     自动 URI-encode、自动拼 base64 root，不用管这些细节
-  //   - HTTP 预览 / 其它环境：fallback 到 fetch + window.__PANEL_BASE__（默认从根 '/' 起，
-  //     需要起服时 cwd 设到 skill root）
-  //
-  // 注意以前的版本错误地默认 `'/state/campaigns/'`——`/` 在 Fathom iframe 里映射到 origin
-  // 而不是 skill root，所以请求会丢掉 base64 root 段并 400。新代码不再依赖那个假设。
-  async function fetchJson(path) {
-    if (window.skillPanel && typeof window.skillPanel.readJson === 'function') {
-      return await window.skillPanel.readJson(path);
-    }
-    // Legacy fallback：HTTP 预览或老版 Fathom 走原始 fetch
-    try {
-      var base = window.__PANEL_BASE__ || '/';
-      var resp = await fetch(base + path);
-      if (!resp.ok) return null;
-      return await resp.json();
-    } catch (e) { return null; }
-  }
-
-  function campaignPath(subdir, name) {
-    var campaign = currentData && currentData.campaign && currentData.campaign.name;
-    if (!campaign) return null;
-    // 相对 skill 根目录的纯文件路径。bootstrap 会在 skillPanel.readJson 里
-    // 自己做 URI encoding，所以这里不用 encodeURIComponent。
-    return 'state/campaigns/' + campaign + '/' + subdir + '/' + name + '.json';
-  }
-
-  // === 详情入口 ===
-  async function showCharacter(name) {
-    openModal(name, '玩家角色', loadingEl());
-    var path = campaignPath('characters', name);
-    if (!path) { openModal(name, '', errorEl('未识别当前战役')); return; }
-    var data = await fetchJson(path);
-    if (!data) { openModal(name, '', errorEl('档案缺失：' + path)); return; }
+  // === 详情入口（v2：从内联的 campaignIndex 同步读取，不再 fetch / readJson）===
+  function showCharacter(name) {
+    var data = lookupEntity('characters', name);
+    if (!data) { openModal(name, '', errorEl('档案缺失：characters/' + name + '.json')); return; }
     renderCharacterModal(data);
   }
-  async function showNpc(name) {
-    openModal(name, 'NPC 档案', loadingEl());
-    var path = campaignPath('npcs', name);
-    if (!path) { openModal(name, '', errorEl('未识别当前战役')); return; }
-    var data = await fetchJson(path);
-    if (!data) { openModal(name, '', errorEl('档案缺失：' + path)); return; }
+  function showNpc(name) {
+    var data = lookupEntity('npcs', name);
+    if (!data) { openModal(name, '', errorEl('档案缺失：npcs/' + name + '.json')); return; }
     renderNpcModal(data);
   }
-  async function showCompanion(name) {
-    // 先尝试 companions/，没有再 fallback 到 npcs/（人形同行 NPC 在 npcs/ 里）
-    openModal(name, '同行', loadingEl());
-    var compPath = campaignPath('companions', name);
-    var npcPath = campaignPath('npcs', name);
-    if (!compPath) { openModal(name, '', errorEl('未识别当前战役')); return; }
-    var data = await fetchJson(compPath);
-    if (data) { renderCompanionModal(data); return; }
-    data = await fetchJson(npcPath);
-    if (data) { renderNpcModal(data); return; }
-    openModal(name, '', errorEl('档案缺失：' + compPath));
+  function showCompanion(name) {
+    // 先 companions/，没有再 fallback 到 npcs/（人形同行 NPC 在 npcs/ 里）
+    var comp = lookupEntity('companions', name);
+    if (comp) { renderCompanionModal(comp); return; }
+    var npc = lookupEntity('npcs', name);
+    if (npc) { renderNpcModal(npc); return; }
+    openModal(name, '', errorEl('档案缺失：companions/' + name + '.json'));
   }
 
   // === Modal 渲染：通用 section 工厂 ===
@@ -1689,22 +1677,16 @@
   }
 
   function renderIdleHint() {
-    var wrapper = el('div', null, [el('div', { class: 'empty', text: '加载战役列表…' })]);
-    fetchJson('state/all-saves.json').then(function (data) {
-      wrapper.innerHTML = '';
-      if (!data || !data.campaigns || !data.campaigns.length) {
-        wrapper.appendChild(renderNoCampaignsHint());
-      } else {
-        var titleCard = el('div', { class: 'card-title', text: '⚔ 选择战役' });
-        wrapper.appendChild(titleCard);
-        data.campaigns.slice().reverse().forEach(function (c) {
-          wrapper.appendChild(renderCampaignCard(c));
-        });
-      }
-    }).catch(function () {
-      wrapper.innerHTML = '';
+    var wrapper = el('div', null, []);
+    var data = allSavesData;
+    if (!data || !data.campaigns || !data.campaigns.length) {
       wrapper.appendChild(renderNoCampaignsHint());
-    });
+    } else {
+      wrapper.appendChild(el('div', { class: 'card-title', text: '⚔ 选择战役' }));
+      data.campaigns.slice().reverse().forEach(function (c) {
+        wrapper.appendChild(renderCampaignCard(c));
+      });
+    }
     return wrapper;
   }
 
@@ -1798,10 +1780,8 @@
         moduleList.style.display = toggled ? '' : 'none';
         if (toggled && !moduleList._loaded) {
           moduleList._loaded = true;
-          var loadingRow = el('div', { style: 'padding:7px 0;font-size:12px;color:var(--text-mute)', text: '加载中…' });
-          moduleList.appendChild(loadingRow);
-          fetchJson('state/modules-index.json').then(function (data) {
-            moduleList.innerHTML = '';
+          var data = modulesIndexData;
+          moduleList.innerHTML = '';
             if (!data || !data.modules || !data.modules.length) {
               moduleList.appendChild(el('div', { style: 'padding:7px 0;font-size:12px;color:var(--text-dim)', text: '暂无模组数据' }));
               return;
@@ -1826,10 +1806,6 @@
               }, [nameSpan, metaSpan, startBtn].filter(Boolean));
               moduleList.appendChild(row);
             });
-          }).catch(function () {
-            moduleList.innerHTML = '';
-            moduleList.appendChild(el('div', { style: 'padding:7px 0;font-size:12px;color:var(--hp-bad)', text: '加载失败' }));
-          });
         }
       };
       box.appendChild(toggleBtn);
@@ -1878,28 +1854,57 @@
     root.appendChild(renderActions(data.mode));
   }
 
+  // 从 v2 推送 payload.sources 装配数据并渲染
+  function ingest(payload) {
+    var sources = (payload && payload.sources) || {};
+
+    // 1) 战役实体索引（弹窗用）：campaignFiles 是 collection，
+    //    entry.path 形如 campaigns/<战役名>/<characters|npcs|companions>/<名>.json
+    campaignIndex = {};
+    var cf = sources.campaignFiles && sources.campaignFiles.entries;
+    if (Array.isArray(cf)) {
+      cf.forEach(function (e) {
+        var parts = (e.path || '').split(/[\/\\]/).filter(Boolean);
+        if (parts.length < 4 || parts[0] !== 'campaigns') return;
+        var camp = normCampaign(parts[1]);
+        var type = parts[parts.length - 2];                 // characters | npcs | companions
+        var name = parts[parts.length - 1].replace(/\.json$/i, '');
+        var obj = e.parsed;
+        if (!obj && e.content) { try { obj = JSON.parse(e.content); } catch (x) { obj = null; } }
+        if (!obj) return;
+        if (!campaignIndex[camp]) campaignIndex[camp] = {};
+        if (!campaignIndex[camp][type]) campaignIndex[camp][type] = {};
+        campaignIndex[camp][type][name] = obj;
+      });
+    }
+
+    // 2) 索引 source：all-saves / modules-index
+    allSavesData = (sources.allSaves && sources.allSaves.kind === 'json') ? sources.allSaves.data : null;
+    modulesIndexData = (sources.modulesIndex && sources.modulesIndex.kind === 'json') ? sources.modulesIndex.data : null;
+
+    // 3) 会话态 session.json
+    var data = (sources.session && sources.session.kind === 'json') ? sources.session.data : null;
+    if (!data) { render({ mode: 'idle', players: [], lastUpdate: null }); return; }
+    if (!data.mode) data.mode = 'idle';
+
+    // 4) 存档列表由 all-saves 按当前战役派生（替代 v1 的 session.saves[]）
+    data.saves = deriveSaves(data, allSavesData);
+
+    render(data);
+  }
+
   // === Data wiring ===
   if (typeof skillPanel !== 'undefined') {
-    skillPanel.onData(function (payload) {
-      var raw = payload.files['state/threads/{threadId}/panel-data.json'] || '';
-      if (!raw) {
-        render({ mode: 'idle', players: [], lastUpdate: null });
-        return;
-      }
-      try {
-        var data = JSON.parse(raw);
-        if (!data.mode) data.mode = 'idle';
-        render(data);
-      } catch (e) {
-        document.getElementById('root').innerHTML =
-          '<div class="empty" style="color:var(--hp-bad)">⚠ panel-data.json 解析失败：' +
-          e.message + '</div>';
-      }
-    });
+    skillPanel.onData(ingest);
     skillPanel.ready();
+  } else if (window.__PANEL_SOURCES__) {
+    // 预览模式（v2）：window.__PANEL_SOURCES__ = { session, campaignFiles, allSaves, modulesIndex }
+    ingest({ sources: window.__PANEL_SOURCES__ });
   } else if (window.__PANEL_PREVIEW__) {
-    // 预览模式：直接渲染挂在 window 上的 mock 数据
-    render(window.__PANEL_PREVIEW__);
+    // 旧预览模式：直接挂一份组装好的 data
+    var d = window.__PANEL_PREVIEW__;
+    if (d && !d.mode) d.mode = 'idle';
+    render(d);
   }
 </script>
 </body>
