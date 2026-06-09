@@ -120,6 +120,7 @@ players: [{ name: 羽痕, ... }]
 
 开桌前必须 Write 出以下文件（用模板，详见 §I10）：
 
+0. **🎚️ `.fathom-panels/dnd5r/threads/<threadId>/session.json`** —— **面板的命根子，第一件就写**（`mode=I` + campaign + players + sandbox 初值；threadId 取自 `<workspace>/.fathom-context.json`，无该文件的 Claude Code 环境才跳过）。**不写它，面板永远停在"未开桌"**——玩家一眼可见。Schema 与状态行见 [SKILL.md §session.json / §状态行](SKILL.md)。
 1. **`sandbox/calendar.md`** — 历法 + 当前日期 + 已知未来事件（节日 / 季节性事件 / 玩家已知截止日）
 2. **`sandbox/locations/<起始地>.md`** — 起始地的详细档案（街区 / 主要建筑 / 已知 NPC 名单 / 物价水准 / 治安）
 3. **`sandbox/downtime-menu.md`** — 当前角色可用的 downtime 行动（按角色技能 / 阶级 / 现金过滤）
@@ -156,7 +157,7 @@ players: [{ name: 羽痕, ... }]
 
 ### I2.2 推进循环（每段重复）
 
-每段玩家声明 → DM 推进 → 触发事件 → 结果叙事 → 下一段。
+每段玩家声明 → DM 推进 → 触发事件 → 结果叙事 → **状态有变化则先写 session.json、再在回复结尾发一行 `〔状态〕` 状态行**（见 [SKILL.md §状态行](SKILL.md)；HP/位置/时间/沙盒态任一变化即必写必发） → 下一段。
 
 1. **玩家声明本段做什么**
 2. **DM 判定**：

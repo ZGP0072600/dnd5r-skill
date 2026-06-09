@@ -182,6 +182,42 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 - 状态**实际变化时再写**，叙事润色不写。写入 fire-and-forget，~200ms 内自动投影，不需要确认。
 - JSON 写坏（类型错/无效）面板顶部显示"解析失败"——用户告诉你时去 Read 看看。
+
+### 🎚️ 状态行（写 session.json 的 forcing-function · 防"未开桌"）
+
+> 上面的 session.json 指令都对、都清楚，但**实战最常见的事故是 AI 跑着叙事、压根没写 session.json**（尤其漏了开桌初始化）→ 面板一直停在"未开桌"。根治靠把"写盘"焊到一行**必须输出的可见状态行**上：LLM 对"输出字面格式"的遵从度远高于"执行不可见写盘"。这一行既是玩家可见 HUD，又是写盘的自检触发器。
+
+**🛑 铁律 0 · 开桌即初始化**：本对话一旦在跑战役（沙盒 I / 带团 G），**第一件事**就是确认 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 存在。不存在 → 立刻按 `mode=I`/`G` + campaign + players（+ sandbox/combat）初始化写出来。**没有它面板就是"未开桌"，玩家一眼可见。** （无 `.fathom-context.json` 的 Claude Code 环境才跳过。）
+
+**硬顺序（状态有变化的回合）**：① 定本回合状态变化 → ② **覆写** session.json 相关字段 + 刷 `lastUpdate` → ③ 回复**结尾**打一行与之**字面一致**的状态行。写盘在前、行只是回声 → 杜绝"打了行没落盘"。
+
+**核心行**（HP / 位置 / 时间 / 状态任一变化时发，每 PC 一行）：
+
+```
+〔状态〕王小明 HP34/34 AC20 | 态 — | ⏳风岚月17日·正午 | 📍王府庄园·餐厅
+```
+
+段 ⇔ 字段：`HP`→`players[i].hpCur/hpMax`、`AC`→`players[i].ac`、`态`→`players[i].status[]`（无→`—`）、`⏳`→`campaign.inGameTime`(+`timeOfDay`)、`📍`→`campaign.location`。
+
+**战斗行**（mode=G 战斗中，每回合发）：
+
+```
+〔战斗〕R3/T2 当前:僵尸A | 先攻 王小明17(34/34) · 僵尸A14(重伤)
+```
+
+⇔ `combat.round/.turnIndex/.currentActor/.initiative[]`（怪物 HP 用模糊档，遵守 G4）。
+
+**沙盒扩展行**（对应项变动时各补一条）：
+
+```
+〔同行〕阿芝莎 亲和 20→22         ⇔ sandbox.companions / keyRelationships
+〔委托〕+石拳拉货 582GP 截明日      ⇔ sandbox.activeCommissions（消解用 -）
+〔资产〕现金 -104GP（缴港务税）     ⇔ sandbox.assetsBrief
+〔时间〕风岚月17日·正午 → 下午      ⇔ campaign.inGameTime/timeOfDay
+```
+
+**何时不发**：纯查证 / 纯规则问答 / 纯叙事润色且状态零变化 → 不写盘、也不发行（沿用"实际变化才写"）。但**只要 HP / 位置 / 时间 / 战斗 / 沙盒态有任何变化，就必须先写 session.json 再发核心行**——这一行就是你"没漏写"的证据。
+
 ## Panel 详情弹窗 + 卡片 JSON（玩家视角投影）
 
 面板上的玩家行 / 关键关系 / 同行 NPC 可点击 → 弹出详情卡片，**不调 AI**。**v2 下这些 JSON 由面板从推送数据内联读取**（不再 fetch、不再有"档案缺失 404"）——给玩家"零延迟浏览"，但代价不变：你改 NPC / 玩家状态时必须**同步维护对应 JSON**，否则面板显示旧数据。
