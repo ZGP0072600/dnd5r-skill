@@ -47,19 +47,23 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 **示范战役**：[campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
 
-**全局存档索引**：`.fathom-panels/dnd5r/all-saves.json`（跨 thread、跨战役；相对 cwd=workspace 写）。panel 自动投影此文件渲染战役浏览器与 G/I 模式存档列表——无需 AI 参与显示。Schema：
+**全局存档索引**：`.fathom-panels/dnd5r/all-saves.json`（跨 thread、跨战役；相对 cwd=workspace 写）。panel 自动投影此文件渲染战役浏览器与 G/I 模式存档列表——无需 AI 参与显示。
+> **`mode` / `inGameTime` 是读档关键字段**：用户激活存档时，**Fathom 据此直接写当前 thread 的 `session.json`**（panel 因此切到该战役并显示队伍/进度），**不依赖 AI**。所以这两个字段必须准确——它们是"读档能不能让面板亮起来"的唯一依据。
 
-```json
+```jsonc
 {
   "_schema": "all-saves-v1",
   "campaigns": [
     {
       "name": "风骸岛之龙-小明组",
+      "mode": "G",                 // 🆕 "G"=模组带团 / "I"=沙盒。读档时 Fathom 据此写 session.json.mode
       "module": "风骸岛之龙",
       "dmStyle": "粉红恋爱向",
       "lastPlayed": "2026-05-29",
       "saves": [
-        { "name": "第一章开头", "createdAt": "2026-05-29 14:30", "chapter": "第一章·巨龙休息处", "location": "渡口码头" }
+        { "name": "第一章开头", "createdAt": "2026-05-29 14:30",
+          "chapter": "第一章·巨龙休息处", "location": "渡口码头",
+          "inGameTime": "晨晖月 12 日 · 上午" }   // 🆕 读档时填入 session.campaign.inGameTime
       ]
     }
   ]
@@ -67,8 +71,8 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 ```
 
 维护规则（**AI 硬约束**）：
-- **G1 开新战役**：Read `all-saves.json` → 若 `campaigns[]` 中已有同名条目则跳过，否则追加 `{name, module, dmStyle, lastPlayed: 今日, saves: []}` → Write
-- **S1 新建存档**：Read `all-saves.json` → 找到对应 campaign → 在其 `saves[]` 末尾追加 `{name, createdAt, chapter, location}` → Write
+- **G1/I1 开新战役**：Read `all-saves.json` → 若 `campaigns[]` 中已有同名条目则跳过，否则追加 `{name, mode:"G"|"I"（带团=G/沙盒=I）, module, dmStyle, lastPlayed: 今日, saves: []}` → Write。**`mode` 必填**——Fathom 读档时据它写 session.json。
+- **S1 新建存档**：Read `all-saves.json` → 找到对应 campaign → 在其 `saves[]` 末尾追加 `{name, createdAt, chapter, location, inGameTime}`（`inGameTime` = 当前 in-game 时间，与 world-state.md / session 一致）→ Write
 - **G6 桌末**：Read `all-saves.json` → 更新对应 campaign 的 `lastPlayed` 为今日 → Write
 - **写入方式**：Read → 改字段 → Write 整份（不要部分 patch）
 
