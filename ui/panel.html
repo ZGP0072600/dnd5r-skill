@@ -1941,17 +1941,33 @@
     return out;
   }
   function hudFromCanonical(c) {
-    if (!c || !c.combat || c.combat.hpCur == null || !c.meta) return null;   // 仅 canonical 富 schema（旧 v1 返回 null → 不接管）
-    var lvl = (c.meta.classes || []).reduce(function (s, x) { return s + (x.level || 0); }, 0);
-    var acBase = (c.combat.acBase || 0) + (c.combat.acBonus || 0);
-    var sh = (c.equipment && c.equipment.shield && c.equipment.shield.equipped) ? (c.equipment.shield.ac || 0) : 0;
-    return {
-      name: c.meta.name,
-      class: (c.meta.classes || []).map(function (x) { return x.name + ' ' + x.level; }).join(' / '),
-      hpCur: c.combat.hpCur, hpMax: c.combat.hpMax, ac: acBase + sh,
-      xp: (c.meta.xp != null && XP_NEXT[lvl]) ? { cur: c.meta.xp, next: XP_NEXT[lvl], level: lvl } : null,
-      status: hudStatus(c.combat)
-    };
+    if (!c || !c.combat) return null;
+    // canonical 富 schema（combat.hpCur）：完整派生
+    if (c.combat.hpCur != null && c.meta) {
+      var lvl = (c.meta.classes || []).reduce(function (s, x) { return s + (x.level || 0); }, 0);
+      var acBase = (c.combat.acBase || 0) + (c.combat.acBonus || 0);
+      var sh = (c.equipment && c.equipment.shield && c.equipment.shield.equipped) ? (c.equipment.shield.ac || 0) : 0;
+      return {
+        name: c.meta.name,
+        class: (c.meta.classes || []).map(function (x) { return x.name + ' ' + x.level; }).join(' / '),
+        hpCur: c.combat.hpCur, hpMax: c.combat.hpMax, ac: acBase + sh,
+        xp: (c.meta.xp != null && XP_NEXT[lvl]) ? { cur: c.meta.xp, next: XP_NEXT[lvl], level: lvl } : null,
+        status: hudStatus(c.combat)
+      };
+    }
+    // 旧 character-v1（combat.hp.cur）兜底：未迁移战役也能派生 HUD（HP/AC/职业）。
+    // v1 无 live 状态/经验字段 → status/xp 留空，由 ingest 从 session 同名角色并入。
+    if (c.combat.hp && c.combat.hp.cur != null) {
+      var ac1 = c.combat.ac;
+      return {
+        name: c.name || (c.meta && c.meta.name) || '?',
+        class: c.classSummary || (c.classes || []).map(function (x) { return x.name + ' ' + (x.level || ''); }).join(' / '),
+        hpCur: c.combat.hp.cur, hpMax: c.combat.hp.max,
+        ac: ac1 == null ? null : (typeof ac1 === 'object' ? ac1.base : ac1),
+        xp: null, status: []
+      };
+    }
+    return null;
   }
 
   // 从 v2 推送 payload.sources 装配数据并渲染
@@ -1997,8 +2013,19 @@
       var hudCamp = campaignIndex[normCampaign(data.campaign.name)];
       var hudChars = hudCamp && hudCamp.characters;
       if (hudChars) {
-        var richHud = Object.keys(hudChars).map(function (nm) { return hudFromCanonical(hudChars[nm]); }).filter(Boolean);
-        if (richHud.length) data.players = richHud;
+        var derived = Object.keys(hudChars).map(function (nm) { return hudFromCanonical(hudChars[nm]); }).filter(Boolean);
+        if (derived.length) {
+          // HP/AC/职业 以角色 json 为准（单一真源）。派生出的 status/xp 若为空（旧 v1 无这些字段），
+          // 从 session 里同名角色并入 —— 既修读档空 HUD，又不丢进行中旧 session 的状态/经验。
+          var sessBy = {};
+          (data.players || []).forEach(function (p) { if (p && p.name) sessBy[p.name] = p; });
+          derived.forEach(function (p) {
+            var sp = sessBy[p.name];
+            if ((!p.status || !p.status.length) && sp && sp.status && sp.status.length) p.status = sp.status;
+            if (p.xp == null && sp && sp.xp) p.xp = sp.xp;
+          });
+          data.players = derived;
+        }
       }
     }
     if (!data.players) data.players = [];

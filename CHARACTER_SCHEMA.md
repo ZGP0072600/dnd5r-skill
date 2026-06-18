@@ -197,7 +197,9 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
 - 旧 `characters/<X>.json`（`character-v1` 镜像）→ 由 canonical 取代；panel 不再读它。
 - **多数迁移近乎"搬运"**：`.tmp/<X>-sheet.json` 已是富 schema（≈canonical），补上 §3 的 🆕 字段即可。
 - `migrate.py`：读 旧 v1 + 角色卡内嵌 JSON + `.md` 数值表 → 合成 canonical；同时把 `.md` 的数值段剥离。
-- **兼容期**：panel 深投影函数对"已是 character-v1（含 `combat.hp.cur`）"的输入**原样返回**（`rich-to-v1.js` 已幂等），所以老战役未迁移也不崩，可懒迁移。
+- **兼容期**：老战役未迁移（仍 `character-v1`）也不崩、可懒迁移——两条派生路径都兼容 v1：
+  - **弹窗**：`richToV1` 对 v1 输入幂等原样返回，`renderCharacterModal` 直接渲染。
+  - **队伍 HUD**：`hudFromCanonical` 同时认 canonical（`combat.hpCur`）与 v1（`combat.hp.cur`）——v1 从 `combat.hp.cur/ac.base/classSummary` 派生 HP/AC/职业；v1 没有的 live 状态/经验从 session 同名角色并入。**这修复了"读档后未迁移战役 HUD 变空"的回归**（session 重建不带 players[] 时，仍能从 v1 角色 json 派生）。
 
 ---
 
