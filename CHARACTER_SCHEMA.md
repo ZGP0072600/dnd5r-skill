@@ -177,11 +177,20 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
 
 > 这样 `.md`（散文）与 JSON（数值）**零重叠** → 双写约束消失。viewer 改读 JSON 拿数值、读 `.md` 只渲染叙事/NPC 段。
 
-## 6. NPC / 同行（后续阶段细化）
+## 6. NPC / 同行（canonical 单一真源）
 
-同一原则适用，但 schema 不同，本阶段先占位、阶段2/3 细化：
-- **companions/<名>.json**：canonical 角色的**子集**（abilities/combat/attacks/skills/features + type/owner/role）；角色卡已有 `char.companions[]` 内联同形，可直接复用。
-- **npcs/<名>.json**：**社交 schema**（`npc-v1`：relationship/stageTable/knownFacts/canAskFor/preferences/giftHints…），与角色 statblock 是两类东西，保持独立。NPC 的 🔒 秘密仍只在 `dm-only/npcs-secrets/<X>.md`。
+与玩家角色同源精神，但 NPC/同行**是社交/散文为主、几乎无可计算字段** → **不做派生，面板直接渲染 JSON**。各写一份，**无 .md 镜像、无双写**。
+
+### npcs/<X>.json — NPC 公开档案（`_schema: "npc-v1"`，canonical）
+- 字段：`name / fullName / aliases[] / basics{race,gender,age,occupation,location} / appearance / background / personality / currentSituation / relationship{stage,affinity,affinityMax,romance,summary,knownSince,lastSeen,lastInteraction} / stageTable[] / knownFacts[] / canAskFor[] / combatAbilities[] / preferences{likes,dislikes} / giftHints[]`
+- 🆕 `notes`（string，可选）：放不进上述字段的自由散文（NPC 日常作息、互动史片段等）。
+- **唯一真源**：NPC 公开信息全写这里（含 prose 字段）→ 面板弹窗直接渲染。**不再有公开 `npcs/<X>.md`**（旧的并入本 json）。
+- 🔒 G4 边界：只写玩家视角公开信息；真实身份 / 动机 / 揭示 DC / 未揭示事实 → 仅 `dm-only/npcs-secrets/<X>.md`。
+
+### companions/<X>.json — 同行 stat block（`_schema: "companion-v1"`，canonical）
+- 字段：`name / type / subtype / owner / role / description / combat{hp,ac,speed,init,size,senses} / attacks[{name,hit,damage,uses,type,notes}] / immunities[] / morphForms[] / modules[] / tools[] / tacticalNotes[]`
+- hit/damage 已是显示串（无派生）。本就 JSON 单源、无 .md。
+- **双重身份**（既是同行又是社交 NPC，如人形伙伴）：`companions/<X>.json`(战斗视图) + `npcs/<X>.json`(社交视图) 两份并存，各自单写、互不镜像。
 
 ## 7. 迁移要点（阶段4 执行）
 
@@ -192,7 +201,4 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
 
 ---
 
-## 待你拍板的两个细节
-
-1. **`equipment.items[].category`**：加这个可选字段让装备分组更准（武器/护甲/工具/消耗品/其它），还是省掉、纯靠 §4 兜底？我倾向**加但可选**（不填则兜底，迁移无压力）。
-2. **`_schema` 命名**：用 `character-canonical-v1`，还是你想要更短的（如 `char-2`）？
+> **已决议**：`equipment.items[].category` 加但可选（不填则按 §4 兜底分组）；schema 命名 — 角色 `character-canonical-v1`、NPC `npc-v1`、同行 `companion-v1`。

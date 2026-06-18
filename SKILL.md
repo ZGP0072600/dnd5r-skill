@@ -37,7 +37,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `campaigns/<战役名>/world-state.md` — in-game 时间 / 组织态势
 - `campaigns/<战役名>/house-rules.md` — 房规（玩家定义；涉及规则判定时优先查）
 - `campaigns/<战役名>/players/<角色名>.md` — 玩家**散文档案**（背景 / 已揭示信息 / 关系网 / DM 观察）。**数值在 canonical `.fathom-panels/dnd5r/campaigns/<战役名>/characters/<角色名>.json`，此处不写 HP / 属性 / 法术位 / 装备数值**（见 [CHARACTER_SCHEMA.md](CHARACTER_SCHEMA.md) §5）
-- `campaigns/<战役名>/npcs/<NPC名>.md` — NPC 公开档案（懒加载）
+- NPC 公开档案 → `.fathom-panels/dnd5r/campaigns/<战役名>/npcs/<NPC名>.json`（`npc-v1`，懒加载；**已无公开 .md**，见 §Panel 详情弹窗）
 - `campaigns/<战役名>/combat/active.md` — 当前战斗（结束后归档到 `history/NNN_*.md`）
 - `campaigns/<战役名>/sessions/session-NN.md` — 桌末日志
 - `campaigns/<战役名>/dm-only/dm-notes.md` — DM 私笔（🔒 不应给玩家看）
@@ -93,7 +93,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 > | 全局存档索引 | **`.fathom-panels/dnd5r/all-saves.json`** |
 > | 模组索引 | **`.fathom-panels/dnd5r/modules-index.json`** |
 >
-> ⚠️ 战役**叙事 `.md`**（`README.md`/`world-state.md`/`progress.md`/`players/*.md`/`npcs/*.md`/`dm-only/*`…）**位置不变**，仍在 workspace 根 **`campaigns/<战役名>/`** 下。只有上表那些**结构化 JSON** 在 `.fathom-panels/dnd5r/`。
+> ⚠️ 战役**叙事 `.md`**（`README.md`/`world-state.md`/`progress.md`/`players/*.md`(散文)/`dm-only/*`…）**位置不变**，仍在 workspace 根 **`campaigns/<战役名>/`** 下。只有上表那些**结构化 JSON** 在 `.fathom-panels/dnd5r/`。（NPC 公开档案已是 `.fathom-panels/.../npcs/*.json`，**不再有公开 `npcs/*.md`**。）
 > ⚠️ **绝不要**把这些 JSON 写到 workspace 根、写到 `.claude/skills/dnd5r/state/`（v1 旧址，已废弃）、或别的盘——都不是面板监听目录，写了看不到。
 
 ### session.json：本对话会话态（替代 v1 的 panel-data.json）
@@ -157,7 +157,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 ### 同步时机（写 session.json 的自然触点）
 
-> 只是"状态何时变化"的提醒——**写就完了，没有对账行、没有额外步骤**。涉及的卡片 `.json` 双写见《Panel 详情弹窗》。
+> 只是"状态何时变化"的提醒——**写就完了，没有对账行、没有额外步骤**。玩家/NPC/同行 各自的卡片 JSON 都是单一真源（已无双写），详见《Panel 详情弹窗》。
 
 > 玩家 HP/状态/资源/经验改 **canonical `characters/<X>.json`**；session.json 只管 campaign / module / combat / sandbox。
 
@@ -216,7 +216,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 面板上的玩家行 / 关键关系 / 同行 NPC 可点击 → 弹出详情卡片，**不调 AI**。**v2 下这些 JSON 由面板从推送数据内联读取**（不再 fetch、不再有"档案缺失 404"）——给玩家"零延迟浏览"。
 
 > **玩家角色（characters/）已统一为 canonical 单一真源**：你只写一份 canonical 角色 JSON（富 schema，见 [CHARACTER_SCHEMA.md](CHARACTER_SCHEMA.md)），面板自动深投影出队伍 HUD 与点击弹窗——**没有 .md 数值镜像、不需要双写**。`players/<X>.md` 只写散文（背景 / 已揭示信息 / 关系 / DM 观察）。
-> NPC / 同行（npcs/ companions/）**暂仍是 .md + .json 双写**（schema 未统一，后续阶段处理）——下面的双写约束只对它们生效。
+> **NPC（npcs/）/ 同行（companions/）同样是各自的 JSON 单一真源**：NPC 写 `npcs/<X>.json`（`npc-v1`，含 appearance/background/personality 等 prose 字段 + `notes`），同行写 `companions/<X>.json`（`companion-v1` stat block）——**都没有公开 .md 镜像、不需要双写**。NPC 的 🔒 秘密仍在 `dm-only/npcs-secrets/<X>.md`。NPC/同行 是社交/散文数据，面板**直接渲染**（无派生，区别于角色）。
 
 ### 文件位置
 
@@ -228,7 +228,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 ```
 
 **per-campaign**，跨 thread 共享（同战役在不同对话里看到的状态一致）。`<战役名>` 取自 session.json 的 `campaign.name`。
-⚠️ 这些是**结构化 JSON**，放 `.fathom-panels/dnd5r/campaigns/`。其中 `characters/` 是 **canonical 真源**（无对应 .md 数值）；`npcs/` 对应的**叙事 `.md`** 仍在 workspace 根 `campaigns/<战役名>/npcs/`（NPC 暂双写跨两根，见下）。
+⚠️ 这些都是**结构化 JSON 单一真源**，放 `.fathom-panels/dnd5r/campaigns/`：`characters/`(玩家)、`npcs/`(NPC 公开档案)、`companions/`(同行 stat block)。对应保留的 **.md** 只有：`campaigns/<战役名>/players/<X>.md`(玩家散文) 与 `dm-only/npcs-secrets/<X>.md`(NPC 🔒 秘密)；**公开 `npcs/<X>.md` 已废弃**（内容并入 `npcs/<X>.json`）。
 
 ### 三类 schema
 
@@ -262,20 +262,19 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `tools[{name, desc, escape}]`：携带道具
 - `tacticalNotes[]`：战术备注
 
-### 🚨 NPC / 同行 双写约束（玩家角色已免除）
+### ✅ 单一真源（双写已全部消除）
 
-> **玩家角色 `characters/` 不在此列**——它是 canonical 单一真源，`players/<X>.md` 只写散文（无数值），两者零重叠、无需同步。改 HP / 状态 / 资源 / 升级，**只改 `characters/<X>.json` 一处**。
->
-> 下面只对 **NPC / 同行**生效（其 schema 暂未统一，仍 .md + .json 双写）：
+> 玩家 / NPC / 同行 三类都**各写一份 JSON**，面板直接渲染或派生，**没有任何 .md ↔ .json 双写**：
 
-| 修改了什么 | 必须同步什么 |
-|---|---|
-| NPC 互动后改了 .md 的关系阶段 / 亲和度 / 已知信息 / lastSeen | `npcs/<X>.json` 对应字段 |
-| 同行受伤 / 学新技能（改了对应段落）| `companions/<X>.json` |
-| 战役新增 NPC | 同时建 `npcs/<X>.md` + `npcs/<X>.json` |
-| 战役新增同行 | 建 `companions/<X>.json`（若 ta 同时也是社交 NPC 还要 `npcs/<X>.json`）|
+| 实体 | 写哪一份（唯一真源） | 还需要的 .md |
+|---|---|---|
+| 玩家角色 | `characters/<X>.json`（canonical 富 schema，面板派生 HUD/弹窗） | `players/<X>.md` 只写散文（无数值） |
+| NPC | `npcs/<X>.json`（`npc-v1`，prose 字段 + `notes` 全在内；面板直接渲染） | 仅 `dm-only/npcs-secrets/<X>.md`（🔒 秘密）；**无公开 .md** |
+| 同行 | `companions/<X>.json`（`companion-v1` stat block；面板直接渲染） | 无 |
 
-**何时写**：和写 .md 在同一个 AI turn 里完成。不要拆成"先改 .md，下次再补 .json"——很容易忘。
+- **新增 NPC**：只建 `npcs/<X>.json`（公开信息全进 json 字段；秘密另起 `dm-only/npcs-secrets/<X>.md`）。
+- **新增同行**：建 `companions/<X>.json`；若 ta 同时是社交 NPC，再建 `npcs/<X>.json`（社交档案与 stat block 是两个视图，各自单写、互不镜像）。
+- **NPC 互动后**（关系阶段 / 亲和度 / 已知信息 / lastSeen 变化）：只改 `npcs/<X>.json` 对应字段，面板立即刷新。
 
 ### 🔒 G4 信息揭示边界（必读）
 
@@ -283,7 +282,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 - 🔒 NPC 真实身份 / 隐藏动机 / 揭示 DC（这些在 `dm-only/npcs-secrets/<X>.md`）
 - 🔒 DM 备注 / 行为预测 / 转化后规划
-- 🔒 玩家尚未揭示的事实（即使 .md 公开档案段也写了，但玩家通过 RP 还没问出来 → 不写 .json）
+- 🔒 玩家尚未揭示的事实（即使你作为 DM 知道某条公开事实，但玩家通过 RP 还没问出来 → 先不写进 json 的 `knownFacts`）
 - 🔒 未来章节剧情 / 即将触发的事件
 - 🔒 怪物精确 HP / AC / 数值（session.json 的怪物 HP 已用模糊档，同理）
 
@@ -770,7 +769,7 @@ PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法
    ├── world-state.md         起始 in-game 时间 + 地点 + 组织态势
    ├── house-rules.md         按 7 段模板填（无则全 `(空，按 RAW)`）
    ├── players/<角色名>.md    每人一份（HP / 法术位 / 资源 / 装备 / 角色已知信息）
-   ├── npcs/                  空，懒加载（玩家见 NPC 时创建公开档案）
+   │  (NPC 公开档案改存 .fathom-panels/dnd5r/campaigns/<战役名>/npcs/<X>.json，懒加载；无公开 .md)
    ├── combat/                空（战斗开始时创建 active.md）
    ├── sessions/              空（每桌结束写 session-NN.md）
    ├── homebrew/              空，按需创建（本战役专属自定义内容，见工作流 J；不需要则不建）
@@ -1058,7 +1057,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 3. **Edit** `progress.md`：标记章节进度、升级节点、新解钩子、追加已完成遭遇
 4. **Edit** `world-state.md`：推进 in-game 时间、地点变化、组织态势事件
 5. **Edit** `dm-only/dm-notes.md`：追加本桌触发的伏笔 / 救场用次 / 难度调整 / 玩家观察
-6. **Edit** `npcs/<X>.md`（本桌互动过的 NPC）：更新态度、互动历史；新见到的 NPC 创建公开档案
+6. **更新** `.fathom-panels/dnd5r/campaigns/<战役名>/npcs/<X>.json`（本桌互动过的 NPC）：关系阶段 / 亲和度 / lastSeen / 新揭示 knownFacts；新见到的 NPC 建 `npcs/<X>.json`
 7. **Edit** 战役 `README.md` frontmatter：`session_count += 1`
 8. **同步 Panel**（详见 §Panel 数据同步）：Write `.fathom-panels/dnd5r/threads/<threadId>/session.json` 同步桌末态——`campaign.inGameTime`（与 world-state.md 一致）、players（与 .md 一致的 HP/status）、`module.progress`（与 progress.md 一致）。**这一步保证用户下次切到 Fathom 看 panel 就能知道上次到哪。**
 
