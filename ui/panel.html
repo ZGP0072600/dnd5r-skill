@@ -963,7 +963,7 @@
   function showCharacter(name) {
     var data = lookupEntity('characters', name);
     if (!data) { openModal(name, '', errorEl('档案缺失：characters/' + name + '.json')); return; }
-    renderCharacterModal(data);
+    renderCharacterModal(richToV1(data));   // open 时投影：canonical 富 schema → 弹窗 v1 形状（对旧 v1 幂等）
   }
   function showNpc(name) {
     var data = lookupEntity('npcs', name);
@@ -1854,6 +1854,106 @@
     root.appendChild(renderActions(data.mode));
   }
 
+  // === 深投影：canonical 富 schema → 弹窗用的 character-v1 形状 ===
+  // 规则见 CHARACTER_SCHEMA.md §4（公式唯一真源）。对已是 character-v1 的旧数据幂等原样返回（兼容懒迁移）。
+  var richToV1 = (function () {
+    var SKILLS = { acrobatics: ['特技','dex'], animalHandling: ['驯兽','wis'], arcana: ['奥秘','int'],
+      athletics: ['运动','str'], deception: ['欺瞒','cha'], history: ['历史','int'], insight: ['洞悉','wis'],
+      intimidation: ['威吓','cha'], investigation: ['调查','int'], medicine: ['医疗','wis'], nature: ['自然','int'],
+      perception: ['察觉','wis'], performance: ['表演','cha'], persuasion: ['游说','cha'], religion: ['宗教','int'],
+      sleightOfHand: ['巧手','dex'], stealth: ['隐匿','dex'], survival: ['生存','wis'] };
+    var ABBR = { str:'力', dex:'敏', con:'体', int:'智', wis:'感', cha:'魅' };
+    var RESET = { shortRest:'短休', longRest:'长休', day:'每日', daily:'每日', perBattle:'每场战斗' };
+    function md(s) { return Math.floor(((s || 10) - 10) / 2); }
+    function sg(n) { return (n >= 0 ? '+' : '') + n; }
+    function isRich(o) { return o && o.meta && o.combat && o.combat.hpCur != null && o.abilities; }
+    return function (rich) {
+      if (!isRich(rich)) return rich;   // 非富 schema（含旧 character-v1）原样返回 → 幂等
+      var lvl = (rich.meta.classes || []).reduce(function (s, c) { return s + (c.level || 0); }, 0);
+      var pb = Math.ceil(lvl / 4) + 1;
+      var ab = rich.abilities, mods = {};
+      Object.keys(ABBR).forEach(function (k) { mods[k] = md(ab[k] && ab[k].score); });
+      var outAb = {};
+      Object.keys(ABBR).forEach(function (k) {
+        var a = ab[k] || {};
+        outAb[k] = { score: a.score, mod: sg(mods[k]), save: sg(mods[k] + (a.saveProf ? pb : 0) + (a.saveBonus || 0)), proficient: !!a.saveProf };
+      });
+      var sk = rich.skills || {}, gB = sk.globalBonus || 0, outSkills = [];
+      Object.keys(SKILLS).forEach(function (id) {
+        var s = sk[id]; if (!s || !s.prof || s.prof === 'none') return;
+        var mult = (s.prof === 'expertise' || s.prof === 'expert') ? 2 : (s.prof === 'prof' ? 1 : 0), abi = SKILLS[id][1];
+        outSkills.push({ name: SKILLS[id][0] + (mult === 2 ? '（专精）' : ''), ability: ABBR[abi], bonus: sg(mods[abi] + mult * pb + gB + (s.bonus || 0)), proficient: true });
+      });
+      var cb = rich.combat, acB = (cb.acBase || 0) + (cb.acBonus || 0);
+      var shAc = (rich.equipment && rich.equipment.shield && rich.equipment.shield.equipped) ? (rich.equipment.shield.ac || 0) : 0;
+      var pPerc = (function () { var s = sk.perception; if (!s || !s.prof) return mods.wis; var m = (s.prof === 'expertise') ? 2 : 1; return mods.wis + m * pb + gB + (s.bonus || 0); })();
+      var combat = { hp: { cur: cb.hpCur, max: cb.hpMax },
+        ac: { base: acB + shAc, withShield: shAc ? acB + shAc : 0, armor: (rich.equipment && rich.equipment.armor && rich.equipment.armor.name) || '' },
+        speed: (cb.speed != null ? cb.speed + ' ft' : '-'), init: sg(mods.dex + (cb.initBonus || 0)),
+        passivePerc: 10 + pPerc, profBonus: sg(pb), senses: cb.senses || '' };
+      var outAtk = (rich.attacks || []).map(function (a) {
+        var hit = mods[a.ability] + pb + (a.attackBonus || 0);
+        var df = a.damageBonus ? (a.damageBonus > 0 ? '+' + a.damageBonus : '' + a.damageBonus) : '';
+        return { name: a.name, hit: sg(hit), damage: a.damage + df + (a.damageType ? ' ' + a.damageType : ''), notes: a.properties || '' };
+      });
+      var outRes = (rich.classResources || []).map(function (r) {
+        var u = (r.used || []).filter(Boolean).length;
+        return { name: r.label, cur: (r.max || 0) - u, max: r.max || 0, reset: RESET[r.resetType] || r.resetType || '' };
+      });
+      var spells = null, spc = rich.spellcasting;
+      if (spc && spc.castingAbility) {
+        var hasSlot = Object.keys(spc.slots || {}).some(function (L) { return (spc.slots[L].max || 0) > 0; });
+        if (hasSlot || (spc.cantrips || []).length) {
+          var cm = mods[spc.castingAbility] || 0;
+          spells = { casterAbility: ABBR[spc.castingAbility] || spc.castingAbility, spellAttack: sg(pb + cm + (spc.extraAttackBonus || 0)),
+            spellSaveDC: 8 + pb + cm + (spc.extraDcBonus || 0), cantripsKnown: (spc.cantrips || []).map(function (c) { return c.name; }),
+            level1Prepared: (spc.spells || []).filter(function (s) { return s.lvl === 1; }).map(function (s) { return s.name; }) };
+        }
+      }
+      var eq = rich.equipment || {};
+      var equipment = { weapons: (rich.attacks || []).map(function (a) { return a.name; }),
+        armor: [eq.armor && eq.armor.name, eq.shield && eq.shield.name].filter(Boolean),
+        tools: (eq.items || []).filter(function (i) { return i.category === 'tool'; }).map(function (i) { return i.name + (i.qty > 1 ? ' ×' + i.qty : ''); }),
+        other: (eq.items || []).filter(function (i) { return i.category !== 'tool'; }).map(function (i) { return i.name + (i.qty > 1 ? ' ×' + i.qty : ''); }) };
+      var w = rich.wealth || {}, coins = [];
+      ['pp','gp','ep','sp','cp'].forEach(function (c) { if (w[c]) coins.push(w[c] + ' ' + c.toUpperCase()); });
+      var wealth = { cash: coins.join(' / ') || '-', property: w.property || '', goods: w.goods || '' };
+      var classSummary = (rich.meta.classes || []).map(function (c) { return c.name + ' ' + c.level + (c.subclass ? '（' + c.subclass + '）' : ''); }).join(' / ');
+      return { _schema: 'character-v1', _projected: true, name: rich.meta.name,
+        race: rich.meta.race ? (rich.meta.race.name + (rich.meta.race.subrace ? '（' + rich.meta.race.subrace + '）' : '')) : '',
+        alignment: rich.meta.alignment, background: rich.meta.background, classSummary: classSummary, classes: rich.meta.classes,
+        appearance: rich.meta.appearance || '', combat: combat, abilities: outAb, skills: outSkills, attacks: outAtk,
+        resources: outRes, spells: spells, keyFeatures: (rich.features || []).map(function (f) { return { name: f.name, source: f.source, desc: f.desc }; }),
+        equipment: equipment, wealth: wealth, sheetPath: (rich.meta && rich.meta.sheetPath) || rich.sheetPath || '' };
+    };
+  })();
+
+  // === HUD 派生（方案A）：队伍行的 HP/AC/职业/状态/经验从 canonical 角色派生 ===
+  // session.json 不再存 players[] 血量；HP 等唯一真源在 canonical 角色 JSON。规则见 CHARACTER_SCHEMA.md §4。
+  var XP_NEXT = { 1:300, 2:900, 3:2700, 4:6500, 5:14000, 6:23000, 7:34000, 8:48000, 9:64000, 10:85000,
+    11:100000, 12:120000, 13:140000, 14:165000, 15:195000, 16:225000, 17:265000, 18:305000, 19:355000, 20:0 };
+  function hudStatus(cb) {
+    if (!cb) return [];
+    var out = [];
+    (cb.statusEffects || []).forEach(function (s) { if (s) out.push(s); });   // 字符串条件
+    if (cb.concentration && cb.concentration.spellName) out.push({ name: '专注:' + cb.concentration.spellName, type: 'conc' });
+    (cb.buffs || []).forEach(function (b) { if (b && b.name) out.push({ name: b.name, type: b.conc ? 'conc' : 'buff' }); });
+    return out;
+  }
+  function hudFromCanonical(c) {
+    if (!c || !c.combat || c.combat.hpCur == null || !c.meta) return null;   // 仅 canonical 富 schema（旧 v1 返回 null → 不接管）
+    var lvl = (c.meta.classes || []).reduce(function (s, x) { return s + (x.level || 0); }, 0);
+    var acBase = (c.combat.acBase || 0) + (c.combat.acBonus || 0);
+    var sh = (c.equipment && c.equipment.shield && c.equipment.shield.equipped) ? (c.equipment.shield.ac || 0) : 0;
+    return {
+      name: c.meta.name,
+      class: (c.meta.classes || []).map(function (x) { return x.name + ' ' + x.level; }).join(' / '),
+      hpCur: c.combat.hpCur, hpMax: c.combat.hpMax, ac: acBase + sh,
+      xp: (c.meta.xp != null && XP_NEXT[lvl]) ? { cur: c.meta.xp, next: XP_NEXT[lvl], level: lvl } : null,
+      status: hudStatus(c.combat)
+    };
+  }
+
   // 从 v2 推送 payload.sources 装配数据并渲染
   function ingest(payload) {
     var sources = (payload && payload.sources) || {};
@@ -1874,6 +1974,7 @@
         if (!obj) return;
         if (!campaignIndex[camp]) campaignIndex[camp] = {};
         if (!campaignIndex[camp][type]) campaignIndex[camp][type] = {};
+        // 存原始 canonical：弹窗 open 时再 richToV1 投影、HUD 也从原始派生；companions/npcs 原样。
         campaignIndex[camp][type][name] = obj;
       });
     }
@@ -1889,6 +1990,18 @@
 
     // 4) 存档列表由 all-saves 按当前战役派生（替代 v1 的 session.saves[]）
     data.saves = deriveSaves(data, allSavesData);
+
+    // HUD 队伍行（方案A）：当前战役有 canonical 富 schema 角色时，从中派生 HP/AC/状态/经验，
+    // 作为唯一真源覆盖 session；无富 schema（未迁移战役）则保留 session.players（兼容回退）。
+    if (data.campaign && data.campaign.name) {
+      var hudCamp = campaignIndex[normCampaign(data.campaign.name)];
+      var hudChars = hudCamp && hudCamp.characters;
+      if (hudChars) {
+        var richHud = Object.keys(hudChars).map(function (nm) { return hudFromCanonical(hudChars[nm]); }).filter(Boolean);
+        if (richHud.length) data.players = richHud;
+      }
+    }
+    if (!data.players) data.players = [];
 
     render(data);
   }

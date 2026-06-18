@@ -36,7 +36,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `campaigns/<战役名>/progress.md` — 章节进度
 - `campaigns/<战役名>/world-state.md` — in-game 时间 / 组织态势
 - `campaigns/<战役名>/house-rules.md` — 房规（玩家定义；涉及规则判定时优先查）
-- `campaigns/<战役名>/players/<角色名>.md` — 玩家状态（AI 视角）
+- `campaigns/<战役名>/players/<角色名>.md` — 玩家**散文档案**（背景 / 已揭示信息 / 关系网 / DM 观察）。**数值在 canonical `.fathom-panels/dnd5r/campaigns/<战役名>/characters/<角色名>.json`，此处不写 HP / 属性 / 法术位 / 装备数值**（见 [CHARACTER_SCHEMA.md](CHARACTER_SCHEMA.md) §5）
 - `campaigns/<战役名>/npcs/<NPC名>.md` — NPC 公开档案（懒加载）
 - `campaigns/<战役名>/combat/active.md` — 当前战斗（结束后归档到 `history/NNN_*.md`）
 - `campaigns/<战役名>/sessions/session-NN.md` — 桌末日志
@@ -108,7 +108,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 ### session.json Schema（`session-v2`）
 
-= v1 panel-data 去掉 `saves[]`，其余字段不变：
+= 去掉 `saves[]` 与 `players[]`（方案A：队伍 HUD 由 canonical 角色派生），其余字段不变：
 
 ```jsonc
 {
@@ -121,17 +121,8 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
     "weather": "雾",                            // 可选：晴/阴/雨/雷雨/雪/雾/风 —— 触发图标
     "location": "巨龙休息处修道院"               // 玩家视角自然描述（不写编号 D5/A1，遵守 G4）
   },
-  "players": [                                 // mode=idle 时 []
-    {
-      "name": "羽痕", "class": "术士 3", "hpCur": 18, "hpMax": 24, "ac": 13,
-      "xp": { "cur": 1450, "next": 2700, "level": 3 },  // 可选；PHB24 XP
-      "status": [
-        "中毒",
-        { "name": "专注:祝福术", "type": "conc" },
-        { "name": "炼金研究", "type": "long", "duration": "剩 12 天" }
-      ]
-    }
-  ],
+  // ⛔ players[] 已移除（方案A）：队伍 HUD（HP/AC/职业/状态/经验）由面板从 canonical
+  //    characters/<X>.json 自动派生。玩家血量/状态/资源一律写 canonical，不写 session.json。
   "module": null | { "name": "风骸岛之龙", "currentChapter": "第二章：海藻洞穴", "progress": "已完成 3/6 遭遇" },  // 仅 mode=G
   "combat": null | {                           // 仅战斗进行中
     "round": 3, "turnIndex": 2, "currentActor": "僵尸 A",
@@ -156,10 +147,10 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 1. **怪物 HP 用模糊档**（遵守 G4）：`"健康"/"轻伤"/"重伤"/"濒死"`，绝不写精确数值。PC 用精确值 `"18/24"`。
 2. **location 写玩家视角自然描述**（`"圆顶大厅"`），绝不写 DM 索引编号（`"D5"`）。
-3. **status chip 两形式**：字符串（`"中毒"`、`"专注:祝福术"`自动识别金 chip）或对象 `{name, type, duration?}`。`type` ∈ `conc`(金)/`buff`(绿)/`debuff`(红)/`long`(紫)/`pos`(蓝)。
+3. **玩家 HP/状态不在 session 写**（方案A）：PC 的血量/状态/资源写进 canonical `characters/<X>.json`（`combat.hpCur` / `combat.statusEffects`(字符串数组) / `combat.concentration` / `combat.buffs` / `classResources[].used`），面板自动派生队伍 HUD 与 chip 颜色。session.json 只管 campaign / combat / sandbox。
 4. **companions type 图标**：`lover/partner/spouse`(💕)、`pet/familiar`(🐾)、`mercenary/hireling`(⚔)、`summon`(✨)、`wildshape`(🐺)、`steeldefender`(🤖)、`ally/follower`(🤝👤)、`prisoner/captive`(⛓)、`thrall`(🔒)。`hp` 可选。
 5. **timeOfDay / weather** 可选，给面板渲染图标用的简短词。
-6. **xp** 仅 PHB24 XP 系统时填，milestone 不填；`level` 可省。
+6. **xp** 写在 canonical `meta.xp`（数字）——面板按 PHB24 等级表自动派生经验条；milestone 制不填。
 7. **assetsBrief** 字符串或数组都支持。
 8. **写入方式**：`Read` → 改字段 → `Write` 整份（不要部分 patch）；`lastUpdate` 每次更新为当前 ISO 时间。
 9. **写错位置自查**：路径里必须有 `.fathom-panels/dnd5r/threads/thr_xxx/`。写成 `state/...`（v1 旧址）或 workspace 根，面板看不到——倒回去重写。
@@ -168,15 +159,17 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 > 只是"状态何时变化"的提醒——**写就完了，没有对账行、没有额外步骤**。涉及的卡片 `.json` 双写见《Panel 详情弹窗》。
 
-| 时机 | session.json 改哪些 |
-|---|---|
-| 切入带团 G1 | `mode=G`、campaign 整段、players 全员、module 初值、combat=null、sandbox=null |
-| 切入沙盒 I1 | `mode=I`、campaign、players、module=null、sandbox 初值（含 companions） |
-| 收桌 / 切回查证 | `mode=idle`（其他字段可保留，回面板还能看上次态） |
-| G2 推进每轮 | players（HP/status/xp）、campaign（inGameTime/timeOfDay/weather/location）、module.progress |
-| G3 战斗 | 开始写 `combat` 整段；每回合更 round/turnIndex/currentActor/initiative HP；结束置 null、同步最终 HP、清临时 chip |
-| G6 桌末 | campaign 时间、players、module.progress 同步到桌末态 |
-| I 时间推进/接委托/关系演进 | sandbox 整段、campaign 时间 |
+> 玩家 HP/状态/资源/经验改 **canonical `characters/<X>.json`**；session.json 只管 campaign / module / combat / sandbox。
+
+| 时机 | 写 canonical characters/ | 写 session.json |
+|---|---|---|
+| 切入带团 G1 | 确保全员 `characters/<X>.json` 存在 | `mode=G`、campaign 整段、module 初值、combat=null、sandbox=null |
+| 切入沙盒 I1 | 确保全员 `characters/<X>.json` 存在 | `mode=I`、campaign、module=null、sandbox 初值（含 companions）|
+| 收桌 / 切回查证 | — | `mode=idle`（其他字段可保留，回面板还能看上次态）|
+| G2 推进每轮 | 受影响 PC 的 hpCur / statusEffects / concentration / classResources / xp | campaign（inGameTime/timeOfDay/weather/location）、module.progress |
+| G3 战斗 | 每个受伤 PC 改 hpCur、加/清状态 | `combat` 整段；每回合更 round/turnIndex/currentActor/initiative HP；结束置 null |
+| G6 桌末 | 全员最终 hpCur / 资源 / 升级 | campaign 时间、module.progress 同步到桌末态 |
+| I 时间推进/接委托/关系演进 | 如涉及 PC 资源/状态变化 | sandbox 整段、campaign 时间 |
 
 ### 实践提示
 
@@ -187,7 +180,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 > 上面的 session.json 指令都对、都清楚，但**实战最常见的事故是 AI 跑着叙事、压根没写 session.json**（尤其漏了开桌初始化）→ 面板一直停在"未开桌"。根治靠把"写盘"焊到一行**必须输出的可见状态行**上：LLM 对"输出字面格式"的遵从度远高于"执行不可见写盘"。这一行既是玩家可见 HUD，又是写盘的自检触发器。
 
-**🛑 铁律 0 · 开桌即初始化**：本对话一旦在跑战役（沙盒 I / 带团 G），**第一件事**就是确认 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 存在。不存在 → 立刻按 `mode=I`/`G` + campaign + players（+ sandbox/combat）初始化写出来。**没有它面板就是"未开桌"，玩家一眼可见。** （无 `.fathom-context.json` 的 Claude Code 环境才跳过。）
+**🛑 铁律 0 · 开桌即初始化**：本对话一旦在跑战役（沙盒 I / 带团 G），**第一件事**就是确认 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 存在（不存在 → 立刻按 `mode=I`/`G` + campaign（+ sandbox/combat）初始化写出来），并确认参战 PC 的 `characters/<X>.json` 都在（队伍 HUD 从它派生）。**没有 session.json 面板就是"未开桌"，玩家一眼可见。** （无 `.fathom-context.json` 的 Claude Code 环境才跳过。）
 
 **硬顺序（状态有变化的回合）**：① 定本回合状态变化 → ② **覆写** session.json 相关字段 + 刷 `lastUpdate` → ③ 回复**结尾**打一行与之**字面一致**的状态行。写盘在前、行只是回声 → 杜绝"打了行没落盘"。
 
@@ -197,7 +190,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 〔状态〕王小明 HP34/34 AC20 | 态 — | ⏳风岚月17日·正午 | 📍王府庄园·餐厅
 ```
 
-段 ⇔ 字段：`HP`→`players[i].hpCur/hpMax`、`AC`→`players[i].ac`、`态`→`players[i].status[]`（无→`—`）、`⏳`→`campaign.inGameTime`(+`timeOfDay`)、`📍`→`campaign.location`。
+段 ⇔ 写哪：`HP`→canonical `characters/<名>.json: combat.hpCur/hpMax`、`AC`→canonical 自动派生（改 acBase/acBonus/盾/buff 即变，通常不手写）、`态`→canonical `combat.statusEffects/concentration/buffs`（无→`—`）、`⏳`→session `campaign.inGameTime`(+`timeOfDay`)、`📍`→session `campaign.location`。**HP/状态写 canonical、时间地点写 session——状态行是"两边都没漏写"的回声。**
 
 **战斗行**（mode=G 战斗中，每回合发）：
 
@@ -220,7 +213,10 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 ## Panel 详情弹窗 + 卡片 JSON（玩家视角投影）
 
-面板上的玩家行 / 关键关系 / 同行 NPC 可点击 → 弹出详情卡片，**不调 AI**。**v2 下这些 JSON 由面板从推送数据内联读取**（不再 fetch、不再有"档案缺失 404"）——给玩家"零延迟浏览"，但代价不变：你改 NPC / 玩家状态时必须**同步维护对应 JSON**，否则面板显示旧数据。
+面板上的玩家行 / 关键关系 / 同行 NPC 可点击 → 弹出详情卡片，**不调 AI**。**v2 下这些 JSON 由面板从推送数据内联读取**（不再 fetch、不再有"档案缺失 404"）——给玩家"零延迟浏览"。
+
+> **玩家角色（characters/）已统一为 canonical 单一真源**：你只写一份 canonical 角色 JSON（富 schema，见 [CHARACTER_SCHEMA.md](CHARACTER_SCHEMA.md)），面板自动深投影出队伍 HUD 与点击弹窗——**没有 .md 数值镜像、不需要双写**。`players/<X>.md` 只写散文（背景 / 已揭示信息 / 关系 / DM 观察）。
+> NPC / 同行（npcs/ companions/）**暂仍是 .md + .json 双写**（schema 未统一，后续阶段处理）——下面的双写约束只对它们生效。
 
 ### 文件位置
 
@@ -231,8 +227,8 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 └── companions/<同行名>.json    ← 同行行点击：先尝试这个，没有再 fallback 到 npcs/
 ```
 
-**per-campaign**，跨 thread 共享（同战役在不同对话里看到的 NPC 状态一致）。`<战役名>` 取自 session.json 的 `campaign.name`。
-⚠️ 这是**结构化 JSON**，放 `.fathom-panels/dnd5r/campaigns/`；对应的**叙事 `.md`** 仍在 workspace 根 `campaigns/<战役名>/`（双写跨这两个根，见下）。
+**per-campaign**，跨 thread 共享（同战役在不同对话里看到的状态一致）。`<战役名>` 取自 session.json 的 `campaign.name`。
+⚠️ 这些是**结构化 JSON**，放 `.fathom-panels/dnd5r/campaigns/`。其中 `characters/` 是 **canonical 真源**（无对应 .md 数值）；`npcs/` 对应的**叙事 `.md`** 仍在 workspace 根 `campaigns/<战役名>/npcs/`（NPC 暂双写跨两根，见下）。
 
 ### 三类 schema
 
@@ -250,18 +246,11 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `preferences{likes[], dislikes[]}`：喜好厌恶 chip
 - `giftHints[{item, affinityGain}]`：礼物清单
 
-**characters/<玩家>.json（玩家角色快照）** — `_schema: "character-v1"`
-- `name / race / age / alignment / background / classSummary / classes[]`
-- `combat{hp{cur,max}, ac{base, withShield, armor}, speed, init, passivePerc, profBonus}`
-- `abilities.{str,dex,con,int,wis,cha}{score, mod, save, proficient}`：六维 grid
-- `skills[{name, ability, bonus, proficient}]`：熟练技能
-- `attacks[{name, hit, damage, notes}]`：主要攻击
-- `resources[{name, cur, max, reset}]`：法术位 / 职业资源
-- `spells{casterAbility, spellAttack, spellSaveDC, cantripsKnown[], level1Prepared[], ...}`
-- `keyFeatures[{name, source, desc}]`：top 3-5 关键特性
-- `equipment{weapons[], armor[], tools[], pack, other[]}`：装备
-- `wealth{cash, property, goods}`：财富
-- `sheetPath`：完整角色卡 .html 路径（弹窗底部按钮会发消息让 AI 打开）
+**characters/<玩家>.json（玩家角色 · canonical 单一真源）** — `_schema: "character-canonical-v1"`
+- **完整字段见 [CHARACTER_SCHEMA.md §3](CHARACTER_SCHEMA.md)**（= 角色卡富 schema 超集：`meta / abilities / combat / skills / attacks / spellcasting / classResources / equipment / wealth / features / companions` + `meta.appearance / combat.senses / wealth.property / wealth.goods`）。
+- 你**只写这一份原始值**：面板按 [§4 派生规则](CHARACTER_SCHEMA.md) 自动算 mod / 豁免 / AC / 命中 / 法术 DC，投影成队伍 HUD + 点击弹窗；角色卡 HTML（build-sheet.py）与 viewer 也读它。
+- **live 状态也在这里**：HP（`combat.hpCur`）、状态（`combat.statusEffects` / `concentration` / `buffs`）、资源消耗（`classResources[].used`）变化时改本文件即可，HUD 自动刷新——**不再另写 session.players[]**。
+- `meta.sheetPath`：完整角色卡 .html 路径（弹窗底部按钮发消息让 AI 打开）。
 
 **companions/<同行>.json（伴生 stat block）** — `_schema: "companion-v1"`
 - `name / type / subtype / owner / role / description`
@@ -273,14 +262,15 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `tools[{name, desc, escape}]`：携带道具
 - `tacticalNotes[]`：战术备注
 
-### 🚨 AI 双写硬约束（必读）
+### 🚨 NPC / 同行 双写约束（玩家角色已免除）
 
-**当你修改 `campaigns/<战役名>/npcs/<X>.md` 时，必须同步重写 `.fathom-panels/dnd5r/campaigns/<战役名>/npcs/<X>.json`**——不然玩家点 panel 看到的还是旧数据，造成认知不一致。
+> **玩家角色 `characters/` 不在此列**——它是 canonical 单一真源，`players/<X>.md` 只写散文（无数值），两者零重叠、无需同步。改 HP / 状态 / 资源 / 升级，**只改 `characters/<X>.json` 一处**。
+>
+> 下面只对 **NPC / 同行**生效（其 schema 暂未统一，仍 .md + .json 双写）：
 
 | 修改了什么 | 必须同步什么 |
 |---|---|
 | NPC 互动后改了 .md 的关系阶段 / 亲和度 / 已知信息 / lastSeen | `npcs/<X>.json` 对应字段 |
-| 玩家升级 / 学新法术 / 换装备（改了 players/<X>.md）| `characters/<X>.json` |
 | 同行受伤 / 学新技能（改了对应段落）| `companions/<X>.json` |
 | 战役新增 NPC | 同时建 `npcs/<X>.md` + `npcs/<X>.json` |
 | 战役新增同行 | 建 `companions/<X>.json`（若 ta 同时也是社交 NPC 还要 `npcs/<X>.json`）|
@@ -306,7 +296,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 | 队伍阵容里的玩家名 | 从内联数据取 `characters/<玩家>.json` → 渲染玩家详情弹窗 |
 | 关键关系里的 NPC 行 | 取 `npcs/<NPC>.json` → 渲染 NPC 弹窗 |
 | 同行行 | 先取 `companions/<名>.json`，没有 → fallback `npcs/<名>.json` → 渲染对应弹窗 |
-| 弹窗的 "请 AI 打开完整角色卡" 按钮 | skillPanel.send("请打开 .tmp/<X>.html 给我看完整角色卡") |
+| 弹窗的 "请 AI 打开完整角色卡" 按钮 | skillPanel.send("请打开 <sheetPath> 给我看完整角色卡")（路径取自 canonical `meta.sheetPath`）|
 | ESC / 点弹窗外 / ✕ 按钮 | 关闭弹窗 |
 
 某 JSON 不存在 → 弹窗显示"档案缺失"。**用户告诉你时**：去检查对应 `.fathom-panels/dnd5r/campaigns/<X>/{npcs,characters,companions}/<name>.json` 是否存在；不存在则按 schema 创建。
@@ -417,9 +407,12 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 7. **起始装备**：从职业起始装备包选，Read `玩家手册2024/装备/` 相关
 8. **法术**（仅施法职业）：cantrip 数量 / 已知或已备法术数量 → 套 A 工作流
 9. **结算**：HP（一级满骰）、AC、被动察觉、法术位、技能熟练、负重，按职业页和创建角色章节核对
-10. **输出电子卡 HTML**（关键交付物）：
-   - 把上面所有数据组装成完整 JSON，schema 见 `templates/character-sheet.html` 顶部 DEFAULT_CHAR 字面量（必备字段：meta/abilities/combat/skills/attacks/spellcasting/classResources/equipment/wealth/features；可选：specialRolls）
-   - 用 build-sheet.py 把 JSON 生成 HTML 到 `.tmp/<角色中文名>.html`，两种喂法择一：
+10. **落 canonical JSON + 输出电子卡 HTML**（关键交付物）：
+   - 把上面所有数据组装成完整 **canonical JSON**，schema 见 [CHARACTER_SCHEMA.md §3](CHARACTER_SCHEMA.md)（= `templates/character-sheet.html` 顶部 DEFAULT_CHAR 超集；必备 meta/abilities/combat/skills/attacks/spellcasting/classResources/equipment/wealth/features，超集字段 meta.appearance / combat.senses / wealth.property / wealth.goods，可选 specialRolls）
+   - **canonical JSON 落哪**（单一真源）：
+     - **战役内车卡**（正在跑 G/I）→ 写到 `.fathom-panels/dnd5r/campaigns/<战役名>/characters/<角色中文名>.json`。面板队伍 HUD + 点击弹窗自动从它派生，**无需再写 players/<X>.md 数值，也不写 session.players**；`meta.sheetPath` 填电子卡 .html 路径。
+     - **独立车卡**（没在跑战役，只是"帮我车张卡"）→ 写到 `.tmp/<角色中文名>.json`（throwaway）即可。
+   - 用 build-sheet.py 把该 JSON 生成自包含电子卡 HTML（战役内建议出到 `campaigns/<战役名>/players/<角色名>.html` 并令 `meta.sheetPath` 指向它；独立车卡出到 `.tmp/<角色名>.html`），两种喂法择一：
      - **bash / Linux / macOS — stdin 不落盘**：
        ```bash
        python .claude/skills/dnd5r/templates/build-sheet.py - .tmp/羽痕.html <<'EOF'
@@ -430,7 +423,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
        ```powershell
        python .claude/skills/dnd5r/templates/build-sheet.py .tmp/羽痕.json .tmp/羽痕.html
        ```
-       临时 .json 可保留作下次升卡的起点，也可删——它**不影响**最终 HTML。
+       战役内的 canonical `characters/<X>.json` 是**持久真源（别删）**；独立车卡的 `.tmp/*.json` 可留作下次升卡起点、也可删——不影响已生成的 HTML。
    - **产物 HTML 是完全自包含的单文件**：CSS/JS 全部内联，角色 JSON 嵌入 `<script id="character-data">`，无外链/无 CDN/无 fetch、字体走系统栈。复制到任何位置、离线打开都能用——**不依赖**同目录的 .json，也不依赖项目目录或 docs/extracted/。
    - 数据持久化用浏览器 LocalStorage（key = `char-<charId>`），同一台设备同一浏览器会记住后续修改；换设备打开则是出厂状态（HTML 内嵌的初始值），用户可继续用。
    - 文件即可发微信、放手机/iPad/电脑，浏览器打开就是这张卡。告诉用户：文件路径 + "微信发出去对方点击 → 选浏览器打开就能用"。
@@ -1060,8 +1053,8 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    - 事件清单 / 触发的遭遇 / 获得宝藏
    - 玩家身上未结的钩子 / 触发条件待发的事件
    - DM 私笔（揭过的秘密 / 用过的兜底次数 / 难度调整记录 / 玩家观察）
-2. **Edit** `players/<*>.md` 全员同步最终状态（HP / 法术位 / 资源 / 装备 / 新揭示信息）
-   - **询问玩家**是否需要修正（HTML 卡 ↔ .md 同步：玩家可能在 HTML 里改过 HP / 法术位）
+2. **更新全员 canonical** `characters/<*>.json`：最终 HP（`combat.hpCur`）/ 法术位与资源（`spellcasting.slots`、`classResources[].used`）/ 新装备 / 升级。新揭示的剧情/关系写 `players/<*>.md`（散文）。
+   - **询问玩家**是否在电子卡 HTML 里手改过 HP / 法术位（HTML 走 LocalStorage，可能与 canonical 不一致）→ 以玩家为准回填 canonical。
 3. **Edit** `progress.md`：标记章节进度、升级节点、新解钩子、追加已完成遭遇
 4. **Edit** `world-state.md`：推进 in-game 时间、地点变化、组织态势事件
 5. **Edit** `dm-only/dm-notes.md`：追加本桌触发的伏笔 / 救场用次 / 难度调整 / 玩家观察
@@ -1079,10 +1072,10 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 4. Read `campaigns/<战役名>/progress.md`（章节进度）
 5. Read `campaigns/<战役名>/world-state.md`（世界状态）
 6. Read `campaigns/<战役名>/sessions/` 最近 1-2 个文件（最近事件）
-7. Read `campaigns/<战役名>/players/*.md` 全员（玩家状态）
+7. Read 全员 canonical `.fathom-panels/dnd5r/campaigns/<战役名>/characters/*.json`（玩家数值：HP/资源/法术位/装备）+ `campaigns/<战役名>/players/*.md`（散文：已揭示信息/关系/DM 观察）
 8. Read `campaigns/<战役名>/combat/active.md`（若存在 = 上次桌断在战斗中，恢复战斗）
 9. Read `campaigns/<战役名>/dm-only/dm-notes.md`（DM 私笔）
-10. **询问玩家**："上桌结束时大家身上状态有变化吗？" —— HTML 卡 ↔ .md 同步
+10. **询问玩家**："上桌结束时大家身上状态有变化吗？" —— 若玩家在电子卡 HTML（LocalStorage）里手改过，以玩家为准回填 canonical `characters/*.json`
 11. 按 DM 风格语调写「上回提要」开场，然后继续 G2 节奏
 
 #### G8. 资料引用
@@ -1371,7 +1364,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
      }
      ```
 4. **刷新上下文**：执行 G7 第 1~9 步（读 README / dm-styles / house-rules / progress / world-state / sessions 最近 1 条 / players / combat/active），让 LLM 上下文与恢复后文件一致
-5. **重建 session.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `.fathom-panels/dnd5r/threads/<threadId>/session.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ players（HP/XP/status）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
+5. **重建 session.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `.fathom-panels/dnd5r/threads/<threadId>/session.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。**不含 `players[]`**——队伍 HUD 从第 3 步已还原的 canonical `characters/*.json` 自动派生。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
 6. **回复**：告知恢复成功 + 简短「已回到……」一句 in-character 开场，然后继续 G2/I2 节奏
 
 #### S3. `/saves` — 列出存档
