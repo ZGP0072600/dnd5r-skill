@@ -1,6 +1,6 @@
 {
 "_schema": "race-index-v1",
-"race_count": 19,
+"race_count": 18,
 "source_count": 3,
 "races": [
 {
@@ -116,7 +116,7 @@
 {
 "kind": "race",
 "name": "半精灵变体",
-"en": "",
+"en": "Half-Elf Variants",
 "flavor": "一些费伦的半精灵用自己的血统特质代替了“多才多艺”特质",
 "source": "剑湾冒险者指南",
 "edition": "2014",
@@ -127,7 +127,7 @@
 {
 "kind": "race",
 "name": "地底侏儒",
-"en": "",
+"en": "Deep Gnomes (Svirfneblin)",
 "flavor": "也被称作为斯奈布力的这些居住在幽暗地域的地底侏儒和他们的地面表亲呈现出鲜明的差异，相较通常显得欢快和乐观的岩侏儒、林侏儒，他们更加沉默，更加严肃",
 "source": "剑湾冒险者指南",
 "edition": "2014",
@@ -138,7 +138,7 @@
 {
 "kind": "race",
 "name": "提夫林变体",
-"en": "",
+"en": "Tiefling Variants",
 "flavor": "并非所有提夫林的血脉都来自阿斯蒙蒂斯，一些提夫林与《玩家手册》上的提夫林有着显著不同的区别",
 "source": "剑湾冒险者指南",
 "edition": "2014",
@@ -149,7 +149,7 @@
 {
 "kind": "race",
 "name": "灰矮人",
-"en": "",
+"en": "Gray Dwarves (Duergar)",
 "flavor": "灰矮人，或曰杜尔迦矮人，往往生活在幽暗地域的深处",
 "source": "剑湾冒险者指南",
 "edition": "2014",
@@ -160,7 +160,7 @@
 {
 "kind": "race",
 "name": "鬼智半身人",
-"en": "",
+"en": "Ghostwise Halflings",
 "flavor": "鬼智半身人的祖先在同族迁居到鲁伦时选择向他们发起战争",
 "source": "剑湾冒险者指南",
 "edition": "2014",
@@ -171,7 +171,7 @@
 {
 "kind": "race",
 "name": "宝石龙裔",
-"en": "",
+"en": "Gem Dragonborn",
 "flavor": "有着宝石龙血脉的龙裔分享着所有宝石龙的遗馈，他们称自己为红宝石龙萨迪沃——第一条被创造的宝石龙，由巴哈姆特与提亚马特在第一世界的元日制造而成——的继承人",
 "source": "费资本的巨龙宝库",
 "edition": "2014",
@@ -182,7 +182,7 @@
 {
 "kind": "race",
 "name": "色彩龙裔",
-"en": "",
+"en": "Chromatic Dragonborn",
 "flavor": "有着色彩龙血脉的龙裔掌控着色彩龙的原生元素力量",
 "source": "费资本的巨龙宝库",
 "edition": "2014",
@@ -193,23 +193,12 @@
 {
 "kind": "race",
 "name": "金属龙裔",
-"en": "",
+"en": "Metallic Dragonborn",
 "flavor": "然有着金属龙血脉的龙裔有着无所畏惧的韧性，这来自金属龙——黄铜，青铜，红铜，金，银——的特性在它们的鳞片上闪耀着光芒",
 "source": "费资本的巨龙宝库",
 "edition": "2014",
 "priority": 3,
 "path": "费资本的巨龙宝库/玩家选项/金属龙裔.md",
-"line": 9
-},
-{
-"kind": "race",
-"name": "龙裔种族",
-"en": "",
-"flavor": "（无人翻译，简而言之属性自选+2+1或+1+1+1，而不是所谓的“FTD 龙裔不加属性”）",
-"source": "费资本的巨龙宝库",
-"edition": "2014",
-"priority": 3,
-"path": "费资本的巨龙宝库/玩家选项/龙裔种族.md",
 "line": 9
 }
 ]

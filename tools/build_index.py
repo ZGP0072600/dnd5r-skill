@@ -153,7 +153,41 @@ def normalize_level(level, level_name):
         lv = int(level)
     except (TypeError, ValueError):
         return None
-    return 0 if lv < 0 else lv
+    # lv < 0 是占位符（合集类文件用文件级 level:-1，且 level_name 非戏法）。
+    # 绝不当成 0——否则整本书的法术全塌成戏法。返回 None，交给 level_from_body 从正文兜底。
+    return None if lv < 0 else lv
+
+
+CN_NUM = {"零": 0, "一": 1, "二": 2, "三": 3, "四": 4,
+          "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+
+
+def level_from_body(lines, heading_lineno):
+    """合集类文件每条法术的环阶只写在正文里、frontmatter 缺 per-spell level。
+    从标题行往下找首个含环阶记号的内容行 —— 兼容跨书的多种写法（标签可有可无、级/派顺序不定）：
+      - **学派**：一环 塑能      艾奎兹玄/费资本…  (学派标签 + 级在前)
+      - **学派**：塑能 戏法       瓦尔达            (学派标签 + 级在后)
+      戏法 塑能（…）             黯潮之书          (裸行，级在前)
+      塑能 戏法（…）             胧忆岛/火炬克苏鲁  (裸行，级在后)
+    戏法→0；中文/阿拉伯数字环阶→对应数字。取首个命中行（即声明行），避免误吃正文里的
+    『升环施法』等措辞（升环不带数字前缀，不会匹配）。找不到返回 None。"""
+    if not heading_lineno:
+        return None
+    for k in range(heading_lineno, min(heading_lineno + 12, len(lines))):
+        s = lines[k].strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            break  # 撞到下一条法术标题，停止
+        if "戏法" in s:
+            return 0
+        m = re.search(r"([零一二三四五六七八九十])\s*环", s)
+        if m:
+            return CN_NUM[m.group(1)]
+        m = re.search(r"([0-9])\s*环", s)
+        if m:
+            return int(m.group(1))
+    return None
 
 
 def spell_flags(sp):
@@ -194,10 +228,16 @@ def parse_spell_file(path: Path, docs_root: Path):
         classes = sp.get("classes") or []
         if not isinstance(classes, list):
             classes = [str(classes)]
+        hl = match_heading(name, en, headings, prefer_level=2)
+        level = normalize_level(sp.get("level", fm.get("level")),
+                                sp.get("level_name", fm.get("level_name")))
+        # 兜底：合集类文件 per-spell 无 level、文件级是占位 -1（normalize 后为 None）→
+        # 环阶只写在正文「**学派**：X环」里，从正文解析，避免整本书塌成戏法。
+        if sp.get("level") is None and level is None:
+            level = level_from_body(lines, hl)
         recs.append({
             "name": name, "en": en,
-            "level": normalize_level(sp.get("level", fm.get("level")),
-                                     sp.get("level_name", fm.get("level_name"))),
+            "level": level,
             "school": sp.get("school") or None,
             "classes": [str(c).strip() for c in classes],
             "casting_time": sp.get("casting_time") or None,
@@ -206,7 +246,7 @@ def parse_spell_file(path: Path, docs_root: Path):
             "duration": sp.get("duration") or None,
             "concentration": conc, "ritual": ritual,
             "source": source, "edition": edition, "priority": prio,
-            "path": rel, "line": match_heading(name, en, headings, prefer_level=2),
+            "path": rel, "line": hl,
         })
     return recs, None
 
@@ -556,7 +596,7 @@ def build_classes(docs_root, out_dir):
 # ---------------- 种族 ----------------
 CROSS_RACE_SOURCES = [
     {"dir": "剑湾冒险者指南/种族", "noise": ("种族",)},        # 半精灵变体/灰矮人/地底侏儒/鬼智半身人/提夫林变体
-    {"dir": "费资本的巨龙宝库/玩家选项", "include": "龙裔"},    # 宝石/色彩/金属龙裔 + 神选勇士
+    {"dir": "费资本的巨龙宝库/玩家选项", "include": "龙裔", "noise": ("龙裔种族",)},  # 宝石/色彩/金属龙裔（排除"龙裔种族"总览页）
 ]
 
 
@@ -567,6 +607,17 @@ def _race_record(f: Path, docs_root: Path):
     src = derive_source(rel)
     name = (fm.get("name") or f.stem).strip()
     en = (fm.get("en") or "").strip()
+    if not en:                                       # 种族 name 可能是「半精灵Half-Elf」中英黏一起
+        m = re.match(r"^([一-鿿·\s]+?)\s*([A-Za-z].*)$", name)
+        if m:
+            name, en = m.group(1).strip(), m.group(2).strip()
+    if not en:                                       # 剑湾/费资本：name 仅中文，英文在正文首个 **中文 English** 粗体行
+        pat = re.compile(r"^\*\*\s*" + re.escape(name) + r"\s+([A-Za-z].*?)\s*\*\*")
+        for ln in lines:
+            mm = pat.match(ln.strip())
+            if mm:
+                en = mm.group(1).strip()
+                break
     return {
         "kind": "race", "name": name, "en": en, "flavor": extract_flavor(lines),
         "source": src, "edition": str(fm.get("edition") or ""), "priority": source_priority(src),
@@ -640,6 +691,57 @@ def parse_equip_table(path, docs_root, kind, cols):
     return recs
 
 
+def _parse_gear_2col(path, docs_root):
+    """2024 冒险装备是【双栏】表：物品|重量|价格 ‖ 物品|重量|价格，每行两件、名字仅中文。
+    法器（奥术法器/德鲁伊法器/圣徽）也是表里的普通行（重量/价格记『多类』），自然成条目。"""
+    rel = path.relative_to(docs_root).as_posix()
+    src = derive_source(rel)
+    recs = []
+    for i, ln in enumerate(path.read_text(encoding="utf-8").split("\n")):
+        s = ln.strip()
+        if not s.startswith("|"):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        if not cells or all(set(c) <= set("-: ") for c in cells):
+            continue
+        for b in (0, 4):                                 # 左栏 cells[0:3]、右栏 cells[4:7]
+            if b + 2 < len(cells) and cells[b] and cells[b] not in ("物品", "名称"):
+                nm = re.sub(r"\*+", "", cells[b]).strip()
+                name, en = split_cn_en(nm)
+                recs.append({"kind": "gear", "name": name or nm, "en": en, "category": None,
+                             "source": src, "edition": "2024", "priority": source_priority(src),
+                             "path": rel, "line": i + 1,
+                             "weight": cells[b + 1] or None, "cost": cells[b + 2] or None})
+    return recs
+
+
+def _parse_tools_2024(path, docs_root):
+    """2024 工匠工具/其他工具：每件名是『中文 English (价格)』（英文+价格可能换行），
+    紧跟一张『| 属性：… | 重量：… |』详情表——以该表行为锚点回取上方名字。"""
+    rel = path.relative_to(docs_root).as_posix()
+    src = derive_source(rel)
+    lines = path.read_text(encoding="utf-8").split("\n")
+    pat = re.compile(r"^([一-鿿·]+)\s+([A-Za-z'’\s]+?)\s*[（(]\s*([\d,.]+\s*[A-Za-z]{2})\s*[)）]")
+    recs = []
+    for i, ln in enumerate(lines):
+        if not ln.strip().startswith("| 属性"):
+            continue
+        j = i - 1
+        while j >= 0 and not lines[j].strip():
+            j -= 1
+        nb = []                                          # 名字可能跨行（易容工具 / Disguise Kit (25GP)）
+        while j >= 0 and lines[j].strip() and not lines[j].strip().startswith("|") and len(nb) < 2:
+            nb.insert(0, lines[j].strip())
+            j -= 1
+        m = pat.match(" ".join(nb))
+        if m:
+            recs.append({"kind": "tool", "name": m.group(1).strip(), "en": m.group(2).strip(),
+                         "category": "工具", "source": src, "edition": "2024",
+                         "priority": source_priority(src), "path": rel, "line": j + 2,
+                         "weight": None, "cost": m.group(3).strip()})
+    return recs
+
+
 def build_equipment(docs_root, out_dir):
     recs = []
     edir = docs_root / "玩家手册2024" / "装备"
@@ -649,12 +751,19 @@ def build_equipment(docs_root, out_dir):
     if (edir / "护甲.md").exists():
         recs += parse_equip_table(edir / "护甲.md", docs_root, "armor",
                                   ["ac", "strength", "stealth", "weight", "cost"])
+    if (edir / "冒险装备.md").exists():                  # 冒险装备（双栏表）+ 法器
+        recs += _parse_gear_2col(edir / "冒险装备.md", docs_root)
+    for tf in ("工匠工具.md", "其他工具.md"):             # 工具（标题式：中文 English (价格)）
+        if (edir / tf).exists():
+            recs += _parse_tools_2024(edir / tf, docs_root)
     out = out_dir / "equipment.json"
     out.write_text(json.dumps({"_schema": "equipment-index-v1", "item_count": len(recs),
                                "equipment": recs}, ensure_ascii=False, indent=0), encoding="utf-8")
-    nw = sum(1 for r in recs if r["kind"] == "weapon")
-    na = sum(1 for r in recs if r["kind"] == "armor")
-    print(f"\n[装备] ✅ {out}\n   {nw} 武器 + {na} 护甲（PHB24；工具/法器/魔法物品待接入）")
+    by = {}
+    for r in recs:
+        by[r["kind"]] = by.get(r["kind"], 0) + 1
+    print(f"\n[装备] ✅ {out}\n   {len(recs)} 件（PHB24）: " +
+          "、".join(f"{k}:{v}" for k, v in sorted(by.items(), key=lambda x: -x[1])))
 
 
 # ---------------- 专长（best-effort）----------------
@@ -757,12 +866,15 @@ def build_magic(docs_root, out_dir):
                 if not s.startswith("##### "):
                     continue
                 name, en = split_cn_en(s[6:].strip())
-                meta = ""                                    # 紧跟的斜体行：*类型，稀有度（需同调）*
+                meta = ""                                    # 紧跟的斜体行：*类型，稀有度（需同调）*（可能与描述文本黏在同一行）
                 for j in range(i + 1, min(i + 5, len(lines))):
                     t = lines[j].strip()
-                    if t.startswith("*") and t.endswith("*") and len(t) > 2:
-                        meta = t.strip("*").strip()
-                        break
+                    if not t:
+                        continue
+                    mm = re.match(r"^\*([^*]{1,40})\*", t)   # 行首斜体段，后面可能紧跟描述文本
+                    if mm:
+                        meta = mm.group(1).strip()
+                    break                                    # 首个非空行即定论（是 meta，或已进入描述正文）
                 if not name:
                     continue
                 recs.append({

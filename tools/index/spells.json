@@ -6,7 +6,7 @@
 {
 "name": "卡牌喷射",
 "en": "Spray of Cards",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "吟游诗人",
@@ -29,7 +29,7 @@
 {
 "name": "敌意术",
 "en": "Antagonize",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -52,7 +52,7 @@
 {
 "name": "死神灵魄",
 "en": "Spirit of Death",
-"level": 0,
+"level": 4,
 "school": "死灵",
 "classes": [
 "术士",
@@ -94,7 +94,7 @@
 {
 "name": "塔莎心灵鞭",
 "en": "Tasha's Mind Whip",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "灵能使",
@@ -116,7 +116,7 @@
 {
 "name": "智能壁垒",
 "en": "Intellect Fortress",
-"level": 0,
+"level": 3,
 "school": "防护",
 "classes": [
 "奇械师",
@@ -141,7 +141,7 @@
 {
 "name": "念力碾压",
 "en": "Telekinetic Crush",
-"level": 0,
+"level": 3,
 "school": "变化",
 "classes": [
 "灵能使",
@@ -163,7 +163,7 @@
 {
 "name": "星光体召唤术",
 "en": "Summon Astral Entity",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "灵能使",
@@ -186,7 +186,7 @@
 {
 "name": "劳洛希姆心灵长枪",
 "en": "Raulothim's Psychic Lance",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "诗人",
@@ -210,7 +210,7 @@
 {
 "name": "心灵尖啸",
 "en": "Psychic Scream",
-"level": 0,
+"level": 9,
 "school": "惑控",
 "classes": [
 "诗人",
@@ -253,7 +253,7 @@
 {
 "name": "生命虹吸",
 "en": "Life Siphon",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "灵能使"
@@ -273,7 +273,7 @@
 {
 "name": "灵质踪迹",
 "en": "Ectoplasmic Trail",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "灵能使",
@@ -294,7 +294,7 @@
 {
 "name": "自我之鞭",
 "en": "Ego Whip",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "灵能使"
@@ -314,7 +314,7 @@
 {
 "name": "塔莎心灵鞭",
 "en": "Tasha's Mind Whip",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "灵能使",
@@ -336,7 +336,7 @@
 {
 "name": "泣墨深暗",
 "en": "Bleeding Darkness",
-"level": 0,
+"level": 3,
 "school": "塑能",
 "classes": [
 "灵能使",
@@ -358,7 +358,7 @@
 {
 "name": "举目皆敌",
 "en": "Enemies Abound",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -382,7 +382,7 @@
 {
 "name": "智能壁垒",
 "en": "Intellect Fortress",
-"level": 0,
+"level": 3,
 "school": "防护",
 "classes": [
 "奇械师",
@@ -407,7 +407,7 @@
 {
 "name": "念力碾压",
 "en": "Telekinetic Crush",
-"level": 0,
+"level": 3,
 "school": "变化",
 "classes": [
 "灵能使",
@@ -429,7 +429,7 @@
 {
 "name": "星光体召唤术",
 "en": "Summon Astral Entity",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "灵能使",
@@ -452,7 +452,7 @@
 {
 "name": "生命反转场域",
 "en": "Life Inversion Field",
-"level": 0,
+"level": 4,
 "school": "防护",
 "classes": [
 "牧师",
@@ -474,7 +474,7 @@
 {
 "name": "劳洛希姆心灵长枪",
 "en": "Raulothim's Psychic Lance",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -498,7 +498,7 @@
 {
 "name": "精神监狱",
 "en": "Mental Prison",
-"level": 0,
+"level": 6,
 "school": "幻术",
 "classes": [
 "吟游诗人",
@@ -521,7 +521,7 @@
 {
 "name": "灵能震爆",
 "en": "Psionic Blast",
-"level": 0,
+"level": 6,
 "school": "塑能",
 "classes": [
 "灵能使",
@@ -542,7 +542,7 @@
 {
 "name": "灵思形态",
 "en": "Thought Form",
-"level": 0,
+"level": 6,
 "school": "变化",
 "classes": [
 "灵能使"
@@ -562,7 +562,7 @@
 {
 "name": "亚比达奇凋死术",
 "en": "Abi-Dalzim's Horrid Wilting",
-"level": 0,
+"level": 8,
 "school": "死灵",
 "classes": [
 "灵能使",
@@ -584,7 +584,7 @@
 {
 "name": "心灵尖啸",
 "en": "Psychic Scream",
-"level": 0,
+"level": 9,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -985,7 +985,7 @@
 {
 "name": "银光锐语",
 "en": "Silvery Barbs",
-"level": 0,
+"level": 1,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -1007,7 +1007,7 @@
 {
 "name": "借鉴才学",
 "en": "Borrowed Knowledge",
-"level": 0,
+"level": 2,
 "school": "预言",
 "classes": [
 "吟游诗人",
@@ -1030,7 +1030,7 @@
 {
 "name": "动力短行",
 "en": "Kinetic Jaunt",
-"level": 0,
+"level": 2,
 "school": "变化",
 "classes": [
 "奇械师",
@@ -1053,7 +1053,7 @@
 {
 "name": "涡旋翘曲",
 "en": "Vortex Warp",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "奇械师",
@@ -1075,7 +1075,7 @@
 {
 "name": "靡叶生华",
 "en": "Wither and Bloom",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "德鲁伊",
@@ -1097,7 +1097,7 @@
 {
 "name": "灾厄之刃",
 "en": "Blade of Disaster",
-"level": 0,
+"level": 9,
 "school": "咒法",
 "classes": [
 "法师"
@@ -1117,7 +1117,7 @@
 {
 "name": "创造魔卫",
 "en": "Create Magen",
-"level": 0,
+"level": 7,
 "school": "变化",
 "classes": [
 "法师"
@@ -1137,7 +1137,7 @@
 {
 "name": "冷冻一指",
 "en": "Frost Finger",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "法师"
@@ -1157,7 +1157,7 @@
 {
 "name": "魔宠群",
 "en": "Flock of Familiars",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "魔契师",
@@ -1178,7 +1178,7 @@
 {
 "name": "加德尔急速邮差",
 "en": "Galder's Speedy Courier",
-"level": 0,
+"level": 4,
 "school": "咒法",
 "classes": [
 "魔契师",
@@ -1199,7 +1199,7 @@
 {
 "name": "加德尔高塔术",
 "en": "Galder's Tower",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "法师"
@@ -19563,7 +19563,7 @@
 {
 "name": "妄彩球",
 "en": "Delerium Orb",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "受污染",
@@ -19586,7 +19586,7 @@
 {
 "name": "扭曲矢",
 "en": "Warp Bolt",
-"level": 0,
+"level": 2,
 "school": "塑能",
 "classes": [
 "受污染",
@@ -19609,7 +19609,7 @@
 {
 "name": "祛除污染",
 "en": "Purge Contamination",
-"level": 0,
+"level": 3,
 "school": "防护",
 "classes": [
 "吟游诗人",
@@ -19636,7 +19636,7 @@
 {
 "name": "驱隙电闪",
 "en": "Ride the Rifts",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "受污染",
@@ -19660,7 +19660,7 @@
 {
 "name": "妄能爆破",
 "en": "Delerium Blast",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "受污染",
@@ -19684,7 +19684,7 @@
 {
 "name": "强制进化",
 "en": "Forced Evolution",
-"level": 0,
+"level": 4,
 "school": "变化",
 "classes": [
 "术士",
@@ -19706,7 +19706,7 @@
 {
 "name": "浓厚污霭咒唤术",
 "en": "Conjure the Deep Haze",
-"level": 0,
+"level": 5,
 "school": "咒法",
 "classes": [
 "受污染",
@@ -19730,7 +19730,7 @@
 {
 "name": "中和场域",
 "en": "Neutralizing Field",
-"level": 0,
+"level": 5,
 "school": "防护",
 "classes": [
 "吟游诗人",
@@ -19757,7 +19757,7 @@
 {
 "name": "污染射线",
 "en": "Ray of Contamination",
-"level": 0,
+"level": 6,
 "school": "死灵",
 "classes": [
 "受污染",
@@ -19781,7 +19781,7 @@
 {
 "name": "污染转嫁",
 "en": "Siphon Contamination",
-"level": 0,
+"level": 6,
 "school": "变化",
 "classes": [
 "术士",
@@ -19803,7 +19803,7 @@
 {
 "name": "污染免疫",
 "en": "Contamination Immunity",
-"level": 0,
+"level": 7,
 "school": "防护",
 "classes": [
 "吟游诗人",
@@ -19828,7 +19828,7 @@
 {
 "name": "第八虹光喷射",
 "en": "Octarine Spray",
-"level": 0,
+"level": 7,
 "school": "塑能",
 "classes": [
 "受污染",
@@ -19852,7 +19852,7 @@
 {
 "name": "污染之力",
 "en": "Contaminated Power",
-"level": 0,
+"level": 8,
 "school": "变化",
 "classes": [
 "受污染",
@@ -19875,7 +19875,7 @@
 {
 "name": "天火圣礼",
 "en": "Sacrament of the Falling Fire",
-"level": 0,
+"level": 9,
 "school": "防护",
 "classes": [
 "吟游诗人",
@@ -19983,7 +19983,7 @@
 {
 "name": "先祖授慧",
 "en": "Ancestral Communion",
-"level": 0,
+"level": 1,
 "school": "预言",
 "classes": [
 "牧师",
@@ -20006,7 +20006,7 @@
 {
 "name": "迷惑亡灵",
 "en": "Captivate Undead",
-"level": 0,
+"level": 1,
 "school": "死灵",
 "classes": [
 "吟游诗人",
@@ -20030,7 +20030,7 @@
 {
 "name": "魔鬼报偿",
 "en": "Devil's Due",
-"level": 0,
+"level": 1,
 "school": "死灵",
 "classes": [
 "术士",
@@ -20052,7 +20052,7 @@
 {
 "name": "饕餮魔刃",
 "en": "Hungering Blade",
-"level": 0,
+"level": 1,
 "school": "死灵",
 "classes": [
 "圣武士",
@@ -20074,7 +20074,7 @@
 {
 "name": "血祭",
 "en": "Blood Sacrifice",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "术士",
@@ -20096,7 +20096,7 @@
 {
 "name": "判罪锁链",
 "en": "Chain of Conviction",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "圣武士",
@@ -20117,7 +20117,7 @@
 {
 "name": "失落者合颂",
 "en": "Chorus of the Lost",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "吟游诗人",
@@ -20141,7 +20141,7 @@
 {
 "name": "黯然销魂曲",
 "en": "Harrowing Ballad",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20163,7 +20163,7 @@
 {
 "name": "血色隐秘",
 "en": "Sanguine Secrets",
-"level": 0,
+"level": 2,
 "school": "预言",
 "classes": [
 "游侠",
@@ -20186,7 +20186,7 @@
 {
 "name": "夏日清风",
 "en": "Summer Winds",
-"level": 0,
+"level": 2,
 "school": "塑能",
 "classes": [
 "牧师",
@@ -20209,7 +20209,7 @@
 {
 "name": "溃心低语",
 "en": "Unraveling Whisper",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20232,7 +20232,7 @@
 {
 "name": "死神面纱",
 "en": "Veil of the Reaper",
-"level": 0,
+"level": 2,
 "school": "幻术",
 "classes": [
 "游侠",
@@ -20255,7 +20255,7 @@
 {
 "name": "蠕行腐朽",
 "en": "Creeping Rot",
-"level": 0,
+"level": 3,
 "school": "死灵",
 "classes": [
 "德鲁伊",
@@ -20279,7 +20279,7 @@
 {
 "name": "猩红丰获",
 "en": "Crimson Harvest",
-"level": 0,
+"level": 3,
 "school": "死灵",
 "classes": [
 "术士",
@@ -20301,7 +20301,7 @@
 {
 "name": "歪曲结界",
 "en": "Crooked Ward",
-"level": 0,
+"level": 3,
 "school": "防护",
 "classes": [
 "德鲁伊",
@@ -20324,7 +20324,7 @@
 {
 "name": "剔肉镰刀",
 "en": "Culling Sickle",
-"level": 0,
+"level": 3,
 "school": "死灵",
 "classes": [
 "德鲁伊",
@@ -20347,7 +20347,7 @@
 {
 "name": "受诅杂音",
 "en": "Cursed Cacophony",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20369,7 +20369,7 @@
 {
 "name": "丰收月辉",
 "en": "Harvest Moonglow",
-"level": 0,
+"level": 3,
 "school": "塑能",
 "classes": [
 "牧师",
@@ -20391,7 +20391,7 @@
 {
 "name": "孤立术",
 "en": "Isolation",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "魔契师",
@@ -20412,7 +20412,7 @@
 {
 "name": "殉难者",
 "en": "Martyr",
-"level": 0,
+"level": 3,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -20434,7 +20434,7 @@
 {
 "name": "悼亡迷雾",
 "en": "Mist of Mourning",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "术士",
@@ -20456,7 +20456,7 @@
 {
 "name": "牧群圣所",
 "en": "Sanctum of the Flock",
-"level": 0,
+"level": 3,
 "school": "变化",
 "classes": [
 "吟游诗人",
@@ -20478,7 +20478,7 @@
 {
 "name": "猩红黎明",
 "en": "Scarlet Dawn",
-"level": 0,
+"level": 3,
 "school": "塑能",
 "classes": [
 "牧师",
@@ -20503,7 +20503,7 @@
 {
 "name": "汲影术",
 "en": "Shadow Drain",
-"level": 0,
+"level": 3,
 "school": "死灵",
 "classes": [
 "术士",
@@ -20525,7 +20525,7 @@
 {
 "name": "活埋术",
 "en": "Buried Alive",
-"level": 0,
+"level": 4,
 "school": "变化",
 "classes": [
 "德鲁伊",
@@ -20548,7 +20548,7 @@
 {
 "name": "野性呼唤",
 "en": "Call of the Wild",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20571,7 +20571,7 @@
 {
 "name": "薪火焚身",
 "en": "Consuming Pyre",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "德鲁伊",
@@ -20593,7 +20593,7 @@
 {
 "name": "绝望侵袭",
 "en": "Intrusive Despair",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20616,7 +20616,7 @@
 {
 "name": "凶杀鸦群",
 "en": "Murder of Crows",
-"level": 0,
+"level": 4,
 "school": "咒法",
 "classes": [
 "德鲁伊",
@@ -20640,7 +20640,7 @@
 {
 "name": "傀儡掌控",
 "en": "Puppet Master",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -20663,7 +20663,7 @@
 {
 "name": "祭献虹吸",
 "en": "Sacrificial Siphon",
-"level": 0,
+"level": 4,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -20686,7 +20686,7 @@
 {
 "name": "牧人圣所",
 "en": "Sanctum of the Shepherd",
-"level": 0,
+"level": 4,
 "school": "防护",
 "classes": [
 "牧师",
@@ -20708,7 +20708,7 @@
 {
 "name": "收割场",
 "en": "Field of Reaping",
-"level": 0,
+"level": 5,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -20730,7 +20730,7 @@
 {
 "name": "幸运符",
 "en": "Sanctum of the Flock",
-"level": 0,
+"level": 5,
 "school": "变化",
 "classes": [
 "吟游诗人",
@@ -20753,7 +20753,7 @@
 {
 "name": "镜像痛苦",
 "en": "Mirrored Agony",
-"level": 0,
+"level": 5,
 "school": "防护",
 "classes": [
 "吟游诗人",
@@ -20775,7 +20775,7 @@
 {
 "name": "惊怖冲锋",
 "en": "Ghastly Charge",
-"level": 0,
+"level": 6,
 "school": "死灵",
 "classes": [
 "术士",
@@ -20869,7 +20869,7 @@
 {
 "name": "戈尔戈罗斯形体扭曲术",
 "en": "Body Warping of Gorgoroth",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20887,7 +20887,7 @@
 {
 "name": "拉莱耶造雾术",
 "en": "Create Mist of R'lyeh",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20905,7 +20905,7 @@
 {
 "name": "黑潮",
 "en": "Tide of Darkness",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20923,7 +20923,7 @@
 {
 "name": "暗影触须",
 "en": "Umbral Tendril",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20941,7 +20941,7 @@
 {
 "name": "深渊之息",
 "en": "Breath of the Deep",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20959,7 +20959,7 @@
 {
 "name": "黑暗攫握",
 "en": "Clutch of Darkness",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20977,7 +20977,7 @@
 {
 "name": "猫之优雅",
 "en": "Feline Grace",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -20995,7 +20995,7 @@
 {
 "name": "腐烂外皮之诅咒",
 "en": "Curse of the Putrid Husk",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21013,7 +21013,7 @@
 {
 "name": "末日",
 "en": "Doom",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21031,7 +21031,7 @@
 {
 "name": "幻影之豹",
 "en": "Phantom Panther",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21049,7 +21049,7 @@
 {
 "name": "幽暗迸发",
 "en": "Shadowy Eruption",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21067,7 +21067,7 @@
 {
 "name": "维瑞之印",
 "en": "Voorish Sign",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21085,7 +21085,7 @@
 {
 "name": "苏莱曼之尘",
 "en": "Dust of Suleiman",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21103,7 +21103,7 @@
 {
 "name": "犹格·索托斯之拳",
 "en": "Fist of Yog-Sothoth",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21121,7 +21121,7 @@
 {
 "name": "神话通神术",
 "en": "Contact Deity",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21139,7 +21139,7 @@
 {
 "name": "送神术",
 "en": "Dismiss Deity",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21157,7 +21157,7 @@
 {
 "name": "猫猫大混乱",
 "en": "Feline Chaos",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21175,7 +21175,7 @@
 {
 "name": "暗影召唤术",
 "en": "Summon Shadow",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21193,7 +21193,7 @@
 {
 "name": "赤印",
 "en": "Red Sign",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21211,7 +21211,7 @@
 {
 "name": "阿撒托斯的恐怖诅咒",
 "en": "Dread Curse of Azathoth",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21229,7 +21229,7 @@
 {
 "name": "请神术",
 "en": "Call Deity",
-"level": 0,
+"level": 8,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21247,7 +21247,7 @@
 {
 "name": "忘却之波",
 "en": "Wave of Oblivion",
-"level": 0,
+"level": 9,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21310,7 +21310,7 @@
 {
 "name": "增能术/缓能术",
 "en": "Accelerate/Decelerate",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21328,7 +21328,7 @@
 {
 "name": "显迹术",
 "en": "Clue",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21346,7 +21346,7 @@
 {
 "name": "记忆术",
 "en": "Memorize",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21364,7 +21364,7 @@
 {
 "name": "流言",
 "en": "Rumor",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21382,7 +21382,7 @@
 {
 "name": "掷出窗外",
 "en": "Defenestration",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21400,7 +21400,7 @@
 {
 "name": "延迟术",
 "en": "Delay",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21418,7 +21418,7 @@
 {
 "name": "宿醉感",
 "en": "Hangover",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21436,7 +21436,7 @@
 {
 "name": "回溯",
 "en": "Recall",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21454,7 +21454,7 @@
 {
 "name": "多腕术",
 "en": "Polybrachia",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21472,7 +21472,7 @@
 {
 "name": "凶兆预警",
 "en": "Dire Warning",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21490,7 +21490,7 @@
 {
 "name": "曼蒂的野性随从",
 "en": "Mandy's Feral Follower",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21508,7 +21508,7 @@
 {
 "name": "命运游戏",
 "en": "Game of Fate",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21526,7 +21526,7 @@
 {
 "name": "悖论",
 "en": "Paradox",
-"level": 0,
+"level": 9,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21590,7 +21590,7 @@
 {
 "name": "斩击弹",
 "en": "Ballistic Smite",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "圣武士"
@@ -21610,7 +21610,7 @@
 {
 "name": "咒唤掩体",
 "en": "Conjure Cover",
-"level": 0,
+"level": 1,
 "school": "咒法",
 "classes": [
 "德鲁伊",
@@ -21633,7 +21633,7 @@
 {
 "name": "贯星一条",
 "en": "Perforating Shot",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "圣武士",
@@ -21654,7 +21654,7 @@
 {
 "name": "卡你武器",
 "en": "Jam Weapon",
-"level": 0,
+"level": 2,
 "school": "变化",
 "classes": [
 "吟游诗人",
@@ -21675,7 +21675,7 @@
 {
 "name": "叶忒罗的自动换弹",
 "en": "Jethro’s Instant Reload",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "吟游诗人",
@@ -21697,7 +21697,7 @@
 {
 "name": "加农炮击",
 "en": "Conjure Cannonball",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "术士",
@@ -21718,7 +21718,7 @@
 {
 "name": "反弹道场",
 "en": "Antiballistic Field",
-"level": 0,
+"level": 6,
 "school": "防护",
 "classes": [
 "牧师",
@@ -21829,7 +21829,7 @@
 {
 "name": "武装术",
 "en": "Armament",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21847,7 +21847,7 @@
 {
 "name": "升腾泡泡",
 "en": "Bubble Lift",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21865,7 +21865,7 @@
 {
 "name": "复制术",
 "en": "Duplicate",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21883,7 +21883,7 @@
 {
 "name": "林地守卫",
 "en": "Forest Guard",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21901,7 +21901,7 @@
 {
 "name": "赠生术",
 "en": "Gift",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21919,7 +21919,7 @@
 {
 "name": "镇静类人",
 "en": "Pacify Person",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21937,7 +21937,7 @@
 {
 "name": "构沙术",
 "en": "Sand Structure",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21955,7 +21955,7 @@
 {
 "name": "灵植伪装",
 "en": "Sprout Foliage",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21973,7 +21973,7 @@
 {
 "name": "召唤载具",
 "en": "Summon Vehicle",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -21991,7 +21991,7 @@
 {
 "name": "魔力吞噬",
 "en": "Swallow Magic",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22009,7 +22009,7 @@
 {
 "name": "水弹术",
 "en": "Water Bullet",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22027,7 +22027,7 @@
 {
 "name": "覆潮武器",
 "en": "Whelm Weapon",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22045,7 +22045,7 @@
 {
 "name": "步履相随",
 "en": "At Your Side",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22063,7 +22063,7 @@
 {
 "name": "兽形化人",
 "en": "Beast Transmutation",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22081,7 +22081,7 @@
 {
 "name": "驭兽术",
 "en": "Control Animal",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22099,7 +22099,7 @@
 {
 "name": "反侦术",
 "en": "Counterspy",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22117,7 +22117,7 @@
 {
 "name": "余烬腹火",
 "en": "Ember Belly",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22135,7 +22135,7 @@
 {
 "name": "猿之攫",
 "en": "Monkey's Grasp",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22153,7 +22153,7 @@
 {
 "name": "魔菇术",
 "en": "Mushroom Ballista",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22171,7 +22171,7 @@
 {
 "name": "隐匿物件",
 "en": "Obscure Object",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22189,7 +22189,7 @@
 {
 "name": "冲击之柱",
 "en": "Pillar of Force",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22207,7 +22207,7 @@
 {
 "name": "怒雷云冕",
 "en": "Rageful Nimbus",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22225,7 +22225,7 @@
 {
 "name": "法术识记",
 "en": "Spell Signature",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22243,7 +22243,7 @@
 {
 "name": "共享视界",
 "en": "Shared Vision",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22261,7 +22261,7 @@
 {
 "name": "易形换貌",
 "en": "Switched Form",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22279,7 +22279,7 @@
 {
 "name": "匿形术",
 "en": "Transparency",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22297,7 +22297,7 @@
 {
 "name": "疾风跃袭",
 "en": "Wind Sprint",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22315,7 +22315,7 @@
 {
 "name": "蝶云风暴",
 "en": "Butterfly Storm",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22333,7 +22333,7 @@
 {
 "name": "咒唤海洋",
 "en": "Conjure Ocean",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22351,7 +22351,7 @@
 {
 "name": "达良之块",
 "en": "Dara Blocks",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22369,7 +22369,7 @@
 {
 "name": "光耀缚束",
 "en": "Light Snare",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22387,7 +22387,7 @@
 {
 "name": "坠落术",
 "en": "Plummet",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22405,7 +22405,7 @@
 {
 "name": "波格莫奇锅",
 "en": "Pogmo's Pot",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22423,7 +22423,7 @@
 {
 "name": "菜刀术",
 "en": "Vegetable Blade",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22441,7 +22441,7 @@
 {
 "name": "镇静怪物",
 "en": "Pacify Monster",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22459,7 +22459,7 @@
 {
 "name": "风暴战驹",
 "en": "Storm Stallion",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22477,7 +22477,7 @@
 {
 "name": "灵之列车站",
 "en": "Create Spirit Train Stop",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22495,7 +22495,7 @@
 {
 "name": "庆典之王",
 "en": "Festival King",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22513,7 +22513,7 @@
 {
 "name": "群体浮空术",
 "en": "Mass Levitate",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22531,7 +22531,7 @@
 {
 "name": "纸鹤群袭",
 "en": "Origami Bird Swarm",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22549,7 +22549,7 @@
 {
 "name": "潜渡术",
 "en": "Submerge",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22567,7 +22567,7 @@
 {
 "name": "召唤南瓜灯",
 "en": "Summon Jack-O'-Lantern",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22585,7 +22585,7 @@
 {
 "name": "谭冈的盛宴之火",
 "en": "Tamh Gon's Fiery Festival Feast",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22603,7 +22603,7 @@
 {
 "name": "甲壳形态",
 "en": "Crustacean Form",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22621,7 +22621,7 @@
 {
 "name": "神圣箭矢",
 "en": "Divine Arrow",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -22662,7 +22662,7 @@
 {
 "name": "提升视力",
 "en": "Elevated Sight",
-"level": 0,
+"level": 1,
 "school": "预言",
 "classes": [
 "牧师",
@@ -22686,7 +22686,7 @@
 {
 "name": "尖刺护盾",
 "en": "Spiny Shield",
-"level": 0,
+"level": 1,
 "school": "防护",
 "classes": [
 "德鲁伊",
@@ -22709,7 +22709,7 @@
 {
 "name": "黄昏之纱",
 "en": "Veil of Dusk",
-"level": 0,
+"level": 1,
 "school": "防护",
 "classes": [
 "德鲁伊",
@@ -22730,7 +22730,7 @@
 {
 "name": "伏击猎物",
 "en": "Ambush Prey",
-"level": 0,
+"level": 2,
 "school": "幻术",
 "classes": [
 "游侠"
@@ -22750,7 +22750,7 @@
 {
 "name": "羽化",
 "en": "Feathered Reach",
-"level": 0,
+"level": 3,
 "school": "变化",
 "classes": [
 "德鲁伊",
@@ -22771,7 +22771,7 @@
 {
 "name": "暮光法球",
 "en": "Globe of Twilight",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "德鲁伊",
@@ -22793,7 +22793,7 @@
 {
 "name": "祈求永荣者",
 "en": "Invoke the Amaranthine",
-"level": 0,
+"level": 3,
 "school": "预言",
 "classes": [
 "牧师",
@@ -22814,7 +22814,7 @@
 {
 "name": "植物塑形",
 "en": "Shape Plants",
-"level": 0,
+"level": 4,
 "school": "变化",
 "classes": [
 "吟游诗人",
@@ -22836,7 +22836,7 @@
 {
 "name": "恒星之躯",
 "en": "Stellar Bodies",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "德鲁伊",
@@ -22903,7 +22903,7 @@
 {
 "name": "狱之笞",
 "en": "Hell's Lash",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "术士",
@@ -22925,7 +22925,7 @@
 {
 "name": "戕狱对决",
 "en": "Infernal Challenge",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "圣武士"
@@ -22945,7 +22945,7 @@
 {
 "name": "炼狱之尘",
 "en": "Mote of Hell",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "术士",
@@ -22967,7 +22967,7 @@
 {
 "name": "亵渎灵光",
 "en": "Aura of Desecration",
-"level": 0,
+"level": 4,
 "school": "防护",
 "classes": [
 "牧师",
@@ -22988,7 +22988,7 @@
 {
 "name": "邪秽武器",
 "en": "Maligned Weapon",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "圣武士"
@@ -23008,7 +23008,7 @@
 {
 "name": "死灭墙",
 "en": "Wall of Death",
-"level": 0,
+"level": 4,
 "school": "死灵",
 "classes": [
 "德鲁伊",
@@ -23050,7 +23050,7 @@
 {
 "name": "匍匐之触",
 "en": "Creeping Touch",
-"level": 0,
+"level": 1,
 "school": "变化",
 "classes": [
 "吟游诗人",
@@ -23073,7 +23073,7 @@
 {
 "name": "放血术",
 "en": "Bloodletter",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -23095,7 +23095,7 @@
 {
 "name": "生命链接",
 "en": "Life Tether",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -23118,7 +23118,7 @@
 {
 "name": "御电而行",
 "en": "Ride the Lightning",
-"level": 0,
+"level": 4,
 "school": "咒法",
 "classes": [
 "德鲁伊",
@@ -23140,7 +23140,7 @@
 {
 "name": "超神斩",
 "en": "Supernal Smite",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "圣武士"
@@ -23160,7 +23160,7 @@
 {
 "name": "魂灵群",
 "en": "Spirit Swarm",
-"level": 0,
+"level": 5,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -23181,7 +23181,7 @@
 {
 "name": "光耀冠冕",
 "en": "Crown of Radiance",
-"level": 0,
+"level": 6,
 "school": "塑能",
 "classes": [
 "吟游诗人",
@@ -23203,7 +23203,7 @@
 {
 "name": "剥皮术",
 "en": "Flense",
-"level": 0,
+"level": 8,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -23224,7 +23224,7 @@
 {
 "name": "凤焰",
 "en": "Phoenix Flames",
-"level": 0,
+"level": 9,
 "school": "塑能",
 "classes": [
 "牧师",
@@ -23266,7 +23266,7 @@
 {
 "name": "痉挛术",
 "en": "Wrack",
-"level": 0,
+"level": 2,
 "school": "死灵",
 "classes": [
 "牧师"
@@ -23286,7 +23286,7 @@
 {
 "name": "窒息术",
 "en": "Suffocate",
-"level": 0,
+"level": 3,
 "school": "咒法",
 "classes": [
 "吟游诗人",
@@ -23309,7 +23309,7 @@
 {
 "name": "吞食意识",
 "en": "Consume Mind",
-"level": 0,
+"level": 4,
 "school": "死灵",
 "classes": [
 "牧师",
@@ -23331,7 +23331,7 @@
 {
 "name": "魔镜反射",
 "en": "Magic Mirror",
-"level": 0,
+"level": 5,
 "school": "防护",
 "classes": [
 "术士"
@@ -23351,7 +23351,7 @@
 {
 "name": "钻心血刺",
 "en": "Heartseeker",
-"level": 0,
+"level": 6,
 "school": "塑能",
 "classes": [
 "术士",
@@ -23372,7 +23372,7 @@
 {
 "name": "化树诅咒",
 "en": "Arboreal Curse",
-"level": 0,
+"level": 7,
 "school": "变化",
 "classes": [
 "德鲁伊"
@@ -23482,7 +23482,7 @@
 {
 "name": "血骨之刃",
 "en": "Blade of Blood and Bone",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23500,7 +23500,7 @@
 {
 "name": "厄运将至",
 "en": "Doom of poor fortune",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23518,7 +23518,7 @@
 {
 "name": "妖箭术",
 "en": "Elf Shot",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23536,7 +23536,7 @@
 {
 "name": "翡翠高脚杯",
 "en": "Emerald Goblet",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23554,7 +23554,7 @@
 {
 "name": "暮色迷蒙",
 "en": "Gloaming",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23572,7 +23572,7 @@
 {
 "name": "莹虫术",
 "en": "Fireflies",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23590,7 +23590,7 @@
 {
 "name": "糗态百出",
 "en": "Pratfall",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23608,7 +23608,7 @@
 {
 "name": "咒唤摆渡人",
 "en": "Conjure Ferryman",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23626,7 +23626,7 @@
 {
 "name": "德雷弗恩的钝刃术",
 "en": "Drayfn’s Blunted Blade",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23644,7 +23644,7 @@
 {
 "name": "冬眠术",
 "en": "Hibernation",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23662,7 +23662,7 @@
 {
 "name": "克拉尔之蛆",
 "en": "Krail’s Maggot",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23680,7 +23680,7 @@
 {
 "name": "克拉尔之裂",
 "en": "Krail’s Rupture",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23698,7 +23698,7 @@
 {
 "name": "雷洛赫的恼人卡祖笛",
 "en": "Leiloch’s Irritating Kazoo",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23716,7 +23716,7 @@
 {
 "name": "不详妖风",
 "en": "Ominous winds",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23734,7 +23734,7 @@
 {
 "name": "暗影适应术",
 "en": "Shadow Adaptation",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23752,7 +23752,7 @@
 {
 "name": "丑小鸭",
 "en": "Ugly Duckling",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23770,7 +23770,7 @@
 {
 "name": "刺骨寒风",
 "en": "Bitter Wind",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23788,7 +23788,7 @@
 {
 "name": "深根入月",
 "en": "Deep Roots of the Moon",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23806,7 +23806,7 @@
 {
 "name": "妖精祝酒",
 "en": "Faerie Toast",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23824,7 +23824,7 @@
 {
 "name": "严峻之影",
 "en": "Grim Shadows",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23842,7 +23842,7 @@
 {
 "name": "迷失",
 "en": "Lost",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23860,7 +23860,7 @@
 {
 "name": "奥罗斯的命运印记",
 "en": "Orros Mark of Fate",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23878,7 +23878,7 @@
 {
 "name": "暗影传送门",
 "en": "Shadow Portal",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23896,7 +23896,7 @@
 {
 "name": "蜘蛛之歌",
 "en": "Spider Song",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23914,7 +23914,7 @@
 {
 "name": "风暴之门",
 "en": "Storm Door",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23932,7 +23932,7 @@
 {
 "name": "德雷弗恩的无能诅咒",
 "en": "Drayfn’s Curse of Incompetence",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23950,7 +23950,7 @@
 {
 "name": "火舞术",
 "en": "Fire Dance",
-"level": 0,
+"level": 4,
 "school": "幻术",
 "classes": [
 "元素",
@@ -23974,7 +23974,7 @@
 {
 "name": "命运之刃",
 "en": "Knife of Fate",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -23992,7 +23992,7 @@
 {
 "name": "月之转移",
 "en": "Lunar Transfer",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24010,7 +24010,7 @@
 {
 "name": "月光遣魔",
 "en": "Moonlight Sending",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24028,7 +24028,7 @@
 {
 "name": "缤纷泡泡",
 "en": "Polychromatic Bubble",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24046,7 +24046,7 @@
 {
 "name": "波尔朵之门",
 "en": "Portho’s Portal",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24064,7 +24064,7 @@
 {
 "name": "血肉盛宴",
 "en": "Feast of Flesh",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24082,7 +24082,7 @@
 {
 "name": "虚构英雄",
 "en": "Hero of Fable",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24100,7 +24100,7 @@
 {
 "name": "克拉尔之腐",
 "en": "Krail’s Rot",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24118,7 +24118,7 @@
 {
 "name": "雷洛赫的长篇大论",
 "en": "Leiloch’s Interminable Yarn",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24136,7 +24136,7 @@
 {
 "name": "迷失漫游",
 "en": "Lost and Wandering",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24154,7 +24154,7 @@
 {
 "name": "光耀信标",
 "en": "Radiant Beacon",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24172,7 +24172,7 @@
 {
 "name": "咒唤巨人",
 "en": "Conjure Giant",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24190,7 +24190,7 @@
 {
 "name": "叠石之灾",
 "en": "Doom of Stacked Stones",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24208,7 +24208,7 @@
 {
 "name": "残酷收割",
 "en": "Grim Harvest",
-"level": 0,
+"level": 6,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24226,7 +24226,7 @@
 {
 "name": "停灵飨",
 "en": "Charnel Banquet",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24244,7 +24244,7 @@
 {
 "name": "夏年厄运",
 "en": "Doom of Summer Years",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24262,7 +24262,7 @@
 {
 "name": "黯潮",
 "en": "Ebon Tide",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24280,7 +24280,7 @@
 {
 "name": "雷洛赫的踉跄舞步",
 "en": "Leiloch’s Arduous Shuffle",
-"level": 0,
+"level": 7,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24298,7 +24298,7 @@
 {
 "name": "晦明之子",
 "en": "Child of Light and Darkness",
-"level": 0,
+"level": 8,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24316,7 +24316,7 @@
 {
 "name": "友尽之灾",
 "en": "Doom of False Friends",
-"level": 0,
+"level": 8,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24352,7 +24352,7 @@
 {
 "name": "漆黑缎带",
 "en": "Black Ribbons",
-"level": 0,
+"level": 1,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24370,7 +24370,7 @@
 {
 "name": "黑暗之路",
 "en": "Dark Path",
-"level": 0,
+"level": 2,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24388,7 +24388,7 @@
 {
 "name": "军团",
 "en": "Legion",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24406,7 +24406,7 @@
 {
 "name": "星光之盾",
 "en": "Shield of Starlight",
-"level": 0,
+"level": 3,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24424,7 +24424,7 @@
 {
 "name": "暗影步",
 "en": "Shadow Step",
-"level": 0,
+"level": 4,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24442,7 +24442,7 @@
 {
 "name": "暗影通道",
 "en": "Shadow Gateway",
-"level": 0,
+"level": 5,
 "school": null,
 "classes": [],
 "casting_time": null,
@@ -24460,7 +24460,7 @@
 {
 "name": "扭曲价值",
 "en": "Distort Value",
-"level": 0,
+"level": 1,
 "school": "幻术",
 "classes": [
 "吟游诗人",
@@ -24483,7 +24483,7 @@
 {
 "name": "快速交友",
 "en": "Fast Friends",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -24505,7 +24505,7 @@
 {
 "name": "巧舌如簧",
 "en": "Gift of Gab",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -24526,7 +24526,7 @@
 {
 "name": "鼓动贪欲",
 "en": "Incite Greed",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "牧师",
@@ -24548,7 +24548,7 @@
 {
 "name": "吉姆的发光硬币",
 "en": "Jim's Glowing Coin",
-"level": 0,
+"level": 2,
 "school": "惑控",
 "classes": [
 "法师"
@@ -24568,7 +24568,7 @@
 {
 "name": "吉姆的魔法飞弹",
 "en": "Jim's Magic Missile",
-"level": 0,
+"level": 1,
 "school": "塑能",
 "classes": [
 "法师"
@@ -24588,7 +24588,7 @@
 {
 "name": "励志演讲",
 "en": "Motivational Speech",
-"level": 0,
+"level": 3,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -24630,7 +24630,7 @@
 {
 "name": "灵敏之赐",
 "en": "Gift of Alacrity",
-"level": 0,
+"level": 1,
 "school": "预言",
 "classes": [
 "时间"
@@ -24650,7 +24650,7 @@
 {
 "name": "重力分裂",
 "en": "Gravity Fissure",
-"level": 0,
+"level": 6,
 "school": "塑能",
 "classes": [
 "重力"
@@ -24670,7 +24670,7 @@
 {
 "name": "扩大重力",
 "en": "Magnify Gravity",
-"level": 0,
+"level": 1,
 "school": "变化",
 "classes": [
 "重力"
@@ -24690,7 +24690,7 @@
 {
 "name": "命运宠儿",
 "en": "Fortune's Favor",
-"level": 0,
+"level": 2,
 "school": "预言",
 "classes": [
 "时间",
@@ -24711,7 +24711,7 @@
 {
 "name": "不动物件",
 "en": "Immovable Object",
-"level": 0,
+"level": 2,
 "school": "变化",
 "classes": [
 "重力"
@@ -24731,7 +24731,7 @@
 {
 "name": "魔袋术",
 "en": "Wristpocket",
-"level": 0,
+"level": 2,
 "school": "咒法",
 "classes": [
 "仪式",
@@ -24753,7 +24753,7 @@
 {
 "name": "脉冲波动",
 "en": "Pulse Wave",
-"level": 0,
+"level": 3,
 "school": "塑能",
 "classes": [
 "时间",
@@ -24774,7 +24774,7 @@
 {
 "name": "引力裂沟",
 "en": "Gravity Sinkhole",
-"level": 0,
+"level": 4,
 "school": "塑能",
 "classes": [
 "重力"
@@ -24794,7 +24794,7 @@
 {
 "name": "时流刹转",
 "en": "Temporal Shunt",
-"level": 0,
+"level": 5,
 "school": "变化",
 "classes": [
 "时间"
@@ -24814,7 +24814,7 @@
 {
 "name": "系结本源",
 "en": "Tether Essence",
-"level": 0,
+"level": 7,
 "school": "死灵",
 "classes": [
 "时间",
@@ -24835,7 +24835,7 @@
 {
 "name": "暗黑星辰",
 "en": "Dark Star",
-"level": 0,
+"level": 8,
 "school": "塑能",
 "classes": [
 "重力"
@@ -24855,7 +24855,7 @@
 {
 "name": "饕餮虚空",
 "en": "Ravenous Void",
-"level": 0,
+"level": 9,
 "school": "塑能",
 "classes": [
 "重力"
@@ -24875,7 +24875,7 @@
 {
 "name": "崩坏现实",
 "en": "Reality Break",
-"level": 0,
+"level": 8,
 "school": "咒法",
 "classes": [
 "时间"
@@ -24895,7 +24895,7 @@
 {
 "name": "时光蹂躏",
 "en": "Time Ravage",
-"level": 0,
+"level": 9,
 "school": "死灵",
 "classes": [
 "时间"
@@ -24915,7 +24915,7 @@
 {
 "name": "阿莎德隆奔行",
 "en": "Ashardalon's Stride",
-"level": 0,
+"level": 3,
 "school": "变化",
 "classes": [
 "奇械师",
@@ -24938,7 +24938,7 @@
 {
 "name": "龙类变形",
 "en": "Draconic Transformation",
-"level": 0,
+"level": 7,
 "school": "变化",
 "classes": [
 "德鲁伊",
@@ -24960,7 +24960,7 @@
 {
 "name": "费资本铂金盾",
 "en": "Fizban's Platinum Shield",
-"level": 0,
+"level": 6,
 "school": "防护",
 "classes": [
 "术士",
@@ -24981,7 +24981,7 @@
 {
 "name": "纳撒尔恶作剧",
 "en": "Nathair's Mischief",
-"level": 0,
+"level": 2,
 "school": "幻术",
 "classes": [
 "吟游诗人",
@@ -25003,7 +25003,7 @@
 {
 "name": "劳洛希姆心灵长枪",
 "en": "Raulothim's Psychic Lance",
-"level": 0,
+"level": 4,
 "school": "惑控",
 "classes": [
 "吟游诗人",
@@ -25026,7 +25026,7 @@
 {
 "name": "雾凇霜缚",
 "en": "Rime's Binding Ice",
-"level": 0,
+"level": 2,
 "school": "塑能",
 "classes": [
 "术士",
@@ -25047,7 +25047,7 @@
 {
 "name": "龙类灵魄召唤术",
 "en": "Summon Draconic Spirit",
-"level": 0,
+"level": 5,
 "school": "咒法",
 "classes": [
 "德鲁伊",

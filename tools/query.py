@@ -664,7 +664,7 @@ def do_equip(args):
     if args.name:
         groups = search(pool, args.name)
         if not groups:
-            print(f"未找到装备「{args.name}」。（当前仅武器+护甲；工具/法器/魔法物品待接入）")
+            print(f"未找到装备「{args.name}」。（PHB24 武器/护甲/工具/冒险装备；魔法物品请用 magic 子命令）")
             return
         if args.json:
             print(json.dumps([r for g in groups for r in g["recs"]], ensure_ascii=False, indent=2))
@@ -681,7 +681,7 @@ def do_equip(args):
     if args.json:
         print(json.dumps(pool, ensure_ascii=False, indent=2))
         return
-    print(f"装备 → {len(pool)} 条" + (f"（{args.kind}）" if args.kind else "（武器 + 护甲）"))
+    print(f"装备 → {len(pool)} 条" + (f"（{args.kind}）" if args.kind else "（武器/护甲/工具/冒险装备）"))
     for r in sorted(pool, key=lambda x: x["name"]):
         ln = f":{r['line']}" if r.get("line") else ""
         extra = r.get("damage") or r.get("ac") or ""
@@ -794,9 +794,9 @@ def main():
     fp.add_argument("--json", action="store_true")
     fp.set_defaults(func=do_feat)
 
-    ep = sub.add_parser("equip", help="查装备（武器/护甲）")
+    ep = sub.add_parser("equip", help="查装备（武器/护甲/工具/冒险装备）")
     ep.add_argument("name", nargs="?", help="装备名（中/英，可部分）")
-    ep.add_argument("--kind", choices=["weapon", "armor"], help="只看武器/护甲")
+    ep.add_argument("--kind", choices=["weapon", "armor", "tool", "gear"], help="只看某类")
     ep.add_argument("--category", help="按分类（简易近战/重甲/...）")
     ep.add_argument("--json", action="store_true")
     ep.set_defaults(func=do_equip)
