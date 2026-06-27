@@ -37,7 +37,22 @@
 - 旧版 PHB14 / DMG14 / MM14、塔莎、珊娜萨、贤者谏言、万象无常等扩展
 - 多个设定集（艾伯伦、龙枪、星界、费资本、范·里希腾...）
 
-### 2. HTML 电子角色卡
+### 2. ⚡ 快查 CLI（亮点）
+
+`tools/` 下有一层**派生索引 + stdlib Python CLI**，把"grep 大文件 + 多次 Read"压成一次命令出结构化记录——秒级、确定、自带 `path:line` 引用。**任何带 Python 的 Agent 都能零安装直接调**（只用标准库），clone 即用（索引已随仓库附带）：
+
+```bash
+python tools/query.py spell 火球术                  # 单条 → 环阶/学派/职业/施法/距离/成分/持续 + 来源 + path:line
+python tools/query.py spell --class 法师 --level 2   # 枚举 → 自动跨书、默认 PHB24（--all 看全部印次）
+python tools/query.py monster 远古红龙              # 怪物 statblock 摘要（CR/AC/HP/属性/抗免/感官）
+python tools/query.py monster --cr ">=15" --type 龙  # 按 CR/类型/体型枚举
+python tools/query.py class                         # 列全部职业；subclass --class 战士 = 子职枚举
+python tools/query.py race 提夫林                    # 种族；feat 神射手=专长；equip 长剑=装备；magic 雷神之锤=魔法物品
+```
+
+8 个查询域：`spell / monster / class / subclass / race / feat / equip / magic`（默认 **2024 优先**，单查折叠到最高优先来源、枚举默认官方书）。详见 [tools/README.md](tools/README.md)。资料库更新后跑 `python tools/build_index.py` 重建索引。
+
+### 3. HTML 电子角色卡
 
 `templates/character-sheet.html` 是一个**完全自包含**的单文件交互卡：
 
@@ -51,7 +66,7 @@
 - **兼职支持**：混合 HD 显示（如 `d8×3 + d6×2`），短休时按骰型分组依次询问消耗
 - **特殊投骰面板**：例如混沌施法术士的 d100 法力狂潮表，点按钮自动投骰、查表、续投子骰、写入历史
 
-### 3. 通过 build-sheet.py 出卡
+### 4. 通过 build-sheet.py 出卡
 
 ```bash
 # 输入：JSON（schema 见 SKILL.md）
@@ -67,7 +82,7 @@ EOF
 python templates/build-sheet.py character.json output.html
 ```
 
-### 4. DM 跑团（带模组）
+### 5. DM 跑团（带模组）
 
 SKILL.md **工作流 G** 让 Claude 切换为 DM 模式带你跑一本团。AI 跑团多为单人 / 双人，所以这个工作流专为小团设计。
 
@@ -96,7 +111,7 @@ SKILL.md **工作流 G** 让 Claude 切换为 DM 模式带你跑一本团。AI �
 - **救场机制**：全队 down 时按模组兜底（如风骸岛 = 茹娜拉营救），救场配额在 `dm-only/dm-notes.md` 自动追踪
 - **难度自适应**：按当前人数 + DM 风格 + 模组的「二级/三级冒险者」加成自动调整
 
-### 5. 模组定制改写
+### 6. 模组定制改写
 
 SKILL.md **工作流 H** 让你按需求改写模组。AI 跑团是单人 / 双人居多，原版多为 4-5 人本，所以**改写**是刚需。同时玩家对风味（基调 / 性别 / 世界观 / 口音）需求各异。
 
@@ -122,7 +137,7 @@ Claude：
   5. 改完剩余文件，可直接开桌跑
 ```
 
-### 6. 沙盒模式（开放世界生活模拟）
+### 7. 沙盒模式（开放世界生活模拟）
 
 SKILL.md **工作流 I** 是工作流 G 的姐妹工作流：G 跑剧本驱动的模组，I 跑玩家自驱的沙盒。
 
@@ -141,7 +156,7 @@ SKILL.md **工作流 I** 是工作流 G 的姐妹工作流：G 跑剧本驱动�
 
 ---
 
-### 7. 自定义内容（Homebrew）
+### 8. 自定义内容（Homebrew）
 
 SKILL.md **工作流 J** 让你把自创的种族 / 职业 / 子职业 / 专长 / 法宝 / 怪物 / 法术等内容做成和官方同格式的 `.md`，存进资料库，之后车卡 / 跑团 / 枚举全程可查可用。
 
@@ -162,7 +177,7 @@ SKILL.md **工作流 J** 让你把自创的种族 / 职业 / 子职业 / 专长 
 
 ---
 
-### 8. 存档系统（/save · /load）
+### 9. 存档系统（/save · /load）
 
 SKILL.md **工作流 S** 让你在 G（跑团）或 I（沙盒）会话中随时打存档点、任意回溯。
 
@@ -207,10 +222,10 @@ git clone https://github.com/ZGP0072600/dnd5r-skill.git .claude/skills/dnd5r
 |---|---|
 | 帮我用 X 车一张 N 级卡 | 按 SKILL.md 第 B 节流程：种族 → 职业/子职 → 背景 → 属性 → 专长 → 装备 → 法术 → HP/AC 结算 → 出 HTML 卡 |
 | 改卡 / 升级 | Read 旧 HTML 提取嵌入 JSON → 改 → 重生成 |
-| X 法术怎么样 | A 工作流：grep 法术速查 → 读详述 → 给环阶/学派/施法时间/距离/成分/持续/效果/升环/来源 |
-| X 怪物 CR 多少 | D 工作流：grep 万兽大全 → 读详细页 |
+| X 法术怎么样 | A 工作流：**首选 `query.py spell X`**（秒级、带 path:line），要完整效果/升环再按 path:line 读详述 |
+| X 怪物 CR 多少 | D 工作流：**首选 `query.py monster X`**（CR/AC/HP/属性 + path:line），要动作全文再读详细页 |
 | 某规则怎么裁定 | C 工作流：grep `进行游戏` / `术语汇编` |
-| 战士 / 牧师 / X 职业有哪些子职 | E 工作流：跨书扫 PHB24 + PHB14 + 塔莎 + 珊娜萨 + 剑湾 + 费资本 |
+| 战士 / X 职业有哪些子职 / 有哪些种族·专长 | E 工作流：**首选 `query.py subclass --class X` / `class` / `race` / `feat`**（跨书、2024 优先；CLI 未覆盖的书再 glob）|
 | 你来当 DM 带我跑 X 模组 | **G 工作流**：G1 七步初始化战役 → G2 叙事循环 → G3 文件持久化战斗 → G6 桌末同步 |
 | 继续上次跑团 / 上次跑到哪了 | **G7 工作流**：按 11 步固定顺序读 `campaigns/<战役>/` 全套文件续接，无需重报状态 |
 | 做单人 / 双人 / 克苏鲁版 / 治愈向 / 性转版 / ... 的 X 模组 | **H 工作流**：解析需求 → 改写计划确认 → 全量副本 → 分层改写 |
