@@ -20,6 +20,8 @@ Thumbs.db
 !**/launch.json
 # Ship skill state index files (all-saves, modules-index — not per-thread data)
 !.fathom-panels/dnd5r/*.json
+# Ship the derived fast-query index (reference data from docs/extracted, no personal info)
+!tools/index/*.json
 
 # But DO ship example HTML cards intentionally placed under examples/
 !examples/**/*.html

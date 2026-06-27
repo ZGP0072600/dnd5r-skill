@@ -318,8 +318,27 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - `城主指南2024/` — DMG24，DM 规则与工具箱、宝藏、据点
 - `怪物图鉴2025/` — MM25，按生物类型分目录（亡灵/元素/龙类/类人/...）
 
-### 关键索引文件（**绝大多数查询从这里起手**）
-- `速查/法术速查/5E万法大全.html` — **法术总索引**。每条法术一行 `<TR>`，tags 含学派/动作/职业/环阶/来源书代号，附 `<a href="/<书名>/法术详述/X环.htm#英文锚点">`。
+### ⚡ 快查 CLI（法术/怪物/职业/种族/专长/装备/魔法物品 —— 首选，已激活）
+官方 `docs/extracted/` 的 **7 类**已建派生索引 + stdlib CLI（详见 [tools/README.md](tools/README.md)）。**优先用它**：秒级、确定、自带 `path:line` 引用，免去 grep 大索引 + 多次 Read。命令前缀均为 `python .claude/skills/dnd5r/tools/query.py`：
+
+```bash
+spell 火球术                  # 法术单条 → 环阶/学派/职业/施法/距离/成分/持续/专注/仪式 + 来源 + path:line
+spell --class 法师 --level 2   # 法术枚举 → 自动跨书、折叠最高优先来源（--all 看全部印次）
+monster 远古红龙              # 怪物 statblock 摘要（CR/AC/HP/属性/抗免/感官）+ path:line
+monster --cr ">=15" --type 龙  # 怪物枚举 → CR(支持 >= <= 区间)/类型/体型/来源
+class 法师                     # 职业总览+子职列表（无参列全 14）；subclass --class 战士 = 子职枚举
+race 提夫林                    # 种族（无参列全部）；feat --cat 起源 = 专长枚举；feat 神射手 = 单条
+equip 长剑                     # 装备(武器/护甲) 伤害·词条·精通·价格；equip --kind armor = 列护甲
+magic 雷神之锤                # 魔法物品 → 类型·稀有度·调谐 + path:line；magic --type 武器 --rarity 传说 = 枚举
+spell Fireball --json         # 任意子命令加 --json 给程序化调用
+```
+- 索引只含字段 + 指针、**不含正文**；要完整法术效果/怪物动作/职业子职特性/专长/魔法物品词条全文时，按返回的 `path:line` Read 那段。
+- 覆盖：法术 1179/22书；怪物 738+85族/28书(CR回填)；职业 **14** + 子职 **119**（PHB24 + 塔莎/珊娜萨追加 + 奇械师 + 铳士）；种族 **19**（PHB24 + 剑湾 + 费资本龙裔）；专长 **98**（PHB24 + 塔莎/珊娜萨种族专长/费资本龙系）；装备 38武器+13护甲（PHB24）；**魔法物品 331**（城主指南2024，9 类×稀有度）。**homebrew 不在索引**（按规则10 glob）；资料库改后跑 `python .claude/skills/dnd5r/tools/build_index.py` 重建全部。
+- **枚举默认只列官方书**（自动隐藏第三方/UA/模组防淹没，会提示隐藏 N 条）；`--all` 看全部、`--source <书>` 指定某书。单条名字查询不受影响（仍能查到任何书，含铳士等第三方）。
+- **法术+怪物全覆盖；职业含奇械师+铳士**；子职/种族/专长/装备仍主要 PHB24——其余跨书（PHB14/塔莎/珊娜萨/剑湾/费资本/设定书）+ 装备工具/法器/魔法物品待接入，暂走工作流 E/glob。专长为启发式解析（PHB24 各分类已较完整：起源 10/10、通用 43、战斗风格 10、传奇恩惠 12；长尾按 `path:line` 核对）。
+
+### 关键索引文件（CLI 未覆盖的类别从这里起手）
+- `速查/法术速查/5E万法大全.html` — **法术总索引**（CLI 的回退）。每条法术一行 `<TR>`，tags 含学派/动作/职业/环阶/来源书代号，附 `<a href="/<书名>/法术详述/X环.htm#英文锚点">`。
 - `速查/法术速查/<职业>法术速查.html` — 按职业筛选的法术表（吟游诗人/圣武士/.../魔契师 + 奇械师）
 - `速查/5E万兽大全.html` — 怪物总索引
 - `速查/种族.htm` — 种族速查
@@ -388,15 +407,17 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 ## 工作流
 
 ### A. 法术查询
-1. Grep `docs/extracted/速查/法术速查/5E万法大全.html` 搜法术名（中文先，无果改英文）
-2. 拿到 `<TR>` 行 → 解析 tags 元数据 + `href` 直链
-3. **Read MD 版本**：把 href 的 `.htm` 改成 `.md`（如 `/玩家手册2024/法术详述/3环.htm#Fireball` → `玩家手册2024/法术详述/3环.md`），Grep `^## 火球术` 拿到行号定位段落
+**首选 CLI**（秒级、确定、自带引用 —— 见《⚡ 快查 CLI》）：
+1. `python .claude/skills/dnd5r/tools/query.py spell <法术名>`（中/英任意、可部分）→ 环阶/学派/职业/施法时间/距离/成分/持续/专注/仪式 + 来源书 + `path:line`
+2. 需要**完整效果文本 / 升环描述**时（索引不含正文）：按返回的 `path:line` Read 那一段
+3. 枚举"X 职业 N 环法术有哪些"：`query.py spell --class <职业> --level <N>`（自动跨书、已折叠最高优先来源；`--all` 看全部印次）
 4. 回答含：环阶、学派、施法时间、距离、成分、持续时间、效果、升环效果、来源书
-5. 用户问"X 职业 N 环法术有哪些"：直接 Read `速查/法术速查/<职业>法术速查.html` 的对应区段
 
-**MD 法术结构提示**（玩家手册2024/法术详述/X环.md）：
-- 顶层 frontmatter 含整环全部法术索引（`spells: [{name, en, school, classes, ...}]`），适合"列出所有牧师 2 环法术"这种聚合查询
-- body 中每个法术：`## 中文 ｜ English` + 紧凑字段列表（学派/职业/施法时间/距离/成分/持续时间）+ 描述 + 升环施法
+**回退**（CLI 不可用 / 查 homebrew / 索引未覆盖）：
+- Grep `速查/法术速查/5E万法大全.html` → 解析 `<TR>` tags + href → `.htm` 改 `.md` → Grep `^## <名>` 定位
+- homebrew 法术：glob `campaigns/<战役名>/homebrew/spells/` → `homebrew/spells/`（规则 10）
+
+**MD 法术结构提示**（按 path:line Read 正文时）：body 中每个法术 = `## 中文 ｜ English` + 紧凑字段列表 + 描述 + 升环施法
 
 ### B. 车卡（建卡）
 按顺序逐步推进，**每步给 2-3 个选项 + 理由让用户挑**，不要一次甩整张卡。
@@ -635,21 +656,22 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 4. 若 2014 与 2024 有显著差异，先答 2024，再用 1 句话点差异
 
 ### D. 怪物查询
-1. Grep `速查/5E万兽大全.html` 找中/英文名（索引仍是 .html）
-2. 拿到 href 后**把 .htm 改 .md** 再 Read（如 `怪物图鉴2025/类人/角斗士.md`）
-3. **MD 怪物 frontmatter 含结构化字段**：`type / name / cr / xp / pb / ac / hp / abilities / skills / damage_resist / damage_immune / condition_immune / senses / languages` 等——直接读 frontmatter 即可拿全要素
+**首选 CLI**（见《⚡ 快查 CLI》；怪物已覆盖）：
+1. `python .claude/skills/dnd5r/tools/query.py monster <怪物名>`（中/英、可部分）→ CR/XP/体型/类型/阵营/AC/HP/速度/属性(带调整值)/抗性·免疫/状态免疫/感官/语言 + 来源 + `path:line`
+2. 需要**特性 / 动作 / 反应 / 传奇动作全文**时（索引不含正文）：按返回的 `path:line` Read 那一段
+3. 枚举/筛选：`query.py monster --cr ">=15" --type 龙`、`--cr 1/4 --type 亡灵`、`--size 超巨型`、`--source 怪物图鉴2025`
+   - `--cr` 支持 `>=` `<=` `>` `<` / 精确（`5`、`1/4`） / 区间（`1-5`）。CR 已从 `5E万兽大全` **回填**了源转换截断的 statblock（巫妖、远古龙等）。
 4. 给出 CR、HP、AC、速度、属性、豁免、技能、感官、攻击、特殊能力、来源
 5. 战斗建议时再补一段 DM 视角的能力点评（基于查到的特性，不要凭印象）
 
-**MD 怪物结构提示**：
-- 怪物图鉴 2025 的 .md 是完整 frontmatter + body（含数据栏表、特性、动作、反应等）
-- 2014 DNDBeyond 风格（怪物纲要 1 等）也有完整 frontmatter
-- 其他 2014 资料书的怪物（怪物图鉴/、多元宇宙/、瓦罗/等）走 document fallback：**没有 frontmatter 结构化字段**，但 body 含完整文本，grep 仍然有效——回答时需要从 body 文本中提取数值
+**回退**（CLI 不可用 / homebrew / 要正文细节 / 索引未覆盖）：
+- Grep `速查/5E万兽大全.html` 找名 → href 的 `.htm` 改 `.md` 再 Read（如 `怪物图鉴2025/类人/角斗士.md`）
+- homebrew 怪物：glob `campaigns/<战役名>/homebrew/monsters/` → `homebrew/monsters/`（规则 10）
+- **已知数据洞**（诚实）：~26 个怪物仍无 CR、18 个塞洛斯生物图鉴文件 frontmatter 损坏被跳过（源 htm2md 转换缺陷）——按名查仍可命中，细节走正文 grep
 
-**结构化查询能力**（仅怪物图鉴 2025 + 怪物纲要 1）：
-- "列出所有 CR 5+ 的类人" → `grep '^cr: [5-9]\|^cr: 1[0-9]\|^cr: 2[0-9]' 怪物图鉴2025/类人/**/*.md`
-- "列出所有抗暗蚀的怪物" → `grep -l 'damage_resist:.*暗蚀' 怪物图鉴2025/**/*.md`
-- "列出族首页" → `grep -l '^type: monster_family$' 怪物图鉴2025/**/*.md`
+**MD 怪物结构提示**（按 path:line Read 正文时）：
+- 怪物图鉴 2025 / DNDBeyond 怪物纲要 = 完整 frontmatter + body（数据栏表、特性、动作、反应）
+- 其他 2014 书（多元宇宙/瓦罗/等）走 document fallback：无结构化 frontmatter，grep body 提数值
 
 ### E. 枚举类查询（"X 的全部 / 所有 / 有哪些 Y"）
 
@@ -659,8 +681,9 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 **关键提醒**：扩展书的"职业.html"是 PHB14 风格的**单文件含全部子职**——Read 一次即可拿到所有子职段落，不要按 PHB24 思路找子目录。
 
-#### E1. 子职业（按职业 Glob）
-对每个职业，按下面模板批量扫，缺的直接跳过：
+#### E1. 子职业
+**首选 CLI**（已接入 **PHB24 + 塔莎/珊娜萨追加 + 奇械师 + 铳士**）：`query.py subclass --class <职业>` 出该职业全部已接入子职（按来源分组、带 flavor + path:line）；`query.py class <职业>` 出职业总览。详情走 `path:line` Read。
+**尚未接入**（PHB14 经典子职、剑湾/费资本变体子职）——按下面模板 Glob 补全（缺的直接跳过）：
 ```
 玩家手册2024/角色职业/<职业>/*.htm                     # PHB24 主子职（4-5 个，含主文件 + 子职 .htm）
 玩家手册/职业/<职业>.html                              # PHB14 单文件（含原版 2-4 个子职段落）
@@ -674,6 +697,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 - **魔契师/邪术师**：PHB24 是"魔契师"目录、扩展书都叫"邪术师"——查时两个名都试
 
 #### E2. 种族
+**首选 CLI**（PHB24 + 剑湾 + 费资本龙裔，共 19）：`query.py race`（列全部）/ `query.py race <名>`（单条 + flavor + path:line）。其余设定书种族（艾伯伦/星界/塞洛斯/拉尼卡，多为单文件多种族）CLI 待接入，按下面 glob 补：
 ```
 玩家手册2024/角色起源/种族详述.htm                     # PHB24 主体
 玩家手册/种族/种族.html                                # PHB14
@@ -689,6 +713,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 设定书种族数量大，**默认仅列 PHB24 + PHB14 + 塔莎 + 剑湾 + 费资本**；其他设定书在用户提到对应世界（艾伯伦/星界/塞洛斯/拉尼卡）时再扫。
 
 #### E3. 专长
+**首选 CLI**（启发式解析，98 条：PHB24 + 塔莎扩展/珊娜萨种族专长/费资本龙系）：`query.py feat --cat <分类>`（起源/通用/战斗风格/传奇恩惠/种族/龙系/扩展）/ `query.py feat <名>`（单条）。起源 10/10 全；少数跨书 en 截断、长尾边角按 `path:line` 核对。第三方专长（塔尔多雷/斯翠海文）未接入，按下面 glob 补：
 ```
 玩家手册2024/专长/*.htm                                # PHB24（按起源/通用/史诗/战斗分类）
 塔莎的万事坩埚/玩家选项/专长.html
@@ -697,12 +722,12 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 ```
 
 #### E4. 全部职业
-PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法师/游侠/游荡者/牧师/野蛮人/魔契师）+ 奇械师（塔莎）= **13 个**
+**CLI**：`query.py class`（无参列全部 12 职业 + 各自子职数 + path:line）。
+PHB24 共 **12 个**（吟游诗人/圣武士/德鲁伊/战士/术士/武僧/法师/游侠/游荡者/牧师/野蛮人/魔契师）+ 奇械师（塔莎，CLI 暂未含）= **13 个**
 
-#### E5. 已有跨书汇总索引（直接读，不要再分书扫）
-- **法术** → `速查/法术速查/5E万法大全.html`（含 366+ 处扩展书引用）
-- **职业法术速查** → `速查/法术速查/<职业>法术速查.html`（含奇械师）
-- **怪物** → `速查/5E万兽大全.html`
+#### E5. 已有跨书汇总索引
+- **法术** → ⚡ 首选 CLI `python .claude/skills/dnd5r/tools/query.py spell --class <职业> --level <N>`（自动跨书、带引用、折叠最高优先来源）；回退 `速查/法术速查/5E万法大全.html` 或 `<职业>法术速查.html`
+- **怪物** → ⚡ 首选 CLI `python .claude/skills/dnd5r/tools/query.py monster --cr <表达式> --type <类型>`（带引用、CR 已回填）；回退 `速查/5E万兽大全.html`
 
 #### E6. 呈现模板（推荐）
 ```
@@ -1065,7 +1090,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 7. **Edit** 战役 `README.md` frontmatter：`session_count += 1`
 8. **同步 Panel**（详见 §Panel 数据同步）：Write `.fathom-panels/dnd5r/threads/<threadId>/session.json` 同步桌末态——`campaign.inGameTime`（与 world-state.md 一致）、players（与 .md 一致的 HP/status）、`module.progress`（与 progress.md 一致）。**这一步保证用户下次切到 Fathom 看 panel 就能知道上次到哪。**
 
-#### G7. 跨 session 恢复（11 步固定顺序）
+#### G7. 跨 session 恢复（12 步固定顺序）
 
 新对话续接时按以下顺序读取（保证 LLM 完整上下文恢复）：
 
@@ -1079,7 +1104,12 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 8. Read `campaigns/<战役名>/combat/active.md`（若存在 = 上次桌断在战斗中，恢复战斗）
 9. Read `campaigns/<战役名>/dm-only/dm-notes.md`（DM 私笔）
 10. **询问玩家**："上桌结束时大家身上状态有变化吗？" —— 若玩家在电子卡 HTML（LocalStorage）里手改过，以玩家为准回填 canonical `characters/*.json`
-11. 按 DM 风格语调写「上回提要」开场，然后继续 G2 节奏
+11. **同步 Panel**（Fathom 环境）：跑读档脚本，按 all-saves 最近存档点重写当前 thread 的 session.json，让新对话的 panel 立即切到本战役——与宿主「继续」按钮、S2 读档**同一份脚本、同一逻辑**：
+    ```powershell
+    python tools/load-session.py --data-base .fathom-panels/dnd5r "<战役名>"
+    ```
+    （省略存档名 = 取该战役最近存档点；panel 反映最近存档时刻状态）
+12. 按 DM 风格语调写「上回提要」开场，然后继续 G2 节奏
 
 #### G8. 资料引用
 - 怪物数据：先 `docs/modules/<模组>/06_附录B_生物图鉴.md`，缺则 `docs/extracted/怪物图鉴2025/`。
@@ -1367,7 +1397,11 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
      }
      ```
 4. **刷新上下文**：执行 G7 第 1~9 步（读 README / dm-styles / house-rules / progress / world-state / sessions 最近 1 条 / players / combat/active），让 LLM 上下文与恢复后文件一致
-5. **重建 session.json**（Fathom 环境必做）：读 `.fathom-context.json` 取 threadId；存在则按 §Panel 数据同步 契约，根据恢复后的文件**全量重写** `.fathom-panels/dnd5r/threads/<threadId>/session.json`——`mode / campaign（inGameTime/location/timeOfDay/weather）/ module.progress / combat（若 active.md 存在）/ sandbox`，`lastUpdate` 更新为当前时间。**不含 `players[]`**——队伍 HUD 从第 3 步已还原的 canonical `characters/*.json` 自动派生。这一步保证 Fathom panel 主面板与详情弹窗（characters/npcs/companions JSON 已在第 3 步一并还原）立即反映存档时刻的完整状态。
+5. **重建 session.json**（Fathom 环境必做）：跑读档脚本——它读 `all-saves.json` 里本战役该存档的 `mode / dmStyle / module / chapter / inGameTime / location` + `.fathom-context.json` 的 threadId，按 session-v2 契约全量重写 `.fathom-panels/dnd5r/threads/<threadId>/session.json`。**与宿主「继续」按钮跑的是同一份脚本、同一逻辑**（按钮路径与打字路径共用，不再各写一份）：
+   ```powershell
+   python tools/load-session.py --data-base .fathom-panels/dnd5r "<战役名>" "<存档名>"
+   ```
+   session.json **不含 `players[]`**——队伍 HUD 从第 3 步已还原的 canonical `characters/*.json` 派生；详情弹窗的 characters/npcs/companions JSON 也已在第 3 步一并还原。这一步让 Fathom panel 立即反映存档时刻状态。
 6. **回复**：告知恢复成功 + 简短「已回到……」一句 in-character 开场，然后继续 G2/I2 节奏
 
 #### S3. `/saves` — 列出存档
