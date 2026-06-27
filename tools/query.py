@@ -522,7 +522,7 @@ def do_subclass(args):
     for e in pool:
         by_src.setdefault(e["source"], []).append(e)
     title = "子职枚举" + (f"：{args.cls}" if args.cls else "（全部）")
-    print(f"{title} → {len(pool)} 条（含 PHB24 + 塔莎/珊娜萨 + 奇械师/铳士；PHB14/剑湾等待接入）")
+    print(f"{title} → {len(pool)} 条（含 PHB24 + 塔莎/珊娜萨 + 奇械师/铳士/血猎手 + 5 部第三方书子职；PHB14/剑湾/谦卑林待接入）")
     for src in sorted(by_src, key=lambda s: min(x["priority"] for x in by_src[s])):
         print(f"\n【{src}】")
         for e in sorted(by_src[src], key=lambda x: (x.get("class") or "", x["name"])):
@@ -551,7 +551,8 @@ def do_class(args):
     if args.json:
         print(json.dumps(classes, ensure_ascii=False, indent=2))
         return
-    print(f"职业（共 {len(classes)}：PHB24 12 + 奇械师(塔莎) + 铳士(第三方)）：")
+    n_phb = sum(1 for c in classes if c["priority"] == 0)
+    print(f"职业（共 {len(classes)}：{n_phb} PHB24 + {len(classes) - n_phb} 跨书/第三方）：")
     for c in sorted(classes, key=lambda x: x["priority"]):
         hd = f" HD{c['hit_die']}" if c.get("hit_die") else ""
         ln = f":{c['line']}" if c.get("line") else ""

@@ -402,6 +402,9 @@ CROSS_CLASSES = [
     {"name": "铳士", "main": "第三方/瓦尔达的秘密尖塔/铳士/铳士职业.md",
      "subdir": "第三方/瓦尔达的秘密尖塔/铳士",
      "subclasses": ["密间客", "技枪客", "死眼客", "白帽客", "豪赌客", "魔弹客"]},   # 枪械/弹药/词条噪音多，显式列
+    {"name": "血猎手", "main": "第三方/血猎手/血猎手.md",
+     "subdir": "第三方/血猎手",
+     "subclasses": ["化狼结社", "弑灵结社", "渎魂结社", "突变结社"]},               # 血咒是职业特性、非子职
 ]
 
 
@@ -505,6 +508,38 @@ def build_classes(docs_root, out_dir):
                 })
                 sub_count += 1
                 per_src[source] = per_src.get(source, 0) + 1
+
+    # 第三方：给现有职业的子职选项（文件名 <职业>-<子职>，父职业取前缀；谦卑林无前缀信息故略）
+    TP_SUBCLASS_DIRS = [
+        "第三方/狮鹫的鞍中珍宝Ⅱ/子职", "第三方/瓦尔达的秘密尖塔/子职",
+        "第三方/胧忆岛/子职", "第三方/鬼魅幽谷/玩家包/子职", "第三方/黯潮之书/子职",
+    ]
+    for d in TP_SUBCLASS_DIRS:
+        base = docs_root / d
+        if not base.is_dir():
+            continue
+        for f in sorted(base.glob("*.md")):
+            if "-" not in f.stem or f.stem in ("职业", "子职"):
+                continue
+            prefix, suffix = f.stem.split("-", 1)
+            cls = CLASS_NAME_ALIAS.get(prefix.replace("范型", "").strip(), prefix.replace("范型", "").strip())
+            sfm_str, slines = split_frontmatter(f.read_text(encoding="utf-8"))
+            sfm = (yaml.safe_load(sfm_str) if sfm_str else {}) or {}
+            sname = (sfm.get("name") or suffix).strip()
+            if "-" in sname:                       # frontmatter name 可能含职业前缀，去掉
+                sname = sname.split("-", 1)[1].strip()
+            sen = (sfm.get("en") or "").strip()
+            rel = f.relative_to(docs_root).as_posix()
+            source = derive_source(rel)
+            entries.append({
+                "kind": "subclass", "name": sname, "en": sen, "class": cls,
+                "flavor": extract_flavor(slines),
+                "source": source, "edition": str(sfm.get("edition") or ""),
+                "priority": source_priority(source),
+                "path": rel, "line": match_heading(sname, sen, all_headings(slines), prefer_level=1),
+            })
+            sub_count += 1
+            per_src[source] = per_src.get(source, 0) + 1
 
     out = out_dir / "classes.json"
     out.write_text(json.dumps(
