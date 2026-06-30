@@ -1993,10 +1993,13 @@
   function ingest(payload) {
     var sources = (payload && payload.sources) || {};
 
-    // 1) 从 campaignFiles(collection) 一趟遍历派生三样（entry.path 相对 dataBase）：
-    //    a. campaigns/<战役>/<characters|npcs|companions>/<名>.json → campaignIndex（弹窗 + HUD）
-    //    b. campaigns/<战役>/campaign.json                         → 战役元信息(mode/module/dmStyle/lastPlayed)
-    //    c. campaigns/<战役>/saves/<x>.json                        → 该战役一条存档
+    // 1) 从 campaignFiles(collection) 一趟遍历派生三样（entry.path 相对 dataBase、`/` 分隔）：
+    //    a. campaigns/<战役>/<characters|npcs|companions>/<名>.json （深度4）→ campaignIndex（弹窗 + HUD）
+    //    b. campaigns/<战役>/campaign.json                         （深度3）→ 战役元信息(mode/module/dmStyle/lastPlayed)
+    //    c. campaigns/<战役>/saves/<x>.json                        （深度4）→ 该战役一条扁平存档元数据
+    //    ⚠️ 必须按【精确深度】分流：collection 还兜底读 workspace 根 campaigns/（防 AI 写错位置），
+    //    那里有 /save 的【完整快照】 campaigns/<战役>/saves/<存档>/state-json/<type>/<名>.json（深度≥5）。
+    //    只判 parts[2]==='saves' 会把快照里的角色/NPC 当存档列进去（踩过的 bug）——故深度≥5 一律忽略。
     //    存档不再读手维护的 all-saves.json——全从目录文件派生（一战役一 campaign.json + 一存档一文件）。
     campaignIndex = {};
     var campMeta = {};   // normCampaign(战役) -> campaign.json
@@ -2013,16 +2016,23 @@
         if (!obj) return;
         if (parts.length === 3 && leaf === 'campaign.json') {
           campMeta[camp] = obj;                                  // b. 战役元信息
-        } else if (parts.length >= 4 && parts[2] === 'saves') {
-          (campSaves[camp] = campSaves[camp] || []).push(obj);   // c. 一存档一文件
-        } else if (parts.length >= 4) {
-          var type = parts[parts.length - 2];                    // a. characters | npcs | companions
+        } else if (parts.length === 4 && parts[2] === 'saves') {
+          // c. 扁平存档元数据 saves/<x>.json：须有 name 字段才收。workspace 根兜底会混入旧格式
+          //    save-snapshot-v1（用 saveName、无 name）等别的 json——跳过，否则会出现空名行 / 列出
+          //    读档脚本根本读不了的别格式存档（load-session.py 按 name 匹配本格式）。
+          if (typeof obj.name === 'string' && obj.name) {
+            (campSaves[camp] = campSaves[camp] || []).push(obj);
+          }
+        } else if (parts.length === 4) {
+          var type = parts[2];                                   // a. characters | npcs | companions
           var name = leaf.replace(/\.json$/i, '');
           if (!campaignIndex[camp]) campaignIndex[camp] = {};
           if (!campaignIndex[camp][type]) campaignIndex[camp][type] = {};
           // 存原始 canonical：弹窗 open 时再 richToV1 投影、HUD 也从原始派生；companions/npcs 原样。
           campaignIndex[camp][type][name] = obj;
         }
+        // 深度≥5：workspace 根兜底读进来的完整快照实体（saves/<存档>/state-json/...），忽略——
+        // 既不是扁平存档、也不是 live 实体（live 实体在 .fathom-panels 那份、深度4）。
       });
     }
 
