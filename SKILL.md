@@ -69,8 +69,8 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 ```
 
 维护规则（**AI 硬约束**，比旧版省事——不再 Read-改-Write 大索引）：
-- **G1/I1 开新战役**：Write `campaigns/<战役名>/campaign.json` = `{name, mode:"G"|"I"（带团=G/沙盒=I）, module, dmStyle, lastPlayed: 今日}`（已存在则按需更新字段）。**`mode` 必填**——Fathom 读档时据它写 session.json。
-- **S1 新建存档**：Write **一个新文件** `campaigns/<战役名>/saves/<NNNN_存档名>.json` = `{name, createdAt, chapter, location, inGameTime}`（`<NNNN_>` 用递增序号或时间戳前缀保证"最新=排序最后"；`inGameTime` = 当前 in-game 时间，与 world-state.md / session 一致）。**不碰任何索引文件**——写完面板自动出现该存档。
+- **G1/I1 开新战役**：Write `.fathom-panels/dnd5r/campaigns/<战役名>/campaign.json` = `{name, mode:"G"|"I"（带团=G/沙盒=I）, module, dmStyle, lastPlayed: 今日}`（已存在则按需更新字段）。**`mode` 必填**——Fathom 读档时据它写 session.json。
+- **S1 新建存档**：Write **一个新文件** `.fathom-panels/dnd5r/campaigns/<战役名>/saves/<NNNN_存档名>.json` = `{name, createdAt, chapter, location, inGameTime}`（`<NNNN_>` 用递增序号或时间戳前缀保证"最新=排序最后"；`inGameTime` = 当前 in-game 时间，与 world-state.md / session 一致）。**不碰任何索引文件**——写完面板自动出现该存档。
 - **G6 桌末**：把对应 `campaign.json` 的 `lastPlayed` 改成今日（只动这一个文件的这一个字段）。
 
 **模组索引**：`.fathom-panels/dnd5r/modules-index.json`（相对 cwd=workspace 写）。panel idle 模式"开桌带团"展开时自动投影此文件显示可选模组，无需 AI。Schema：`{modules:[{name, levels?, chapters?, desc?, base?, variant?}]}`。维护规则：
@@ -181,7 +181,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 > 上面的 session.json 指令都对、都清楚，但**实战最常见的事故是 AI 跑着叙事、压根没写 session.json**（尤其漏了开桌初始化）→ 面板一直停在"未开桌"。根治靠把"写盘"焊到一行**必须输出的可见状态行**上：LLM 对"输出字面格式"的遵从度远高于"执行不可见写盘"。这一行既是玩家可见 HUD，又是写盘的自检触发器。
 
-**🛑 铁律 0 · 开桌即初始化**：本对话一旦在跑战役（沙盒 I / 带团 G），**第一件事**就是确认 `.fathom-panels/dnd5r/threads/<threadId>/session.json` 存在（不存在 → 立刻按 `mode=I`/`G` + campaign（+ sandbox/combat）初始化写出来），并确认参战 PC 的 `characters/<X>.json` 都在（队伍 HUD 从它派生）。**没有 session.json 面板就是"未开桌"，玩家一眼可见。** （无 `.fathom-context.json` 的 Claude Code 环境才跳过。）
+**🛑 铁律 0 · 开桌即初始化**：本对话一旦在跑战役（沙盒 I / 带团 G），**第一件事**就是确认下面**三个文件**都在 `.fathom-panels/dnd5r/` 下写好了——**缺一面板就不亮**（全部相对 cwd=workspace 直接写、带 `.fathom-panels/dnd5r/` 前缀，**绝不要写 workspace 根的叙事 `campaigns/`**，那里面板看不到）：① **`campaigns/<战役名>/campaign.json`**（`{name,mode,module,dmStyle,lastPlayed}`，`mode` 必填）——**没有它战役不进面板列表**；② 参战 PC 的 **`campaigns/<战役名>/characters/<X>.json`**——队伍 HUD 从它派生；③ **`threads/<threadId>/session.json`**（不存在 → 立刻按 `mode=I`/`G` + campaign（+ sandbox/combat）初始化写出来）——**没有它面板就是"未开桌"，玩家一眼可见**。（无 `.fathom-context.json` 的 Claude Code 环境才跳过。）
 
 **硬顺序（状态有变化的回合）**：① 定本回合状态变化 → ② **覆写** session.json 相关字段 + 刷 `lastUpdate` → ③ 回复**结尾**打一行与之**字面一致**的状态行。写盘在前、行只是回声 → 杜绝"打了行没落盘"。
 

@@ -120,7 +120,10 @@ players: [{ name: 羽痕, ... }]
 
 开桌前必须 Write 出以下文件（用模板，详见 §I10）：
 
-0. **🎚️ `.fathom-panels/dnd5r/threads/<threadId>/session.json`** —— **面板的命根子，第一件就写**（`mode=I` + campaign + players + sandbox 初值；threadId 取自 `<workspace>/.fathom-context.json`，无该文件的 Claude Code 环境才跳过）。**不写它，面板永远停在"未开桌"**——玩家一眼可见。Schema 与状态行见 [SKILL.md §session.json / §状态行](SKILL.md)。
+0. **🎚️ 面板三件套（全写在 `.fathom-panels/dnd5r/` 下、相对 cwd=workspace 直接写，缺一面板就不亮——见 [SKILL.md §铁律0]；别写 workspace 根的叙事 `campaigns/`）**：
+   - **a. `campaigns/<战役名>/campaign.json`** = `{name, mode:"I", module:"（沙盒模式·无模组）", dmStyle, lastPlayed:今日}`。**没有它战役不进面板列表**——即便在跑也搜不到、点不开（本次实测踩到的坑）。
+   - **b. 主角的 `campaigns/<战役名>/characters/<角色名>.json`**（canonical 角色档）——**队伍 HUD 从它派生**；完整数值 schema 见 [CHARACTER_SCHEMA.md](CHARACTER_SCHEMA.md)。
+   - **c. `threads/<threadId>/session.json`** —— **面板的命根子，第一件就写**（`mode=I` + campaign + sandbox 初值；threadId 取自 `<workspace>/.fathom-context.json`，无该文件的 Claude Code 环境才跳过）。**不写它，面板永远停在"未开桌"**——玩家一眼可见。Schema 与状态行见 [SKILL.md §session.json / §状态行](SKILL.md)。
 1. **`sandbox/calendar.md`** — 历法 + 当前日期 + 已知未来事件（节日 / 季节性事件 / 玩家已知截止日）
 2. **`sandbox/locations/<起始地>.md`** — 起始地的详细档案（街区 / 主要建筑 / 已知 NPC 名单 / 物价水准 / 治安）
 3. **`sandbox/downtime-menu.md`** — 当前角色可用的 downtime 行动（按角色技能 / 阶级 / 现金过滤）
