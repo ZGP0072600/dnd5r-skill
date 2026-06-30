@@ -18,8 +18,10 @@ Thumbs.db
 # and may carry personal notes / player names.
 *.json
 !**/launch.json
-# Ship skill state index files (all-saves, modules-index — not per-thread data)
-!.fathom-panels/dnd5r/*.json
+# Ship modules-index（非个人的模组目录）。all-saves.json 已弃用——存档改为
+# campaigns/**/ 目录派生（一战役一 campaign.json + 一存档一文件），不再 ship；
+# 战役/存档数据（campaigns/**/*.json）含个人内容，已被上面 *.json 忽略、不入库。
+!.fathom-panels/dnd5r/modules-index.json
 # Ship the derived fast-query index (reference data from docs/extracted, no personal info)
 !tools/index/*.json
 

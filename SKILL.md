@@ -15,9 +15,6 @@ panel:
       path: campaigns/
       as: collection
       glob: "**/*.json"
-    - id: allSaves
-      path: all-saves.json
-      as: json
     - id: modulesIndex
       path: modules-index.json
       as: json
@@ -47,34 +44,34 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 
 **示范战役**：[campaigns/风骸岛之龙-demo/](../../../campaigns/风骸岛之龙-demo/) 是阶段 B 生成的完整骨架，可作为新战役的参考模板。
 
-**全局存档索引**：`.fathom-panels/dnd5r/all-saves.json`（跨 thread、跨战役；相对 cwd=workspace 写）。panel 自动投影此文件渲染战役浏览器与 G/I 模式存档列表——无需 AI 参与显示。
-> **`mode` / `inGameTime` 是读档关键字段**：用户激活存档时，**Fathom 据此直接写当前 thread 的 `session.json`**（panel 因此切到该战役并显示队伍/进度），**不依赖 AI**。所以这两个字段必须准确——它们是"读档能不能让面板亮起来"的唯一依据。
+**战役存档（目录派生，无全局索引）**：存档不再塞进一个手维护的 `all-saves.json`，改为**一战役一份元信息 + 一存档一文件**，面板从目录自动派生（`campaignFiles` 这个 collection 的 glob `campaigns/**/*.json` 已把下面两类文件一并枚举）——**无需 AI 维护任何全局索引文件**：
+- **战役元信息**：`.fathom-panels/dnd5r/campaigns/<战役名>/campaign.json` = `{name, mode, module, dmStyle, lastPlayed}`
+- **每个存档**：`.fathom-panels/dnd5r/campaigns/<战役名>/saves/<NNNN_存档名>.json` = `{name, createdAt, chapter, location, inGameTime}`（一存档一文件，文件名加递增序号/时间戳前缀保证排序）
+> **`mode`（在 campaign.json）/ `inGameTime`（在存档文件）是读档关键字段**：用户激活存档时，**Fathom 跑 `tools/load-session.py` 据此直接写当前 thread 的 `session.json`**（panel 因此切到该战役并显示队伍/进度），**不依赖 AI**。所以这两个字段必须准确——它们是"读档能不能让面板亮起来"的唯一依据。
 
 ```jsonc
+// campaigns/<战役名>/campaign.json
 {
-  "_schema": "all-saves-v1",
-  "campaigns": [
-    {
-      "name": "风骸岛之龙-小明组",
-      "mode": "G",                 // 🆕 "G"=模组带团 / "I"=沙盒。读档时 Fathom 据此写 session.json.mode
-      "module": "风骸岛之龙",
-      "dmStyle": "粉红恋爱向",
-      "lastPlayed": "2026-05-29",
-      "saves": [
-        { "name": "第一章开头", "createdAt": "2026-05-29 14:30",
-          "chapter": "第一章·巨龙休息处", "location": "渡口码头",
-          "inGameTime": "晨晖月 12 日 · 上午" }   // 🆕 读档时填入 session.campaign.inGameTime
-      ]
-    }
-  ]
+  "name": "风骸岛之龙-小明组",
+  "mode": "G",                 // "G"=模组带团 / "I"=沙盒。读档时 Fathom 据此写 session.json.mode
+  "module": "风骸岛之龙",
+  "dmStyle": "粉红恋爱向",
+  "lastPlayed": "2026-05-29"
+}
+// campaigns/<战役名>/saves/0001_第一章开头.json   ← 一存档一文件
+{
+  "name": "第一章开头",
+  "createdAt": "2026-05-29 14:30",
+  "chapter": "第一章·巨龙休息处",
+  "location": "渡口码头",
+  "inGameTime": "晨晖月 12 日 · 上午"   // 读档时填入 session.campaign.inGameTime
 }
 ```
 
-维护规则（**AI 硬约束**）：
-- **G1/I1 开新战役**：Read `all-saves.json` → 若 `campaigns[]` 中已有同名条目则跳过，否则追加 `{name, mode:"G"|"I"（带团=G/沙盒=I）, module, dmStyle, lastPlayed: 今日, saves: []}` → Write。**`mode` 必填**——Fathom 读档时据它写 session.json。
-- **S1 新建存档**：Read `all-saves.json` → 找到对应 campaign → 在其 `saves[]` 末尾追加 `{name, createdAt, chapter, location, inGameTime}`（`inGameTime` = 当前 in-game 时间，与 world-state.md / session 一致）→ Write
-- **G6 桌末**：Read `all-saves.json` → 更新对应 campaign 的 `lastPlayed` 为今日 → Write
-- **写入方式**：Read → 改字段 → Write 整份（不要部分 patch）
+维护规则（**AI 硬约束**，比旧版省事——不再 Read-改-Write 大索引）：
+- **G1/I1 开新战役**：Write `campaigns/<战役名>/campaign.json` = `{name, mode:"G"|"I"（带团=G/沙盒=I）, module, dmStyle, lastPlayed: 今日}`（已存在则按需更新字段）。**`mode` 必填**——Fathom 读档时据它写 session.json。
+- **S1 新建存档**：Write **一个新文件** `campaigns/<战役名>/saves/<NNNN_存档名>.json` = `{name, createdAt, chapter, location, inGameTime}`（`<NNNN_>` 用递增序号或时间戳前缀保证"最新=排序最后"；`inGameTime` = 当前 in-game 时间，与 world-state.md / session 一致）。**不碰任何索引文件**——写完面板自动出现该存档。
+- **G6 桌末**：把对应 `campaign.json` 的 `lastPlayed` 改成今日（只动这一个文件的这一个字段）。
 
 **模组索引**：`.fathom-panels/dnd5r/modules-index.json`（相对 cwd=workspace 写）。panel idle 模式"开桌带团"展开时自动投影此文件显示可选模组，无需 AI。Schema：`{modules:[{name, levels?, chapters?, desc?, base?, variant?}]}`。维护规则：
 - **H4 创建新副本后**：Read `modules-index.json` → 追加 `{name:"<副本全名>", base:"<原模组>", variant:"<标签>"}` → Write
@@ -94,7 +91,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 > |---|---|
 > | 本对话会话态 | **`.fathom-panels/dnd5r/threads/<threadId>/session.json`** |
 > | 玩家/NPC/同行 卡片 JSON | **`.fathom-panels/dnd5r/campaigns/<战役名>/{characters,npcs,companions}/<名>.json`** |
-> | 全局存档索引 | **`.fathom-panels/dnd5r/all-saves.json`** |
+> | 战役元信息 / 每个存档 | **`.fathom-panels/dnd5r/campaigns/<战役名>/campaign.json`** / **`…/saves/<NNNN_存档名>.json`**（一存档一文件） |
 > | 模组索引 | **`.fathom-panels/dnd5r/modules-index.json`** |
 >
 > ⚠️ 战役**叙事 `.md`**（`README.md`/`world-state.md`/`progress.md`/`players/*.md`(散文)/`dm-only/*`…）**位置不变**，仍在 workspace 根 **`campaigns/<战役名>/`** 下。只有上表那些**结构化 JSON** 在 `.fathom-panels/dnd5r/`。（NPC 公开档案已是 `.fathom-panels/.../npcs/*.json`，**不再有公开 `npcs/*.md`**。）
@@ -145,7 +142,7 @@ DM 跑团（工作流 G）时，所有"状态"信息（战斗 / 玩家 / NPC / �
 }
 ```
 
-> **`saves[]` 已从 session.json 移除**：存档列表由面板从 `all-saves.json` 按当前战役**自动派生**（面板对战役名做规范化匹配，容忍括号/连字符差异）。你只维护 `all-saves.json`（见上方《全局存档索引》），**不要**在 session.json 里再放 `saves`。
+> **`saves[]` 已从 session.json 移除**：存档列表由面板从 `campaigns/<战役名>/saves/*.json` 按当前战役**自动派生**（面板对战役名做规范化匹配，容忍括号/连字符差异）。你存档时只写一个 `saves/<NNNN_名>.json` 文件（见上方《战役存档》），**不要**在 session.json 里再放 `saves`、也不再维护任何全局索引。
 
 ### 字段规则（必读）
 
@@ -1104,7 +1101,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
 8. Read `campaigns/<战役名>/combat/active.md`（若存在 = 上次桌断在战斗中，恢复战斗）
 9. Read `campaigns/<战役名>/dm-only/dm-notes.md`（DM 私笔）
 10. **询问玩家**："上桌结束时大家身上状态有变化吗？" —— 若玩家在电子卡 HTML（LocalStorage）里手改过，以玩家为准回填 canonical `characters/*.json`
-11. **同步 Panel**（Fathom 环境）：跑读档脚本，按 all-saves 最近存档点重写当前 thread 的 session.json，让新对话的 panel 立即切到本战役——与宿主「继续」按钮、S2 读档**同一份脚本、同一逻辑**：
+11. **同步 Panel**（Fathom 环境）：跑读档脚本，按 campaign.json + saves/ 最近存档点重写当前 thread 的 session.json，让新对话的 panel 立即切到本战役——与宿主「继续」按钮、S2 读档**同一份脚本、同一逻辑**：
     ```powershell
     python tools/load-session.py --data-base .fathom-panels/dnd5r "<战役名>"
     ```
@@ -1358,7 +1355,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
    ---
    队伍状态：<简短摘要，如 "羽痕 18/24HP，法术位 2×1环已用">
    ```
-5. **更新 all-saves.json 的 saves[]**（Fathom 环境）：Read `.fathom-panels/dnd5r/all-saves.json` → 找到当前战役条目（按 `campaign.name`）→ 在其 `saves[]` 末尾追加 `{"name":"<名称>","createdAt":"YYYY-MM-DD HH:MM","chapter":"<章节>","location":"<地点>"}` → Write 整份（同 §全局存档索引 的 S1 规则）。panel 从 all-saves 自动派生存档列表、立即刷新。**注意**：session.json 不再放 `saves`。
+5. **写存档元数据文件**（Fathom 环境）：Write **一个新文件** `.fathom-panels/dnd5r/campaigns/<战役名>/saves/<NNNN_名称>.json` = `{"name":"<名称>","createdAt":"YYYY-MM-DD HH:MM","chapter":"<章节>","location":"<地点>","inGameTime":"<当前 in-game 时间>"}`（`<NNNN_>` 用递增序号前缀保证排序；同 §战役存档 的 S1 规则）。**不碰任何索引文件**——panel 从 `saves/*.json` 自动派生存档列表、立即刷新。**注意**：这份是给面板看的轻量元数据，与第 3~4 步的完整快照目录 `campaigns/<战役名>/saves/<名称>/`（workspace 根）是两回事；session.json 也不再放 `saves`。
 6. **回复确认**：
    ```
    存档「<名称>」已保存 → campaigns/<战役名>/saves/<名称>/
@@ -1397,7 +1394,7 @@ AI 给玩家提供动作选项时（"你可以…"列表），**只列玩家视�
      }
      ```
 4. **刷新上下文**：执行 G7 第 1~9 步（读 README / dm-styles / house-rules / progress / world-state / sessions 最近 1 条 / players / combat/active），让 LLM 上下文与恢复后文件一致
-5. **重建 session.json**（Fathom 环境必做）：跑读档脚本——它读 `all-saves.json` 里本战役该存档的 `mode / dmStyle / module / chapter / inGameTime / location` + `.fathom-context.json` 的 threadId，按 session-v2 契约全量重写 `.fathom-panels/dnd5r/threads/<threadId>/session.json`。**与宿主「继续」按钮跑的是同一份脚本、同一逻辑**（按钮路径与打字路径共用，不再各写一份）：
+5. **重建 session.json**（Fathom 环境必做）：跑读档脚本——它读 `campaigns/<战役名>/campaign.json` 的 `mode / dmStyle / module` + `saves/<存档>.json` 的 `chapter / inGameTime / location` + `.fathom-context.json` 的 threadId，按 session-v2 契约全量重写 `.fathom-panels/dnd5r/threads/<threadId>/session.json`。**与宿主「继续」按钮跑的是同一份脚本、同一逻辑**（按钮路径与打字路径共用，不再各写一份）：
    ```powershell
    python tools/load-session.py --data-base .fathom-panels/dnd5r "<战役名>" "<存档名>"
    ```

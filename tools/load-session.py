@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""读档：从 all-saves.json 重建【当前 thread】的 session.json。
+"""读档：从 campaigns/<战役>/campaign.json + saves/*.json 重建【当前 thread】的 session.json。
 
 单一事实源——宿主「继续」按钮（Tauri 直接 spawn 本脚本）和 AI 打字 /load
 （SKILL.md G7/S2 调本脚本）共用这一份读档逻辑，避免「Rust 实现」与「SKILL.md 手写步骤」
 两处漂移。输出形状须与宿主 Rust `dnd_load_session` 完全一致，两条路径才能互换。
 
 做的事：
-  读 all-saves.json 里某战役某存档的 mode / dmStyle / module / chapter / inGameTime / location
+  从 campaigns/<战役>/campaign.json 取 mode / dmStyle / module，
+  从 campaigns/<战役>/saves/<存档>.json 取 chapter / inGameTime / location
   → 按 session-v2 契约全量重写 <data-base>/threads/<threadId>/session.json。
   不含 players[]——队伍 HUD 由 panel 从 canonical characters/*.json 派生。
+  注：不再读 all-saves.json（已弃用）。存档改为「一存档一文件」、由目录派生，
+      AI 不再维护任何全局索引——面板的 campaignFiles(collection) 自动枚举。
 
 threadId 来源（优先级）：
   1. --thread 显式传入（宿主按钮路径用：currentThreadId 最权威，且草稿态 .fathom-context 可能滞后）
@@ -23,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -58,6 +62,19 @@ def _die(msg: str) -> "Any":
     raise SystemExit(1)
 
 
+def _norm_campaign(s: str) -> str:
+    """与 panel.html 的 normCampaign 对齐：消除「目录(连字符)/索引/会话(括号)」三处命名漂移做模糊匹配。"""
+    return re.sub(r"[（）()\-—\s·]", "", str(s if s is not None else ""))
+
+
+def _read_json(path: Path) -> "Any":
+    """读 + 解析 JSON；不存在 / 坏档 → None（调用方按需兜底）。"""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def _resolve_thread_id(data_base: Path, explicit: str | None) -> str:
     if explicit and explicit.strip():
         tid = explicit.strip()
@@ -77,28 +94,55 @@ def _resolve_thread_id(data_base: Path, explicit: str | None) -> str:
     return tid
 
 
-def _find_campaign(all_saves: dict, name: str) -> dict:
-    camps = all_saves.get("campaigns")
-    if not isinstance(camps, list):
-        _die("all-saves.json 缺 campaigns 数组")
-    for c in camps:
-        if isinstance(c, dict) and c.get("name") == name:
-            return c
-    _die(f"all-saves 未找到战役: {name}")
+def _load_campaign(data_base: Path, name: str) -> "tuple[dict, Path]":
+    """定位战役目录并读 campaign.json，返回 (campaign_meta, campaign_dir)。
+    先按目录名精确匹配，再扫所有 campaign.json 按 name 字段 / 归一名兜底（容忍命名漂移）。"""
+    camps_root = data_base / "campaigns"
+    if not camps_root.is_dir():
+        _die(f"找不到 campaigns 目录: {camps_root}")
+    # 1) 目录名精确匹配
+    exact = camps_root / name / "campaign.json"
+    meta = _read_json(exact)
+    if isinstance(meta, dict):
+        return meta, exact.parent
+    # 2) 扫所有 campaign.json：先 name 字段精确，再归一名（name 字段 / 目录名）兜底
+    target = _norm_campaign(name)
+    fallback: "tuple[dict, Path] | None" = None
+    for d in sorted(camps_root.iterdir()):
+        if not d.is_dir():
+            continue
+        meta = _read_json(d / "campaign.json")
+        if not isinstance(meta, dict):
+            continue
+        if meta.get("name") == name:
+            return meta, d
+        if fallback is None and (
+            _norm_campaign(meta.get("name", "")) == target or _norm_campaign(d.name) == target
+        ):
+            fallback = (meta, d)
+    if fallback is not None:
+        return fallback
+    _die(f"未找到战役（缺 campaign.json）: {name}")
 
 
-def _pick_save(campaign: dict, save_name: str) -> dict:
-    """save_name 为空 → 取最新（最后一个）；否则按名查找。无 saves 则返回空 dict。"""
-    saves = campaign.get("saves")
-    if not isinstance(saves, list) or not saves:
+def _pick_save(camp_dir: Path, save_name: str) -> dict:
+    """从 <camp_dir>/saves/*.json 选存档：空名→createdAt 最大（次取文件名，迁移用 NNNN_ 前缀=新旧序）；
+    否则按 name 字段匹配。无 saves 则返回空 dict（idle/无存档照常起 session）。"""
+    saves_dir = camp_dir / "saves"
+    items: "list[tuple[str, str, dict]]" = []
+    if saves_dir.is_dir():
+        for p in sorted(saves_dir.glob("*.json")):
+            obj = _read_json(p)
+            if isinstance(obj, dict):
+                items.append((_str_or(obj, "createdAt", ""), p.name, obj))
+    if not items:
         return {}
     if not save_name:
-        last = saves[-1]
-        return last if isinstance(last, dict) else {}
-    for s in saves:
-        if isinstance(s, dict) and s.get("name") == save_name:
-            return s
-    _die(f"战役「{campaign.get('name', '')}」未找到存档: {save_name}")
+        return max(items, key=lambda t: (t[0], t[1]))[2]
+    for _created, _fname, obj in items:
+        if obj.get("name") == save_name:
+            return obj
+    _die(f"战役目录「{camp_dir.name}」未找到存档: {save_name}")
 
 
 def build_session(campaign: dict, save_entry: dict) -> dict:
@@ -132,7 +176,7 @@ def build_session(campaign: dict, save_entry: dict) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="从 all-saves.json 重建当前 thread 的 session.json"
+        description="从 campaigns/<战役>/campaign.json + saves/ 重建当前 thread 的 session.json"
     )
     ap.add_argument(
         "--data-base", required=True,
@@ -142,24 +186,17 @@ def main(argv: list[str] | None = None) -> int:
         "--thread", default=None,
         help="thread_id；省略则读 <workspace>/.fathom-context.json 的 threadId",
     )
-    ap.add_argument("campaign", help="战役名（all-saves 里 campaigns[].name）")
+    ap.add_argument("campaign", help="战役名（= campaign.json 的 name / 战役目录名）")
     ap.add_argument("save", nargs="?", default="", help="存档名；省略=最新存档")
     args = ap.parse_args(argv)
     _force_utf8_streams()
 
     # resolve()：相对路径按 CWD 展开（AI 路径 CWD=workspace），并让 parent.parent 取到真实 workspace
     data_base = Path(args.data_base).resolve()
-    all_saves_path = data_base / "all-saves.json"
-    if not all_saves_path.is_file():
-        _die(f"读 all-saves.json 失败：{all_saves_path} 不存在")
-    try:
-        all_saves = json.loads(all_saves_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as e:
-        _die(f"解析 all-saves.json 失败: {e}")
 
     thread_id = _resolve_thread_id(data_base, args.thread)
-    campaign = _find_campaign(all_saves, args.campaign)
-    save_entry = _pick_save(campaign, args.save.strip())
+    campaign, camp_dir = _load_campaign(data_base, args.campaign)
+    save_entry = _pick_save(camp_dir, args.save.strip())
     session = build_session(campaign, save_entry)
 
     target = data_base / "threads" / thread_id / "session.json"

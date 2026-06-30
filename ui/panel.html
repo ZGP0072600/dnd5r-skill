@@ -893,7 +893,7 @@
 
   // === v2 投影缓存（由 onData/ingest 填充）===
   var campaignIndex = {};       // normCampaign(战役名) -> { characters|npcs|companions: { 名: parsed } }
-  var allSavesData = null;      // all-saves.json（idle 战役浏览器 + G/I 存档列表）
+  var allSavesData = null;      // 战役浏览器 + G/I 存档列表（由 campaignFiles 的 campaign.json+saves/ 派生，见 buildAllSaves）
   var modulesIndexData = null;  // modules-index.json（idle 模组列表）
 
   // 战役名规范化：消除「目录(连字符) / 索引 / 会话(括号)」三处命名漂移，做模糊匹配
@@ -1971,32 +1971,63 @@
   }
 
   // 从 v2 推送 payload.sources 装配数据并渲染
+  // 把派生出的 campaign.json + saves/ 拼成既有 allSavesData 形状（下游 renderIdleHint/deriveSaves/renderCampaignCard 不变）。
+  // 战役按 lastPlayed 升序（renderIdleHint 会 reverse → 最近玩的在最上）；存档按 createdAt 升序（最新在末尾，与旧 all-saves 数组序一致）。
+  function buildAllSaves(campMeta, campSaves) {
+    var keys = {};
+    Object.keys(campMeta).forEach(function (k) { keys[k] = true; });
+    Object.keys(campSaves).forEach(function (k) { keys[k] = true; });
+    var campaigns = Object.keys(keys).map(function (k) {
+      var m = campMeta[k] || {};
+      var saves = (campSaves[k] || []).slice().sort(function (a, b) {
+        return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+      });
+      return { name: m.name || '', mode: m.mode || 'G', module: m.module || '',
+        dmStyle: m.dmStyle || '', lastPlayed: m.lastPlayed || '', saves: saves };
+    }).filter(function (c) { return c.name; });   // 没 campaign.json(name) 的战役不进浏览器
+    campaigns.sort(function (a, b) { return String(a.lastPlayed || '').localeCompare(String(b.lastPlayed || '')); });
+    return campaigns.length ? { campaigns: campaigns } : null;
+  }
+
+  // 从 v2 推送 payload.sources 装配数据并渲染
   function ingest(payload) {
     var sources = (payload && payload.sources) || {};
 
-    // 1) 战役实体索引（弹窗用）：campaignFiles 是 collection，
-    //    entry.path 形如 campaigns/<战役名>/<characters|npcs|companions>/<名>.json
+    // 1) 从 campaignFiles(collection) 一趟遍历派生三样（entry.path 相对 dataBase）：
+    //    a. campaigns/<战役>/<characters|npcs|companions>/<名>.json → campaignIndex（弹窗 + HUD）
+    //    b. campaigns/<战役>/campaign.json                         → 战役元信息(mode/module/dmStyle/lastPlayed)
+    //    c. campaigns/<战役>/saves/<x>.json                        → 该战役一条存档
+    //    存档不再读手维护的 all-saves.json——全从目录文件派生（一战役一 campaign.json + 一存档一文件）。
     campaignIndex = {};
+    var campMeta = {};   // normCampaign(战役) -> campaign.json
+    var campSaves = {};  // normCampaign(战役) -> [存档, ...]
     var cf = sources.campaignFiles && sources.campaignFiles.entries;
     if (Array.isArray(cf)) {
       cf.forEach(function (e) {
         var parts = (e.path || '').split(/[\/\\]/).filter(Boolean);
-        if (parts.length < 4 || parts[0] !== 'campaigns') return;
+        if (parts.length < 3 || parts[0] !== 'campaigns') return;
         var camp = normCampaign(parts[1]);
-        var type = parts[parts.length - 2];                 // characters | npcs | companions
-        var name = parts[parts.length - 1].replace(/\.json$/i, '');
+        var leaf = parts[parts.length - 1];
         var obj = e.parsed;
         if (!obj && e.content) { try { obj = JSON.parse(e.content); } catch (x) { obj = null; } }
         if (!obj) return;
-        if (!campaignIndex[camp]) campaignIndex[camp] = {};
-        if (!campaignIndex[camp][type]) campaignIndex[camp][type] = {};
-        // 存原始 canonical：弹窗 open 时再 richToV1 投影、HUD 也从原始派生；companions/npcs 原样。
-        campaignIndex[camp][type][name] = obj;
+        if (parts.length === 3 && leaf === 'campaign.json') {
+          campMeta[camp] = obj;                                  // b. 战役元信息
+        } else if (parts.length >= 4 && parts[2] === 'saves') {
+          (campSaves[camp] = campSaves[camp] || []).push(obj);   // c. 一存档一文件
+        } else if (parts.length >= 4) {
+          var type = parts[parts.length - 2];                    // a. characters | npcs | companions
+          var name = leaf.replace(/\.json$/i, '');
+          if (!campaignIndex[camp]) campaignIndex[camp] = {};
+          if (!campaignIndex[camp][type]) campaignIndex[camp][type] = {};
+          // 存原始 canonical：弹窗 open 时再 richToV1 投影、HUD 也从原始派生；companions/npcs 原样。
+          campaignIndex[camp][type][name] = obj;
+        }
       });
     }
 
-    // 2) 索引 source：all-saves / modules-index
-    allSavesData = (sources.allSaves && sources.allSaves.kind === 'json') ? sources.allSaves.data : null;
+    // 2) 战役浏览器 / 存档列表：从派生的 campaign.json + saves/ 拼成既有 allSavesData 形状；modules-index 仍走独立 source
+    allSavesData = buildAllSaves(campMeta, campSaves);
     modulesIndexData = (sources.modulesIndex && sources.modulesIndex.kind === 'json') ? sources.modulesIndex.data : null;
 
     // 3) 会话态 session.json
