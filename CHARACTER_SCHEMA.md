@@ -45,6 +45,7 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
   "meta": {
     "name": "白凰",
     "charId": "baihuang-hegu",                  // build-sheet 缺则按 <name>-<time> 生成
+    "rev": 3,                                   // build-sheet 每次构建 +1；加载时与 localStorage 缓存比对，文件 rev 更大则以文件定义为准 + 嫁接缓存临场状态（勿手改，靠 build-sheet.py 递增）
     "player": "",                               // 玩家名（空=NPC/陪伴）
     "alignment": "混乱善良",
     "faith": "",

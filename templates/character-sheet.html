@@ -663,15 +663,69 @@ function normalize(c){
   for(const comp of c.companions||[])normalizeOne(comp);
   return c;
 }
+/* 临场状态嫁接：当文件被 AI 重新编写(meta.rev 提升)时，以文件的"定义"
+   (等级/专长/装备/法术/最大HP/攻击…)为准，但把玩家浏览器里的"临场状态"
+   (当前HP/已用资源/法术位/死豁/专注/buff/状态/骰史/伴生血量)嫁接回来。 */
+function mergeLiveState(embedded,cached){
+  const base=JSON.parse(JSON.stringify(embedded));
+  const ec=base.combat||(base.combat={}),cc=cached.combat||{};
+  if(typeof cc.hpCur==='number')ec.hpCur=(typeof ec.hpMax==='number')?Math.min(cc.hpCur,ec.hpMax):cc.hpCur;
+  if(typeof cc.hpTemp==='number')ec.hpTemp=cc.hpTemp;
+  if(typeof cc.hdCur==='number')ec.hdCur=(typeof ec.hdMax==='number')?Math.min(cc.hdCur,ec.hdMax):cc.hdCur;
+  if(cc.deathSaves)ec.deathSaves=cc.deathSaves;
+  if(Array.isArray(cc.statusEffects))ec.statusEffects=cc.statusEffects;
+  if('concentration' in cc)ec.concentration=cc.concentration;
+  if(Array.isArray(cc.buffs))ec.buffs=cc.buffs;
+  base.meta=base.meta||{};
+  if(cached.meta&&typeof cached.meta.inspiration==='boolean')base.meta.inspiration=cached.meta.inspiration;
+  if(cached.meta&&typeof cached.meta.viewIndex==='number')base.meta.viewIndex=cached.meta.viewIndex;
+  const resample=(arr,mx)=>Array.from({length:mx},(_,i)=>!!(arr&&arr[i]));
+  const cRes={};for(const r of cached.classResources||[])if(r&&r.key)cRes[r.key]=r;
+  for(const r of base.classResources||[]){
+    const o=cRes[r.key];
+    if(o&&Array.isArray(o.used))r.used=resample(o.used,Array.isArray(r.used)?r.used.length:(r.max||0));
+  }
+  const es=base.spellcasting&&base.spellcasting.slots,csl=cached.spellcasting&&cached.spellcasting.slots;
+  if(es&&csl)for(const lv of Object.keys(es)){
+    const o=csl[lv];
+    if(o&&Array.isArray(o.used)&&Array.isArray(es[lv].used))es[lv].used=resample(o.used,es[lv].used.length);
+  }
+  const bsp=base.spellcasting&&base.spellcasting.spellPoints,csp=cached.spellcasting&&cached.spellcasting.spellPoints;
+  if(bsp&&csp&&typeof csp.cur==='number')bsp.cur=Math.min(csp.cur,bsp.max||0);
+  if(Array.isArray(cached.rollHistory))base.rollHistory=cached.rollHistory;
+  if(Array.isArray(base.companions)&&Array.isArray(cached.companions)){
+    const cm={};for(const cp of cached.companions)if(cp&&cp.name)cm[cp.name]=cp;
+    for(const cp of base.companions){
+      const o=cm[cp.name];if(!o)continue;
+      if(o.combat&&cp.combat){
+        if(typeof o.combat.hpCur==='number')cp.combat.hpCur=(typeof cp.combat.hpMax==='number')?Math.min(o.combat.hpCur,cp.combat.hpMax):o.combat.hpCur;
+        if(typeof o.combat.hpTemp==='number')cp.combat.hpTemp=o.combat.hpTemp;
+        if(Array.isArray(o.combat.statusEffects))cp.combat.statusEffects=o.combat.statusEffects;
+      }
+      if('active' in o)cp.active=o.active;
+    }
+  }
+  return base;
+}
 function loadChar(){
-  const initial=getEmbeddedChar();
-  const charId=ensureCharId(initial);
-  let c=initial;
+  const embedded=getEmbeddedChar();
+  const charId=ensureCharId(embedded);
+  let cached=null;
   try{
     const s=localStorage.getItem('dnd5r-char:'+charId);
-    if(s)c=JSON.parse(s);
+    if(s)cached=JSON.parse(s);
   }catch(e){}
-  return normalize(c);
+  if(!cached)return normalize(embedded);
+  const embRev=(embedded.meta&&+embedded.meta.rev)||0;
+  const cacRev=(cached.meta&&+cached.meta.rev)||0;
+  if(embRev>cacRev){
+    // 文件已被重新编写：以文件定义为准，嫁接玩家临场状态，对齐版本
+    const merged=mergeLiveState(embedded,cached);
+    merged.meta=merged.meta||{};merged.meta.rev=embRev;
+    window.__sheetMerged=true;
+    return normalize(merged);
+  }
+  return normalize(cached);
 }
 function saveChar(){
   try{localStorage.setItem('dnd5r-char:'+ensureCharId(char),JSON.stringify(char))}catch(e){}
@@ -2481,6 +2535,16 @@ document.getElementById('btn-theme').addEventListener('click',()=>{
 
 /* === 启动 === */
 char=loadChar();
+if(window.__sheetMerged){
+  saveChar();  // 合并结果落盘：版本对齐，下次不再重复合并
+  setTimeout(()=>{
+    const b=document.createElement('div');
+    b.textContent='卡牌已更新到最新版本，并保留了你当前的 HP / 资源 / 状态。点此关闭。';
+    b.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--gold);color:#1a1a1a;padding:8px 14px;border-radius:6px;font-size:13px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.45);max-width:92%;cursor:pointer';
+    b.onclick=()=>b.remove();document.body.appendChild(b);
+    setTimeout(()=>{if(b&&b.remove)b.remove()},9000);
+  },300);
+}
 // 恢复上次的 tab 视图
 {
   const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;

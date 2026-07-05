@@ -16,6 +16,7 @@
 - 把 JSON 注入到 <script id="character-data" type="application/json"> 块
 - 自动 normalize：cur 数字字段 → used 布尔数组（兼容旧 schema 写法）
 - 若 meta.charId 缺失，按 "<name>-<unix-time>" 自动生成
+- 每次构建把 meta.rev +1（配合模板加载合并逻辑：新文件覆盖旧缓存的定义，但保留临场状态）
 - 改 <title> 为 "<角色名> - DnD 5r"
 - 写到 output.html（UTF-8）
 """
@@ -108,6 +109,16 @@ def main() -> int:
     if not char['meta'].get('charId'):
         suffix = str(int(time.time()))[-8:]
         char['meta']['charId'] = f'{name}-{suffix}'
+
+    # 版本号 rev：每次构建 +1。模板加载时用它和浏览器 localStorage 缓存比对——
+    # 重建后的文件 rev 更大，会以文件的"定义"覆盖旧缓存，同时保留缓存里的临场状态
+    # (HP/已用资源/死豁/buff/状态/骰史)。因此：改卡务必走 build-sheet.py 重新生成，
+    # 只手改 HTML 里的嵌入 JSON 不会提升 rev，浏览器仍会显示旧缓存。
+    try:
+        prev_rev = int(char['meta'].get('rev') or 0)
+    except (TypeError, ValueError):
+        prev_rev = 0
+    char['meta']['rev'] = prev_rev + 1
 
     new_data = json.dumps(char, ensure_ascii=False, indent=2)
 
