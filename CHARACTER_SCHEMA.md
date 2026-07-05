@@ -75,7 +75,8 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
     "deathSaves": { "success": [false,false,false], "fail": [false,false,false] },
     "resistance": "", "immunity": "", "advantage": "",
     "senses": "",                              // 🆕 黑暗视觉 60尺 等（弹窗"战斗速查"、viewer 用）
-    "statusEffects": [], "concentration": null, "buffs": []
+    "statusEffects": [], "concentration": null, "buffs": [],
+    "critMin": 20                              // 🆕 全局重击门槛：斗士改进重击=19（15级=18）；缺省=20。单把武器可用 attacks[].critMin 覆盖
   },
 
   "skills": {                                  // 只列有熟练度的；bonus 派生（§4）
@@ -87,7 +88,8 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
   "attacks": [                                 // hit/damage 显示值派生（§4）
     { "name": "徒手打击", "ability": "dex", "attackBonus": 1,
       "damage": "2d8", "damageBonus": 11, "damageType": "钝击",
-      "properties": "近战恒优势；命中另 +5 光耀；附赠动作可再攻击", "mastery": "", "attuned": false }
+      "properties": "近战恒优势；命中另 +5 光耀；附赠动作可再攻击", "mastery": "", "attuned": false,
+      "critMin": 20, "advReroll": false }       // 🆕 critMin=可选覆盖此武器重击门槛；advReroll=精灵之准（优势掷3d20取高，仅敏/智/感/魅攻击）
   ],
 
   "spellcasting": {                            // 非施法者 castingAbility:"" + slots 全 0
@@ -149,6 +151,7 @@ campaigns/<战役名>/players/<角色名>.md                              ← �
 | 被动察觉 | `10 + 察觉技能加值` |
 | 攻击命中 | `mod(ability) + PB + attackBonus` |
 | 攻击伤害（显示） | `"<damage>" + (damageBonus?+号拼) + " " + damageType` |
+| 攻击重击判定（投骰时） | 掷骰 ≥ `min(combat.critMin‖20, attacks[].critMin‖20)` → 重击；`advReroll` 时优势掷 3d20 取高；天然20 必中·天然1 必失（属性检定/豁免无自动成败，仅角标） |
 | 法术 DC | `8 + PB + mod(castingAbility) + extraDcBonus` |
 | 法术攻击 | `PB + mod(castingAbility) + extraAttackBonus` |
 | 资源当前值 | `max - count(used == true)` |

@@ -427,7 +427,7 @@ spell Fireball --json         # 任意子命令加 --json 给程序化调用
 6. **起始专长 / 升级专长**：Read `玩家手册2024/专长/`
 7. **起始装备**：从职业起始装备包选，Read `玩家手册2024/装备/` 相关
 8. **法术**（仅施法职业）：cantrip 数量 / 已知或已备法术数量 → 套 A 工作流
-9. **结算**：HP（一级满骰）、AC、被动察觉、法术位、技能熟练、负重，按职业页和创建角色章节核对
+9. **结算**：HP（一级满骰）、AC、被动察觉、法术位、技能熟练、负重，按职业页和创建角色章节核对。**重击/优势相关字段**（卡上投骰会用，别漏）：斗士改进重击 → `combat.critMin`=19（15级18）；精灵之准等"优势时重投一枚 d20" → 给对应武器加 `attacks[].advReroll:true`（仅敏/智/感/魅攻击符合，卡会在优势时掷 3d20 取高）；某把武器专属降暴击阈值 → `attacks[].critMin`。默认可省（=20 / 不重投）
 10. **落 canonical JSON + 输出电子卡 HTML**（关键交付物）：
    - 把上面所有数据组装成完整 **canonical JSON**，schema 见 [CHARACTER_SCHEMA.md §3](CHARACTER_SCHEMA.md)（= `templates/character-sheet.html` 顶部 DEFAULT_CHAR 超集；必备 meta/abilities/combat/skills/attacks/spellcasting/classResources/equipment/wealth/features，超集字段 meta.appearance / combat.senses / wealth.property / wealth.goods，可选 specialRolls）
    - **canonical JSON 落哪**（单一真源）：

@@ -162,6 +162,7 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr}
 .roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
 .roll-result .nat20{color:var(--good)}
 .roll-result .nat1{color:var(--bad)}
+.roll-result .verdict{font-size:15px;font-weight:bold;margin-top:3px}
 .roll-detail{font-size:12px;color:var(--text-dim);margin-top:6px}
 .adv-toggle{display:flex;gap:4px;flex:1}
 .adv-toggle button{flex:1}
@@ -950,7 +951,7 @@ function getUpcastDamage(spell,castLvl){
   }
   return baseDmg;
 }
-function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
+function rollD20WithAdv(m,extraAdv){extraAdv=extraAdv||0;if(m==='adv'){const n=2+extraAdv,dice=[];for(let i=0;i<n;i++)dice.push(rollDie(20));return{chosen:Math.max(...dice),both:dice,mode:m}}if(m==='dis'){const a=rollDie(20),b=rollDie(20);return{chosen:Math.min(a,b),both:[a,b],mode:m}}const a=rollDie(20);return{chosen:a,both:[a],mode:m}}
 function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
 
 /* === 模态框 === */
@@ -1514,8 +1515,9 @@ function showRollDialog(label,baseBonus,ctx){
     const total=r.chosen+rollCtx.baseBonus+rollCtx.extra+buff.bonus;
     const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
     const buffStr=buff.details.length?' '+buff.details.join(' '):'';
+    const verdict=r.chosen===20?'<div class="verdict nat20">天然 20</div>':r.chosen===1?'<div class="verdict nat1">天然 1</div>':'';
     const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}${buffStr}`;
-    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div>${verdict}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(rollCtx.label,total,detail.replace(/<[^>]+>/g,''));
     picker.consume(buff.consumeIds);
   });
@@ -1556,13 +1558,23 @@ function showAttackDialog(idx){
     b.classList.add('active');
   }));
   document.getElementById('btn-atk').addEventListener('click',()=>{
-    const r=rollD20WithAdv(amode);
+    const extraAdv=a.advReroll?1:0;                 // 精灵之准：优势时多掷一枚 d20 取最高（阈值不变）
+    const r=rollD20WithAdv(amode,extraAdv);
     const buff=picker.compute();
     const total=r.chosen+atkBonus+buff.bonus;
-    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const gCrit=(c.combat&&c.combat.critMin)||20;
+    const effCrit=Math.min(gCrit,a.critMin||20);    // 全局与武器取更低门槛（斗士 19/18、魔法武器）
+    const isNat20=r.chosen===20,isNat1=r.chosen===1,isCrit=r.chosen>=effCrit;
+    const cls=isCrit?'nat20':isNat1?'nat1':'';
     const buffStr=buff.details.length?' '+buff.details.join(' '):'';
-    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${fmt(atkBonus)}${buffStr}${r.chosen===20?' 暴击!':''}`;
-    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    const advTag=amode==='adv'?(extraAdv?'(优·精灵之准 3d20)':'(优)'):amode==='dis'?'(劣)':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${advTag} ${fmt(atkBonus)}${buffStr} = ${total}`;
+    let head;
+    if(isNat1)head='<div class="total nat1">大失败</div><div class="verdict nat1">必失 · 失手</div>';
+    else if(isNat20)head='<div class="total nat20">大成功</div><div class="verdict nat20">必中 · 重击（点“暴击伤害”翻倍骰）</div>';
+    else if(isCrit)head=`<div class="total">${total}</div><div class="verdict nat20">进入重击范围（命中则点“暴击伤害”）</div>`;
+    else head=`<div class="total">${total}</div>`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result">${head}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(`攻击-${a.name}`,total,detail.replace(/<[^>]+>/g,''));
     picker.consume(buff.consumeIds);
   });
