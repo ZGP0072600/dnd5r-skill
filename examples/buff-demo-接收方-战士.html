@@ -24,10 +24,10 @@ header h1{margin:0;font-size:18px;flex:1;min-width:0;overflow:hidden;text-overfl
 header h1 .meta{font-weight:normal;font-size:12px;color:var(--text-dim);margin-left:8px}
 .toolbar{display:flex;gap:4px;flex-wrap:wrap}
 .toolbar button{font-size:12px;padding:4px 8px;min-height:28px}
-main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow:dense}
-@media(min-width:700px){main{grid-template-columns:1fr 1fr}.panel.full{grid-column:1/-1}}
+main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr}
+@media(min-width:700px){main{grid-template-columns:1fr 1fr;grid-auto-flow:dense}.panel.full{grid-column:1/-1}}
 @media(min-width:1100px){main{grid-template-columns:1fr 1fr 1fr}}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px;position:relative;z-index:1;min-width:0}
 .panel h2{margin:0 0 8px;font-size:14px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:4px;display:flex;align-items:center;gap:6px}
 .panel h2 .sub{font-size:11px;color:var(--text-dim);font-weight:normal;margin-left:auto}
 .combat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -109,6 +109,18 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .status-grid{display:flex;flex-wrap:wrap;gap:4px}
 .status-tag{padding:4px 10px;background:var(--bad);color:#fff;border-radius:12px;font-size:12px;cursor:pointer}
 .status-tag.add{background:var(--panel-hi);color:var(--text-dim);border:1px dashed var(--border)}
+.status-tag.has-x{padding:0;display:inline-flex;align-items:center}
+.status-tag.has-x .status-name{padding:4px 4px 4px 10px}
+.status-tag.has-x .status-x{padding:4px 8px 4px 4px;opacity:.85;font-weight:bold}
+.status-tag.has-x .status-x:hover{opacity:1}
+/* === 可编辑值的提示 === */
+.editable{cursor:pointer}
+.editable:hover{color:var(--accent)}
+.stat-box.editable:hover{border-color:var(--accent);background:var(--bg);color:inherit}
+.stat-box.editable::after{content:'✎';position:absolute;top:3px;right:5px;font-size:11px;opacity:.7;color:var(--text-dim)}
+.edit-icon{display:inline-block;font-size:14px;color:var(--text-dim);cursor:pointer;margin-left:2px;opacity:.65;vertical-align:middle;padding:8px 10px;line-height:1;border-radius:4px;-webkit-tap-highlight-color:transparent}
+.edit-icon:hover,.edit-icon:active{opacity:1;color:var(--accent);background:rgba(127,127,127,0.18)}
+.has-override{border-bottom:1px dotted var(--accent)}
 .insp-toggle{padding:4px 12px;border-radius:4px;background:var(--panel-hi);border:1px solid var(--border);cursor:pointer;display:inline-block}
 .insp-toggle.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 .conc-active{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:rgba(200,160,50,.18);border:1px solid var(--gold);color:var(--gold);font-size:13px}
@@ -146,10 +158,29 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .modal h3{margin:0 0 10px;color:var(--accent)}
 .modal-row{margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.dt-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.dt-die{flex:1 1 52px;font-weight:bold;font-size:15px}
+.dt-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px;font-size:13px}
+.dt-ctl{display:inline-flex;align-items:center;gap:5px}
+.dt-ctl>b{min-width:26px;text-align:center;color:var(--gold)}
+.dt-step{width:28px;min-height:28px;padding:0;font-size:16px;line-height:1}
+.dt-advbtn{padding:4px 10px;min-height:auto;color:var(--text-dim)}
+.dt-advbtn.active,.dt-advbtn.active:hover{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:bold}
+.dt-expr{display:flex;gap:6px;margin-bottom:10px}
+.dt-expr input{flex:1;font-family:monospace;font-size:14px}
+.dt-result{text-align:center;padding:14px 10px;background:var(--panel-hi);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;min-height:64px;display:flex;flex-direction:column;justify-content:center}
+.dt-total{font-size:36px;font-weight:bold;color:var(--gold);line-height:1.05}
+.dt-sub{font-size:12px;color:var(--text-dim);margin-top:5px;font-family:monospace;word-break:break-all}
+.dt-hint{font-size:13px;color:var(--text-dim)}
+.dt-recent-t{font-size:11px;color:var(--text-dim);margin:4px 0 2px}
+.dt-recent-i{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-bottom:1px dashed var(--border)}
+.dt-recent-i span{font-family:monospace;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-recent-i b{color:var(--gold);flex:none}
 .roll-result{font-size:24px;text-align:center;padding:14px;background:var(--panel-hi);border-radius:4px;margin:10px 0}
 .roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
 .roll-result .nat20{color:var(--good)}
 .roll-result .nat1{color:var(--bad)}
+.roll-result .verdict{font-size:15px;font-weight:bold;margin-top:3px}
 .roll-detail{font-size:12px;color:var(--text-dim);margin-top:6px}
 .adv-toggle{display:flex;gap:4px;flex:1}
 .adv-toggle button{flex:1}
@@ -216,8 +247,10 @@ details summary:hover{color:var(--accent)}
     <button id="btn-rest-short">短休</button>
     <button id="btn-rest-long">长休</button>
     <button id="btn-history">骰史</button>
+    <button id="btn-dice-tray">🎲 骰盘</button>
     <button id="btn-dice-cmd">骰娘</button>
     <button id="btn-theme">主题</button>
+    <button id="btn-reload" title="清除本机缓存、按文件最新定义重载（AI 升级/改卡后页面没变化时点这里）">⟳ 重载</button>
   </div>
 </header>
 
@@ -237,12 +270,12 @@ details summary:hover{color:var(--accent)}
         </div>
         <div class="hp-bar-bg"><div class="hp-bar-fg" id="hp-bar-fg" style="width:100%"></div></div>
       </div>
-      <div class="stat-box" data-roll="initiative"><div class="label">先攻</div><div class="val num" id="init-val">+0</div></div>
-      <div class="stat-box"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
-      <div class="stat-box"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
-      <div class="stat-box"><div class="label">速度</div><div class="val num" id="speed-val">30</div><div class="sub" id="size-val">中型</div></div>
+      <div class="stat-box" data-roll="initiative"><div class="label">先攻 <span class="edit-icon" data-edit="init" title="改先攻杂项加值">✎</span></div><div class="val num" id="init-val">+0</div></div>
+      <div class="stat-box editable" data-edit="ac" title="改基础 AC 与杂项加值"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
+      <div class="stat-box editable" data-edit="dc" title="改法术 DC 杂项加值"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
+      <div class="stat-box"><div class="label">速度</div><div class="val num editable" id="speed-val" data-edit="speed" title="改速度">30</div><div class="sub editable" id="size-val" data-edit="size" title="改体型">中型</div></div>
       <div class="stat-box" data-roll="perception"><div class="label">被动察觉</div><div class="val num" id="pp-val">10</div></div>
-      <div class="stat-box"><div class="label">HD</div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
+      <div class="stat-box"><div class="label">HD <span class="edit-icon" data-edit="hd" title="改 HD 当前/上限">✎</span></div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
     </div>
   </section>
 
@@ -331,7 +364,8 @@ details summary:hover{color:var(--accent)}
       "subrace": ""
     },
     "background": "战士",
-    "inspiration": false
+    "inspiration": false,
+    "rev": 1
   },
   "abilities": {
     "str": {
@@ -596,7 +630,24 @@ const RULES={
     '强击':'Graze：若攻击未命中，仍造成等于关键属性调整值的同类型伤害。',
     '弹道':'Topple/类似——见原文'
   },
-  conditions:['失明','魅惑','聋哑','失能','惊恐','被擒抱','麻痹','石化','中毒','俯卧','束缚','震慑','昏迷','濒死','虚弱','隐形','蒙蔽','晕眩'],
+  conditions:['目盲','魅惑','耳聋','力竭','恐慌','受擒','失能','隐形','麻痹','石化','倒地','中毒','束缚','震慑','昏迷'],
+  conditionDescriptions:{
+    '目盲':{en:'Blinded',body:'<strong>看不见。</strong>你无法视物，且会自动失败于任何需要视觉的属性检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势，而你进行的攻击检定具有劣势。'},
+    '魅惑':{en:'Charmed',body:'<strong>无法伤害魅惑源。</strong>你无法攻击魅惑源，也无法将其作为伤害性能力或魔法效应的对象。<br><strong>社交优势。</strong>魅惑源对你进行的任何有关社交的属性检定均具有优势。'},
+    '耳聋':{en:'Deafened',body:'<strong>听不见。</strong>你无法听声，且会自动失败于任何依赖听觉的属性检定。'},
+    '力竭':{en:'Exhaustion',body:'<strong>力竭等级。</strong>此状态可叠加。每次你获得此状态，力竭等级都增加1级。当你力竭等级累加到6级你将死亡。<br><strong>D20检定影响。</strong>当你进行一次D20检定时，此次检定将减去你力竭等级2倍的值。<br><strong>速度降低。</strong>你的速度减少等于你力竭等级5倍尺。<br><strong>移除力竭等级。</strong>你可以依靠完成长休来降低1级力竭等级。当你力竭等级降至0时，此状态结束。'},
+    '恐慌':{en:'Frightened',body:'<strong>属性检定与攻击影响。</strong>只要恐惧源在你的视线范围内，你进行的属性检定与攻击检定就具有劣势。<br><strong>无法靠近。</strong>你无法自愿地向靠近恐惧源的方向移动。'},
+    '受擒':{en:'Grappled',body:'<strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>除擒抱者外，你对其他任何目标进行的攻击检定都具有劣势。<br><strong>带动。</strong>擒抱者移动时，其可以拖拽或承载你，但其每移动1尺都需要为此额外消耗1尺移动力。若你的体型为微型或你的体型小于擒抱者两级以上，擒抱者拖拽/承载你将不需要额外消耗移动力。'},
+    '失能':{en:'Incapacitated',body:'<strong>无法行动。</strong>你无法执行任何动作、附赠动作以及反应。<br><strong>无法专注。</strong>你的专注将被打断。<br><strong>无法说话。</strong>你无法说话。<br><strong>措手不及。</strong>如果你在陷入失能状态期间投掷先攻，你的先攻检定将具有劣势。'},
+    '隐形':{en:'Invisible',body:'<strong>出其不意。</strong>如果你在投掷先攻时处于隐形状态，你的先攻检定将具有优势。<br><strong>隐蔽。</strong>任何需要能够看见目标的效应都不会影响到你，除非效应的源头能通过某种方式看到你。你所着装或携带的一切装备也同样会被隐蔽起来。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有劣势，而你进行的攻击检定具有优势。如果一个生物能以某种方式看见你，那么你在面对该生物时不会获得这一增益。'},
+    '麻痹':{en:'Paralyzed',body:'<strong>失能。</strong>你陷入失能状态。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>自动重击。</strong>若攻击者位于你5尺内，其任何命中你的攻击检定都会变为重击。'},
+    '石化':{en:'Petrified',body:'<strong>化为非活动材质。</strong>你与你穿着或携带的所有非魔法物品将被变化为坚固的、非活动的材质（通常是石头）。你的重量变为原本的十倍，且你将停止老化。<br><strong>失能。</strong>你陷入失能状态。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>伤害全抗。</strong>你具有所有伤害的抗性。<br><strong>中毒免疫。</strong>你具有中毒状态的免疫。'},
+    '倒地':{en:'Prone',body:'<strong>阻碍移动。</strong>你唯二的移动选项是匍匐移动或是消耗你速度一半数值（向下取整）的移动力起立，并由此终止这一状态。如果你的速度为0，你无法起立。<br><strong>攻击影响。</strong>你进行的攻击检定具有劣势。若攻击者位于你5尺内，其以你为目标的攻击检定具有优势；若攻击者不位于你5尺内，其以你为目标的攻击检定具有劣势。'},
+    '中毒':{en:'Poisoned',body:'<strong>属性检定与攻击影响。</strong>你进行的攻击检定与属性检定具有劣势。'},
+    '束缚':{en:'Restrained',body:'<strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势，而你进行的攻击检定具有劣势。<br><strong>豁免影响。</strong>你进行的敏捷豁免检定具有劣势。'},
+    '震慑':{en:'Stunned',body:'<strong>失能。</strong>你陷入失能状态。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。'},
+    '昏迷':{en:'Unconscious',body:'<strong>迟钝。</strong>你陷入失能状态与倒地状态，你手上持握的东西也会全数掉落。此状态结束时，倒地状态并不会因此结束。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>自动重击。</strong>若攻击者位于你5尺内，其任何命中你的攻击检定都会变为重击。<br><strong>无知觉。</strong>你无法感知到你周遭的事物。'}
+  },
   classes:{
     '法师':{hd:6,primary:['int'],casterType:'full'},
     '术士':{hd:6,primary:['cha'],casterType:'full'},
@@ -876,15 +927,69 @@ function normalize(c){
   for(const comp of c.companions||[])normalizeOne(comp);
   return c;
 }
+/* 临场状态嫁接：当文件被 AI 重新编写(meta.rev 提升)时，以文件的"定义"
+   (等级/专长/装备/法术/最大HP/攻击…)为准，但把玩家浏览器里的"临场状态"
+   (当前HP/已用资源/法术位/死豁/专注/buff/状态/骰史/伴生血量)嫁接回来。 */
+function mergeLiveState(embedded,cached){
+  const base=JSON.parse(JSON.stringify(embedded));
+  const ec=base.combat||(base.combat={}),cc=cached.combat||{};
+  if(typeof cc.hpCur==='number')ec.hpCur=(typeof ec.hpMax==='number')?Math.min(cc.hpCur,ec.hpMax):cc.hpCur;
+  if(typeof cc.hpTemp==='number')ec.hpTemp=cc.hpTemp;
+  if(typeof cc.hdCur==='number')ec.hdCur=(typeof ec.hdMax==='number')?Math.min(cc.hdCur,ec.hdMax):cc.hdCur;
+  if(cc.deathSaves)ec.deathSaves=cc.deathSaves;
+  if(Array.isArray(cc.statusEffects))ec.statusEffects=cc.statusEffects;
+  if('concentration' in cc)ec.concentration=cc.concentration;
+  if(Array.isArray(cc.buffs))ec.buffs=cc.buffs;
+  base.meta=base.meta||{};
+  if(cached.meta&&typeof cached.meta.inspiration==='boolean')base.meta.inspiration=cached.meta.inspiration;
+  if(cached.meta&&typeof cached.meta.viewIndex==='number')base.meta.viewIndex=cached.meta.viewIndex;
+  const resample=(arr,mx)=>Array.from({length:mx},(_,i)=>!!(arr&&arr[i]));
+  const cRes={};for(const r of cached.classResources||[])if(r&&r.key)cRes[r.key]=r;
+  for(const r of base.classResources||[]){
+    const o=cRes[r.key];
+    if(o&&Array.isArray(o.used))r.used=resample(o.used,Array.isArray(r.used)?r.used.length:(r.max||0));
+  }
+  const es=base.spellcasting&&base.spellcasting.slots,csl=cached.spellcasting&&cached.spellcasting.slots;
+  if(es&&csl)for(const lv of Object.keys(es)){
+    const o=csl[lv];
+    if(o&&Array.isArray(o.used)&&Array.isArray(es[lv].used))es[lv].used=resample(o.used,es[lv].used.length);
+  }
+  const bsp=base.spellcasting&&base.spellcasting.spellPoints,csp=cached.spellcasting&&cached.spellcasting.spellPoints;
+  if(bsp&&csp&&typeof csp.cur==='number')bsp.cur=Math.min(csp.cur,bsp.max||0);
+  if(Array.isArray(cached.rollHistory))base.rollHistory=cached.rollHistory;
+  if(Array.isArray(base.companions)&&Array.isArray(cached.companions)){
+    const cm={};for(const cp of cached.companions)if(cp&&cp.name)cm[cp.name]=cp;
+    for(const cp of base.companions){
+      const o=cm[cp.name];if(!o)continue;
+      if(o.combat&&cp.combat){
+        if(typeof o.combat.hpCur==='number')cp.combat.hpCur=(typeof cp.combat.hpMax==='number')?Math.min(o.combat.hpCur,cp.combat.hpMax):o.combat.hpCur;
+        if(typeof o.combat.hpTemp==='number')cp.combat.hpTemp=o.combat.hpTemp;
+        if(Array.isArray(o.combat.statusEffects))cp.combat.statusEffects=o.combat.statusEffects;
+      }
+      if('active' in o)cp.active=o.active;
+    }
+  }
+  return base;
+}
 function loadChar(){
-  const initial=getEmbeddedChar();
-  const charId=ensureCharId(initial);
-  let c=initial;
+  const embedded=getEmbeddedChar();
+  const charId=ensureCharId(embedded);
+  let cached=null;
   try{
     const s=localStorage.getItem('dnd5r-char:'+charId);
-    if(s)c=JSON.parse(s);
+    if(s)cached=JSON.parse(s);
   }catch(e){}
-  return normalize(c);
+  if(!cached)return normalize(embedded);
+  const embRev=(embedded.meta&&+embedded.meta.rev)||0;
+  const cacRev=(cached.meta&&+cached.meta.rev)||0;
+  if(embRev>cacRev){
+    // 文件已被重新编写：以文件定义为准，嫁接玩家临场状态，对齐版本
+    const merged=mergeLiveState(embedded,cached);
+    merged.meta=merged.meta||{};merged.meta.rev=embRev;
+    window.__sheetMerged=true;
+    return normalize(merged);
+  }
+  return normalize(cached);
 }
 function saveChar(){
   try{localStorage.setItem('dnd5r-char:'+ensureCharId(char),JSON.stringify(char))}catch(e){}
@@ -1109,7 +1214,7 @@ function getUpcastDamage(spell,castLvl){
   }
   return baseDmg;
 }
-function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
+function rollD20WithAdv(m,extraAdv){extraAdv=extraAdv||0;if(m==='adv'){const n=2+extraAdv,dice=[];for(let i=0;i<n;i++)dice.push(rollDie(20));return{chosen:Math.max(...dice),both:dice,mode:m}}if(m==='dis'){const a=rollDie(20),b=rollDie(20);return{chosen:Math.min(a,b),both:[a,b],mode:m}}const a=rollDie(20);return{chosen:a,both:[a],mode:m}}
 function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
 
 /* === 模态框 === */
@@ -1161,12 +1266,18 @@ function renderCombat(){
   const bar=document.getElementById('hp-bar-fg');
   bar.style.width=pct+'%';
   bar.className='hp-bar-fg'+(pct<25?' crit':pct<50?' low':'');
-  document.getElementById('init-val').textContent=fmt(initiative(c));
-  document.getElementById('ac-val').textContent=ac(c);
+  const initEl=document.getElementById('init-val');
+  initEl.textContent=fmt(initiative(c));
+  initEl.classList.toggle('has-override',!!(c.combat.initBonus));
+  const acEl=document.getElementById('ac-val');
+  acEl.textContent=ac(c);
+  acEl.classList.toggle('has-override',!!(c.combat.acBonus));
   // DC / HD 主体专属，companion 视图显示 —
   if(isMain){
     const dc=spellDC(char);
-    document.getElementById('dc-val').textContent=dc!=null?dc:'—';
+    const dcEl=document.getElementById('dc-val');
+    dcEl.textContent=dc!=null?dc:'—';
+    dcEl.classList.toggle('has-override',!!(char.spellcasting&&char.spellcasting.extraDcBonus));
     document.getElementById('hd-cur').textContent=char.combat.hdCur;
     document.getElementById('hd-max').textContent=char.combat.hdMax;
     // 在 hd-cur 和 hd-max 之间的 "/" 是模板里硬写的；这里把它显示出来
@@ -1174,7 +1285,9 @@ function renderCombat(){
     if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='/';
     document.getElementById('hd-size').textContent=hdSummary(char);
   }else{
-    document.getElementById('dc-val').textContent='—';
+    const dcEl=document.getElementById('dc-val');
+    dcEl.textContent='—';
+    dcEl.classList.remove('has-override');
     document.getElementById('hd-cur').textContent='—';
     document.getElementById('hd-max').textContent='';
     const hdMaxEl=document.getElementById('hd-max');
@@ -1196,9 +1309,13 @@ function renderStatus(){
   document.getElementById('ds-success-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.success[i]?' success':''}" data-ds="success" data-i="${i}"></span>`).join('');
   document.getElementById('ds-fail-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.fail[i]?' fail':''}" data-ds="fail" data-i="${i}"></span>`).join('');
   const sg=document.getElementById('status-grid');
-  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag" data-status-rm="${s}">${s} ✕</span>`).join('');
+  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag has-x"><span class="status-name" data-status-info="${s}" title="查看效果">${s}</span><span class="status-x" data-status-rm="${s}" title="移除该状态">✕</span></span>`).join('');
   sg.innerHTML=tags+`<span class="status-tag add" id="add-status">+ 添加</span>`;
-  document.getElementById('resistance').textContent=char.combat.resistance||'—';
+  const resEl=document.getElementById('resistance');
+  resEl.textContent=char.combat.resistance||'—';
+  resEl.classList.add('editable');
+  resEl.dataset.edit='resistance';
+  resEl.title='点击编辑抗性/免疫/易伤';
   // 专注
   const cd=document.getElementById('conc-display');
   const conc=char.combat.concentration;
@@ -1268,11 +1385,12 @@ function renderAbilities(){
   const grid=document.getElementById('ab-grid');
   grid.innerHTML=RULES.abilities.map(ab=>{
     const a=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0},m=abMod(a.score),sb=saveBonus(c,ab);
+    const saveOv=(a.saveBonus||0)!==0?' has-override':'';
     return `<div class="ab-box" data-roll="ability" data-ab="${ab}">
       <div class="label">${RULES.abilityNames[ab]}</div>
       <div class="mod num">${fmt(m)}</div>
       <div class="score num" data-edit-ab="${ab}">${a.score}</div>
-      <div class="save${a.saveProf?' prof':''} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}</div>
+      <div class="save${a.saveProf?' prof':''}${saveOv} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}<span class="edit-icon" data-edit-save="${ab}" title="改豁免熟练/加值">✎</span></div>
     </div>`;
   }).join('');
 }
@@ -1281,17 +1399,21 @@ function renderSkills(){
   const c=activeChar();
   const skills=c.skills||{};
   const list=document.getElementById('skill-list');
-  list.innerHTML=RULES.skills.map(s=>{
+  const gbl=skills.globalBonus||0;
+  const gblTag=`<div style="display:flex;justify-content:flex-end;font-size:11px;color:var(--text-dim);padding:2px 4px"><span class="editable${gbl?' has-override':''}" data-edit="globalSkill" title="全局技能加值（所有技能 +X）">全局加值 ${fmt(gbl)} ✎</span></div>`;
+  list.innerHTML=gblTag+RULES.skills.map(s=>{
     const d=skills[s.key]||{prof:'none',bonus:0};
     let mark='',cls='';
     if(d.prof==='prof'){mark='●';cls='prof'}
     else if(d.prof==='expert'){mark='◆';cls='expert'}
     else if(d.prof==='half'){mark='◐';cls='half'}
+    const ov=(d.bonus||0)!==0?' has-override':'';
     return `<div class="skill-row" data-roll="skill" data-skill="${s.key}">
       <span class="prof-toggle ${cls}" data-toggle-prof="${s.key}">${mark}</span>
       <span class="skill-name">${s.name}</span>
       <span class="skill-ability">${RULES.abilityNames[s.ability].slice(0,1)}</span>
-      <span class="skill-bonus num">${fmt(skillBonus(c,s.key))}</span>
+      <span class="skill-bonus num${ov}">${fmt(skillBonus(c,s.key))}</span>
+      <span class="edit-icon" data-edit-skill="${s.key}" title="改该技能杂项加值">✎</span>
     </div>`;
   }).join('');
 }
@@ -1306,11 +1428,12 @@ function renderAttacks(){
     const atk=m+pb+(a.attackBonus||0);
     const dmgMod=m+(a.damageBonus||0);
     const dmg=`${a.damage}${dmgMod?fmt(dmgMod):''}`;
+    const hasOv=(a.attackBonus||0)!==0||(a.damageBonus||0)!==0;
     return `<div class="attack-row" data-roll="attack" data-i="${i}">
-      <div class="name">${a.name}${a.attuned?' ✦':''}</div>
+      <div class="name">${a.name}${a.attuned?' ✦':''}<span class="edit-icon" data-edit-attack="${i}" title="改命中/伤害加值">✎</span></div>
       <div class="stats">
-        <span>命中 <strong>${fmt(atk)}</strong></span>
-        <span>伤害 <strong>${dmg}</strong> ${a.damageType}</span>
+        <span>命中 <strong class="${hasOv?'has-override':''}">${fmt(atk)}</strong></span>
+        <span>伤害 <strong class="${hasOv?'has-override':''}">${dmg}</strong> ${a.damageType}</span>
         ${a.mastery?`<span class="mastery">精通：${a.mastery}</span>`:''}
       </div>
       <div class="stats" style="font-size:11px">${a.properties||''}</div>
@@ -1342,7 +1465,9 @@ function renderSpells(){
   const sg=document.getElementById('slot-grid');
   const list=document.getElementById('spell-list');
   if(!sc||!sc.castingAbility){meta.textContent='此角色无施法能力';sg.innerHTML='';list.innerHTML='';return}
-  meta.textContent=`DC ${spellDC(char)} · 攻 ${fmt(spellAttack(char))} (${RULES.abilityNames[sc.castingAbility]})`;
+  const dcOv=(sc.extraDcBonus||0)!==0?' has-override':'';
+  const atkOv=(sc.extraAttackBonus||0)!==0?' has-override':'';
+  meta.innerHTML=`DC <span class="editable${dcOv}" data-edit="spellDc" title="改法术 DC 加值">${spellDC(char)}</span> · 攻 <span class="editable${atkOv}" data-edit="spellAtk" title="改法术攻击加值">${fmt(spellAttack(char))}</span> (${RULES.abilityNames[sc.castingAbility]})`;
   sg.innerHTML=[1,2,3,4,5,6,7,8,9].map(lv=>{
     const s=sc.slots[lv]||{used:[],max:0};
     if(s.max===0)return `<div class="slot-col"><div class="level">${lv}</div><div class="slots" style="opacity:.3">—</div></div>`;
@@ -1653,8 +1778,9 @@ function showRollDialog(label,baseBonus,ctx){
     const total=r.chosen+rollCtx.baseBonus+rollCtx.extra+buff.bonus;
     const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
     const buffStr=buff.details.length?' '+buff.details.join(' '):'';
+    const verdict=r.chosen===20?'<div class="verdict nat20">天然 20</div>':r.chosen===1?'<div class="verdict nat1">天然 1</div>':'';
     const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}${buffStr}`;
-    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div>${verdict}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(rollCtx.label,total,detail.replace(/<[^>]+>/g,''));
     picker.consume(buff.consumeIds);
   });
@@ -1695,13 +1821,23 @@ function showAttackDialog(idx){
     b.classList.add('active');
   }));
   document.getElementById('btn-atk').addEventListener('click',()=>{
-    const r=rollD20WithAdv(amode);
+    const extraAdv=a.advReroll?1:0;                 // 精灵之准：优势时多掷一枚 d20 取最高（阈值不变）
+    const r=rollD20WithAdv(amode,extraAdv);
     const buff=picker.compute();
     const total=r.chosen+atkBonus+buff.bonus;
-    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
+    const gCrit=(c.combat&&c.combat.critMin)||20;
+    const effCrit=Math.min(gCrit,a.critMin||20);    // 全局与武器取更低门槛（斗士 19/18、魔法武器）
+    const isNat20=r.chosen===20,isNat1=r.chosen===1,isCrit=r.chosen>=effCrit;
+    const cls=isCrit?'nat20':isNat1?'nat1':'';
     const buffStr=buff.details.length?' '+buff.details.join(' '):'';
-    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${fmt(atkBonus)}${buffStr}${r.chosen===20?' 暴击!':''}`;
-    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    const advTag=amode==='adv'?(extraAdv?'(优·精灵之准 3d20)':'(优)'):amode==='dis'?'(劣)':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${advTag} ${fmt(atkBonus)}${buffStr} = ${total}`;
+    let head;
+    if(isNat1)head='<div class="total nat1">大失败</div><div class="verdict nat1">必失 · 失手</div>';
+    else if(isNat20)head='<div class="total nat20">大成功</div><div class="verdict nat20">必中 · 重击（点“暴击伤害”翻倍骰）</div>';
+    else if(isCrit)head=`<div class="total">${total}</div><div class="verdict nat20">进入重击范围（命中则点“暴击伤害”）</div>`;
+    else head=`<div class="total">${total}</div>`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result">${head}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(`攻击-${a.name}`,total,detail.replace(/<[^>]+>/g,''));
     picker.consume(buff.consumeIds);
   });
@@ -2110,6 +2246,199 @@ function showHPDialog(){
   });
 }
 
+/* === 状态详情 === */
+function showStatusInfo(name){
+  const d=RULES.conditionDescriptions[name];
+  const body=d?`<h3>${name} <span style="color:var(--text-dim);font-size:13px;font-weight:normal">${d.en}</span></h3>
+    <div style="margin:10px 0;font-size:13px;line-height:1.7">${d.body}</div>`:`<h3>${name}</h3>
+    <div style="margin:10px 0;font-size:13px;color:var(--text-dim)">没有该状态的规则文本。</div>`;
+  openModal(`${body}
+    <div class="modal-buttons">
+      <button data-status-rm="${name}" onclick="closeModal()">移除该状态</button>
+      <button onclick="closeModal()">关闭</button>
+    </div>`);
+}
+
+/* === 数值编辑器 ===
+   原则：5e 的"加值字段"已在数据模型里（acBonus / initBonus / saveBonus / skill.bonus / attackBonus 等），
+   点显示值打开 prompt/modal 改它们，render() 自然把所有派生值重算一遍。
+*/
+/* 自定义"prompt"模态：避免 iOS / 微信内置浏览器把原生 prompt 标题显示成 (null)。
+   opts: {type:'number'|'text', hint:'说明文本', placeholder:''} */
+function promptModal(title,current,onOK,opts){
+  opts=opts||{};
+  const type=opts.type||'number';
+  const hint=opts.hint||'';
+  const placeholder=opts.placeholder||'';
+  const cur=String(current==null?'':current).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  openModal(`<h3>${title}</h3>
+    ${hint?`<div style="color:var(--text-dim);font-size:12px;line-height:1.5;margin-bottom:10px;white-space:pre-line">${hint}</div>`:''}
+    <div class="modal-row" style="display:block">
+      <input id="pm-input" type="${type}" value="${cur}" placeholder="${placeholder}" style="width:100%;font-size:16px;padding:10px;box-sizing:border-box;text-align:left">
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="pm-ok" class="primary">确定</button>
+    </div>`);
+  const input=document.getElementById('pm-input');
+  setTimeout(()=>{input.focus();try{input.select()}catch(e){}},80);
+  const submit=()=>{
+    const v=input.value;
+    closeModal();
+    onOK(v);
+  };
+  document.getElementById('pm-ok').addEventListener('click',submit);
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();submit()}
+  });
+}
+function editAC(){
+  const c=activeChar();
+  const base=c.combat.acBase||10;
+  const bonus=c.combat.acBonus||0;
+  openModal(`<h3>编辑 AC</h3>
+    <div class="modal-row"><span>基础 AC：</span><input id="ac-base-i" type="number" value="${base}" style="width:80px"></div>
+    <div class="modal-row"><span>杂项加值：</span><input id="ac-bonus-i" type="number" value="${bonus}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">当前实际 AC（含盾/BUFF）：${ac(c)}<br>基础是裸 AC（如皮甲 11+敏），加值是杂项（戒指、专长等）。</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-ac-save" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-ac-save').addEventListener('click',()=>{
+    c.combat.acBase=parseInt(document.getElementById('ac-base-i').value)||0;
+    c.combat.acBonus=parseInt(document.getElementById('ac-bonus-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+function editInit(){
+  const c=activeChar();
+  const dexMod=abMod((c.abilities.dex||{score:10}).score);
+  const cur=c.combat.initBonus||0;
+  promptModal('先攻杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    c.combat.initBonus=n;saveChar();render();
+  },{hint:`敏调=${fmt(dexMod)}, 当前加值=${fmt(cur)}, 总先攻=${fmt(initiative(c))}`});
+}
+function editSpellDC(){
+  const sc=char.spellcasting;
+  if(!sc||!sc.castingAbility){alert('该角色无施法能力');return}
+  const cur=sc.extraDcBonus||0;
+  const sa=sc.castingAbility,sm=abMod(char.abilities[sa].score),pb=profBonus(char);
+  promptModal('法术 DC 杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    sc.extraDcBonus=n;saveChar();render();
+  },{hint:`基础 = 8 + 熟练${fmt(pb)} + ${RULES.abilityNames[sa]}调${fmt(sm)} + 加值\n当前加值=${fmt(cur)}, 当前 DC=${spellDC(char)}`});
+}
+function editSpellAttack(){
+  const sc=char.spellcasting;
+  if(!sc||!sc.castingAbility){alert('该角色无施法能力');return}
+  const cur=sc.extraAttackBonus||0;
+  const sa=sc.castingAbility,sm=abMod(char.abilities[sa].score),pb=profBonus(char);
+  promptModal('法术攻击杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    sc.extraAttackBonus=n;saveChar();render();
+  },{hint:`基础 = 熟练${fmt(pb)} + ${RULES.abilityNames[sa]}调${fmt(sm)} + 加值\n当前加值=${fmt(cur)}, 当前命中=${fmt(spellAttack(char))}`});
+}
+function editSpeed(){
+  const c=activeChar();
+  promptModal('速度（尺）',c.combat.speed||30,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)||n<0){alert('请输入非负整数');return}
+    c.combat.speed=n;saveChar();render();
+  });
+}
+function editSize(){
+  const c=activeChar();
+  promptModal('体型',c.combat.size||'中型',(v)=>{
+    if(v==null||!v.trim())return;
+    c.combat.size=v.trim();saveChar();render();
+  },{type:'text',hint:'微型 / 超小型 / 小型 / 中型 / 大型 / 超大型 / 巨型'});
+}
+function editHd(){
+  openModal(`<h3>编辑 HD</h3>
+    <div class="modal-row"><span>当前 HD：</span><input id="hd-cur-i" type="number" value="${char.combat.hdCur||0}" style="width:80px"></div>
+    <div class="modal-row"><span>HD 上限：</span><input id="hd-max-i" type="number" value="${char.combat.hdMax||0}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">骰大小由职业等级决定（${hdSummary(char)}），不在此处改。</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-hd-save" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-hd-save').addEventListener('click',()=>{
+    const mx=Math.max(0,parseInt(document.getElementById('hd-max-i').value)||0);
+    const cu=Math.max(0,parseInt(document.getElementById('hd-cur-i').value)||0);
+    char.combat.hdMax=mx;
+    char.combat.hdCur=Math.min(cu,mx);
+    saveChar();render();closeModal();
+  });
+}
+function editResistance(){
+  promptModal('抗性/免疫/易伤',char.combat.resistance||'',(v)=>{
+    if(v==null)return;
+    char.combat.resistance=v.trim();saveChar();renderStatus();
+  },{type:'text',hint:'自由文本；留空清除',placeholder:'如：中毒（矮人韧性）'});
+}
+function editSave(ab){
+  const a=char.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
+  char.abilities[ab]=a;
+  const m=abMod(a.score),pb=profBonus(char);
+  openModal(`<h3>编辑 ${RULES.abilityNames[ab]}豁免</h3>
+    <div class="modal-row"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="save-prof-i" ${a.saveProf?'checked':''}> 熟练（+${pb}）</label></div>
+    <div class="modal-row"><span>杂项加值：</span><input id="save-bonus-i" type="number" value="${a.saveBonus||0}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">${RULES.abilityNames[ab]}调${fmt(m)} + 熟练${a.saveProf?fmt(pb):'+0'} + 加值${fmt(a.saveBonus||0)} = 当前 ${fmt(saveBonus(char,ab))}</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-save-ed" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-save-ed').addEventListener('click',()=>{
+    a.saveProf=document.getElementById('save-prof-i').checked;
+    a.saveBonus=parseInt(document.getElementById('save-bonus-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+function editSkillBonus(sk){
+  const skMeta=RULES.skills.find(s=>s.key===sk);
+  if(!skMeta)return;
+  char.skills=char.skills||{};
+  const d=char.skills[sk]||{prof:'none',bonus:0};
+  char.skills[sk]=d;
+  const cur=d.bonus||0;
+  promptModal(`${skMeta.name}杂项加值`,cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    d.bonus=n;saveChar();render();
+  },{hint:`当前加值=${fmt(cur)}, 当前总加值=${fmt(skillBonus(char,sk))}`});
+}
+function editGlobalSkillBonus(){
+  char.skills=char.skills||{};
+  const cur=char.skills.globalBonus||0;
+  promptModal('全局技能加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    char.skills.globalBonus=n;saveChar();render();
+  },{hint:`所有技能 +X\n当前=${fmt(cur)}`});
+}
+function editAttackBonus(i){
+  const a=(char.attacks||[])[i];if(!a)return;
+  const ab=char.abilities[a.ability]||{score:10};
+  const m=abMod(ab.score),pb=profBonus(char);
+  openModal(`<h3>编辑「${a.name}」加值</h3>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">基础命中 = ${RULES.abilityNames[a.ability]}调${fmt(m)} + 熟练${fmt(pb)}；基础伤害 = ${a.damage} + ${RULES.abilityNames[a.ability]}调${fmt(m)}</div>
+    <div class="modal-row"><span>命中加值：</span><input id="atk-b-i" type="number" value="${a.attackBonus||0}" style="width:80px"></div>
+    <div class="modal-row"><span>伤害加值：</span><input id="dmg-b-i" type="number" value="${a.damageBonus||0}" style="width:80px"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-atk-ed" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-atk-ed').addEventListener('click',()=>{
+    a.attackBonus=parseInt(document.getElementById('atk-b-i').value)||0;
+    a.damageBonus=parseInt(document.getElementById('dmg-b-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+
 /* === 状态选择器 === */
 function showStatusPicker(){
   openModal(`<h3>添加状态</h3>
@@ -2163,8 +2492,10 @@ document.addEventListener('click',e=>{
   if(t.matches('[data-edit-name]')){
     e.stopPropagation();
     // 主体名编辑（companion tab 时点 header 名字仍编辑主体名）
-    const v=prompt('角色名：',char.meta.name||'');
-    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();render()}
+    promptModal('角色名',char.meta.name||'',(v)=>{
+      if(v==null||!v.trim())return;
+      char.meta.name=v.trim();saveChar();render();
+    },{type:'text'});
     return;
   }
   if(t.matches('[data-edit-ab]')){
@@ -2172,11 +2503,41 @@ document.addEventListener('click',e=>{
     const c=activeChar();
     const ab=t.dataset.editAb;
     const cur=c.abilities[ab]?c.abilities[ab].score:10;
-    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,cur);
-    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){
+    promptModal(`${RULES.abilityNames[ab]}属性分数`,cur,(v)=>{
+      if(v==null||v==='')return;
+      const n=parseInt(v);
+      if(isNaN(n)||n<1||n>30){alert('请输入 1-30 之间的整数');return}
       c.abilities[ab]=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
       c.abilities[ab].score=n;saveChar();render();
-    }}
+    },{hint:'1 - 30 之间整数'});
+    return;
+  }
+  if(t.matches('[data-edit-save]')){
+    e.stopPropagation();
+    editSave(t.dataset.editSave);return;
+  }
+  if(t.matches('[data-edit-skill]')){
+    e.stopPropagation();
+    editSkillBonus(t.dataset.editSkill);return;
+  }
+  if(t.matches('[data-edit-attack]')){
+    e.stopPropagation();
+    editAttackBonus(parseInt(t.dataset.editAttack));return;
+  }
+  const editEl=t.closest('[data-edit]');
+  if(editEl){
+    e.stopPropagation();
+    const k=editEl.dataset.edit;
+    if(k==='init')editInit();
+    else if(k==='ac')editAC();
+    else if(k==='dc')editSpellDC();
+    else if(k==='speed')editSpeed();
+    else if(k==='size')editSize();
+    else if(k==='hd')editHd();
+    else if(k==='resistance')editResistance();
+    else if(k==='spellDc')editSpellDC();
+    else if(k==='spellAtk')editSpellAttack();
+    else if(k==='globalSkill')editGlobalSkillBonus();
     return;
   }
   if(t.matches('.slot-pip')){
@@ -2231,6 +2592,9 @@ document.addEventListener('click',e=>{
   if(t.id==='btn-conc-save'){doConcentrationSave();return}
   if(t.id==='add-status'){showStatusPicker();return}
   if(t.id==='btn-buff-import'){showBuffImportDialog();return}
+  if(t.matches('[data-status-info]')){
+    showStatusInfo(t.dataset.statusInfo);return;
+  }
   if(t.matches('[data-status-rm]')){
     const s=t.dataset.statusRm;
     char.combat.statusEffects=(char.combat.statusEffects||[]).filter(x=>x!==s);
@@ -2433,11 +2797,88 @@ function diceBotCmd(){
   });
 }
 
+/* === 强制清缓存重载（AI 升级/改卡后没生效时的逃生阀）=== */
+function forceReloadFromFile(){
+  const id=ensureCharId(char);
+  if(!confirm('将清除本机缓存并按文件里的最新定义重新载入本卡。\n\n会丢弃（这些只存在浏览器缓存里）：当前 HP、已用资源/法术位、死豁、专注、buff、临时状态、骰史，以及你直接在卡面上做过的手动改动。\n文件里的等级/属性/装备/法术等定义会原样载入。\n\n用于「AI 升级或改了卡，但页面没变化」。此操作不可撤销，确认？'))return;
+  try{localStorage.removeItem('dnd5r-char:'+id)}catch(e){}
+  location.reload();
+}
+
+/* === 通用骰盘（本地即时投任意骰，自动记入骰史）=== */
+function openDiceTray(){
+  let qty=1,mod=0,adv='normal';
+  const DICE=[4,6,8,10,12,20,100];
+  openModal(`<h3>🎲 骰盘</h3>
+    <div style="font-size:12px;color:var(--text-dim);margin:-6px 0 10px">随手投任意骰，结果自动记入骰史</div>
+    <div class="dt-quick" id="dt-quick">${DICE.map(s=>`<button class="dt-die" data-die="${s}">d${s}</button>`).join('')}</div>
+    <div class="dt-controls">
+      <span class="dt-ctl">数量 <button class="dt-step" data-q="-1">−</button><b id="dt-qty">1</b><button class="dt-step" data-q="1">+</button></span>
+      <span class="dt-ctl">修正 <button class="dt-step" data-m="-1">−</button><b id="dt-mod">+0</b><button class="dt-step" data-m="1">+</button></span>
+      <span class="dt-ctl" title="仅作用于单颗 d20">
+        <button class="dt-advbtn active" data-adv="normal">普通</button>
+        <button class="dt-advbtn" data-adv="adv">优势</button>
+        <button class="dt-advbtn" data-adv="dis">劣势</button>
+      </span>
+    </div>
+    <div class="dt-expr">
+      <input id="dt-input" type="text" placeholder="表达式：2d6+3、1d20、3·(1d4+1)…" autocomplete="off" spellcheck="false">
+      <button class="primary" id="dt-roll">投</button>
+    </div>
+    <div class="dt-result" id="dt-result"><span class="dt-hint">点上方骰子，或输入表达式开投</span></div>
+    <div class="dt-recent" id="dt-recent"></div>
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+  const qEl=document.getElementById('dt-qty'),mEl=document.getElementById('dt-mod'),
+        resEl=document.getElementById('dt-result'),recEl=document.getElementById('dt-recent'),
+        inEl=document.getElementById('dt-input');
+  function syncCtl(){qEl.textContent=qty;mEl.textContent=fmt(mod);}
+  function renderRecent(){
+    const items=(char.rollHistory||[]).filter(h=>String(h.label).indexOf('🎲')===0).slice(0,6);
+    recEl.innerHTML=items.length?('<div class="dt-recent-t">最近</div>'+items.map(h=>`<div class="dt-recent-i"><span>${h.label} = ${h.detail||''}</span><b>${h.total}</b></div>`).join('')):'';
+  }
+  function show(label,total,detail){
+    resEl.innerHTML=`<div class="dt-total">${total}</div><div class="dt-sub">${label} = ${detail}</div>`;
+    pushHistory('🎲 '+label,total,detail);
+    renderRecent();
+  }
+  function quickRoll(sides){
+    if(sides===20&&adv!=='normal'){
+      const r=rollD20WithAdv(adv==='adv'?'adv':'dis'),total=r.chosen+mod;
+      show(`d20 ${adv==='adv'?'优势':'劣势'}${mod?fmt(mod):''}`,total,`[${r.both.join(', ')}]→${r.chosen}${mod?fmt(mod):''}`);
+    }else{
+      const rd=rollDice(qty,sides),total=rd.total+mod;
+      show(`${qty}d${sides}${mod?fmt(mod):''}`,total,`[${rd.rolls.join(', ')}]${mod?fmt(mod):''}`);
+    }
+  }
+  function exprRoll(){
+    let e=inEl.value.trim();if(!e)return;
+    e=e.replace(/^d(\d)/i,'1d$1');
+    const r=rollExpr(e);
+    if(!r){alert('解析失败："'+inEl.value+'"\n支持：1d20、2d6+3、8d6、3·(1d4+1)');return;}
+    show(e,r.total,r.detail||`[${r.rolls.join(', ')}]${r.mod?fmt(r.mod):''}`);
+  }
+  document.getElementById('dt-quick').addEventListener('click',e=>{const b=e.target.closest('[data-die]');if(b)quickRoll(+b.dataset.die);});
+  document.querySelectorAll('.dt-step').forEach(b=>b.addEventListener('click',()=>{
+    if(b.dataset.q)qty=Math.max(1,Math.min(20,qty+(+b.dataset.q)));
+    if(b.dataset.m)mod+=(+b.dataset.m);
+    syncCtl();
+  }));
+  document.querySelectorAll('.dt-advbtn').forEach(b=>b.addEventListener('click',()=>{
+    adv=b.dataset.adv;
+    document.querySelectorAll('.dt-advbtn').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  document.getElementById('dt-roll').addEventListener('click',exprRoll);
+  inEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();exprRoll();}});
+  renderRecent();setTimeout(()=>{try{inEl.focus()}catch(e){}},30);
+}
+
 /* === 顶部按钮绑定 === */
 document.getElementById('btn-rest-short').addEventListener('click',shortRest);
 document.getElementById('btn-rest-long').addEventListener('click',longRest);
 document.getElementById('btn-history').addEventListener('click',showHistory);
+document.getElementById('btn-dice-tray').addEventListener('click',openDiceTray);
 document.getElementById('btn-dice-cmd').addEventListener('click',diceBotCmd);
+document.getElementById('btn-reload').addEventListener('click',forceReloadFromFile);
 document.getElementById('btn-theme').addEventListener('click',()=>{
   const cur=document.body.dataset.theme||'dark';
   document.body.dataset.theme=cur==='dark'?'light':'dark';
@@ -2446,6 +2887,16 @@ document.getElementById('btn-theme').addEventListener('click',()=>{
 
 /* === 启动 === */
 char=loadChar();
+if(window.__sheetMerged){
+  saveChar();  // 合并结果落盘：版本对齐，下次不再重复合并
+  setTimeout(()=>{
+    const b=document.createElement('div');
+    b.textContent='卡牌已更新到最新版本，并保留了你当前的 HP / 资源 / 状态。点此关闭。';
+    b.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--gold);color:#1a1a1a;padding:8px 14px;border-radius:6px;font-size:13px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.45);max-width:92%;cursor:pointer';
+    b.onclick=()=>b.remove();document.body.appendChild(b);
+    setTimeout(()=>{if(b&&b.remove)b.remove()},9000);
+  },300);
+}
 // 恢复上次的 tab 视图
 {
   const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;

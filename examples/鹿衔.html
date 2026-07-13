@@ -24,10 +24,10 @@ header h1{margin:0;font-size:18px;flex:1;min-width:0;overflow:hidden;text-overfl
 header h1 .meta{font-weight:normal;font-size:12px;color:var(--text-dim);margin-left:8px}
 .toolbar{display:flex;gap:4px;flex-wrap:wrap}
 .toolbar button{font-size:12px;padding:4px 8px;min-height:28px}
-main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow:dense}
-@media(min-width:700px){main{grid-template-columns:1fr 1fr}.panel.full{grid-column:1/-1}}
+main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr}
+@media(min-width:700px){main{grid-template-columns:1fr 1fr;grid-auto-flow:dense}.panel.full{grid-column:1/-1}}
 @media(min-width:1100px){main{grid-template-columns:1fr 1fr 1fr}}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 12px;position:relative;z-index:1;min-width:0}
 .panel h2{margin:0 0 8px;font-size:14px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:4px;display:flex;align-items:center;gap:6px}
 .panel h2 .sub{font-size:11px;color:var(--text-dim);font-weight:normal;margin-left:auto}
 .combat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -109,12 +109,46 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .status-grid{display:flex;flex-wrap:wrap;gap:4px}
 .status-tag{padding:4px 10px;background:var(--bad);color:#fff;border-radius:12px;font-size:12px;cursor:pointer}
 .status-tag.add{background:var(--panel-hi);color:var(--text-dim);border:1px dashed var(--border)}
+.status-tag.has-x{padding:0;display:inline-flex;align-items:center}
+.status-tag.has-x .status-name{padding:4px 4px 4px 10px}
+.status-tag.has-x .status-x{padding:4px 8px 4px 4px;opacity:.85;font-weight:bold}
+.status-tag.has-x .status-x:hover{opacity:1}
+/* === 可编辑值的提示 === */
+.editable{cursor:pointer}
+.editable:hover{color:var(--accent)}
+.stat-box.editable:hover{border-color:var(--accent);background:var(--bg);color:inherit}
+.stat-box.editable::after{content:'✎';position:absolute;top:3px;right:5px;font-size:11px;opacity:.7;color:var(--text-dim)}
+.edit-icon{display:inline-block;font-size:14px;color:var(--text-dim);cursor:pointer;margin-left:2px;opacity:.65;vertical-align:middle;padding:8px 10px;line-height:1;border-radius:4px;-webkit-tap-highlight-color:transparent}
+.edit-icon:hover,.edit-icon:active{opacity:1;color:var(--accent);background:rgba(127,127,127,0.18)}
+.has-override{border-bottom:1px dotted var(--accent)}
 .insp-toggle{padding:4px 12px;border-radius:4px;background:var(--panel-hi);border:1px solid var(--border);cursor:pointer;display:inline-block}
 .insp-toggle.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 .conc-active{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:rgba(200,160,50,.18);border:1px solid var(--gold);color:var(--gold);font-size:13px}
 .conc-active .name{font-weight:bold}
 .conc-active button{padding:2px 7px;font-size:11px;min-height:24px}
 .conc-empty{color:var(--text-dim)}
+.buff-grid{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.buff-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;background:rgba(106,190,106,.15);border:1px solid var(--good);color:var(--good);font-size:12px;line-height:1.4}
+.buff-chip.conc{background:rgba(200,160,50,.15);border-color:var(--gold);color:var(--gold)}
+.buff-chip.from-other{background:rgba(100,160,220,.15);border-color:#5aa0d8;color:#7ab8e0}
+.buff-chip.from-other.conc{background:rgba(180,140,220,.15);border-color:#b48cdc;color:#c8a8e0}
+.buff-chip .name{font-weight:bold}
+.buff-chip .meta{font-size:11px;opacity:.85}
+.buff-chip button{padding:1px 7px;font-size:11px;min-height:22px;background:transparent;border:1px solid currentColor;color:inherit}
+.buff-chip button:hover{background:currentColor;color:var(--bg);filter:none}
+.buff-chip .x{cursor:pointer;padding:0 5px;border-radius:3px;font-size:13px;line-height:1;color:inherit;opacity:.7}
+.buff-chip .x:hover{background:var(--bad);color:#fff;opacity:1}
+.buff-empty{color:var(--text-dim)}
+.buff-line{padding:6px 8px;background:var(--panel-hi);border:1px solid var(--border);border-radius:4px;margin:4px 0;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)}
+.buff-line:hover{border-color:var(--accent)}
+.buff-line.on{background:rgba(106,190,106,.12);border-color:var(--good);color:var(--good)}
+.buff-line.on.conc{background:rgba(200,160,50,.12);border-color:var(--gold);color:var(--gold)}
+.buff-line.oneshot{border-style:dashed}
+.buff-line .check{width:18px;height:18px;border:1px solid currentColor;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--bg)}
+.buff-line.on .check{background:currentColor}
+.buff-line.on .check::after{content:'\2713';color:var(--bg);font-weight:bold}
+.buff-line .bn{flex:1;font-weight:bold}
+.buff-line .info{font-size:11px;opacity:.75}
 .death-saves{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .death-pip{width:18px;height:18px;border:1px solid var(--border);border-radius:50%;cursor:pointer;display:inline-block;margin:0 2px;vertical-align:middle}
 .death-pip.success{background:var(--good);border-color:var(--good)}
@@ -124,10 +158,29 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr;grid-auto-flow
 .modal h3{margin:0 0 10px;color:var(--accent)}
 .modal-row{margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.dt-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.dt-die{flex:1 1 52px;font-weight:bold;font-size:15px}
+.dt-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px;font-size:13px}
+.dt-ctl{display:inline-flex;align-items:center;gap:5px}
+.dt-ctl>b{min-width:26px;text-align:center;color:var(--gold)}
+.dt-step{width:28px;min-height:28px;padding:0;font-size:16px;line-height:1}
+.dt-advbtn{padding:4px 10px;min-height:auto;color:var(--text-dim)}
+.dt-advbtn.active,.dt-advbtn.active:hover{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:bold}
+.dt-expr{display:flex;gap:6px;margin-bottom:10px}
+.dt-expr input{flex:1;font-family:monospace;font-size:14px}
+.dt-result{text-align:center;padding:14px 10px;background:var(--panel-hi);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;min-height:64px;display:flex;flex-direction:column;justify-content:center}
+.dt-total{font-size:36px;font-weight:bold;color:var(--gold);line-height:1.05}
+.dt-sub{font-size:12px;color:var(--text-dim);margin-top:5px;font-family:monospace;word-break:break-all}
+.dt-hint{font-size:13px;color:var(--text-dim)}
+.dt-recent-t{font-size:11px;color:var(--text-dim);margin:4px 0 2px}
+.dt-recent-i{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-bottom:1px dashed var(--border)}
+.dt-recent-i span{font-family:monospace;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-recent-i b{color:var(--gold);flex:none}
 .roll-result{font-size:24px;text-align:center;padding:14px;background:var(--panel-hi);border-radius:4px;margin:10px 0}
 .roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
 .roll-result .nat20{color:var(--good)}
 .roll-result .nat1{color:var(--bad)}
+.roll-result .verdict{font-size:15px;font-weight:bold;margin-top:3px}
 .roll-detail{font-size:12px;color:var(--text-dim);margin-top:6px}
 .adv-toggle{display:flex;gap:4px;flex:1}
 .adv-toggle button{flex:1}
@@ -194,8 +247,10 @@ details summary:hover{color:var(--accent)}
     <button id="btn-rest-short">短休</button>
     <button id="btn-rest-long">长休</button>
     <button id="btn-history">骰史</button>
+    <button id="btn-dice-tray">🎲 骰盘</button>
     <button id="btn-dice-cmd">骰娘</button>
     <button id="btn-theme">主题</button>
+    <button id="btn-reload" title="清除本机缓存、按文件最新定义重载（AI 升级/改卡后页面没变化时点这里）">⟳ 重载</button>
   </div>
 </header>
 
@@ -215,12 +270,12 @@ details summary:hover{color:var(--accent)}
         </div>
         <div class="hp-bar-bg"><div class="hp-bar-fg" id="hp-bar-fg" style="width:100%"></div></div>
       </div>
-      <div class="stat-box" data-roll="initiative"><div class="label">先攻</div><div class="val num" id="init-val">+0</div></div>
-      <div class="stat-box"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
-      <div class="stat-box"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
-      <div class="stat-box"><div class="label">速度</div><div class="val num" id="speed-val">30</div><div class="sub" id="size-val">中型</div></div>
+      <div class="stat-box" data-roll="initiative"><div class="label">先攻 <span class="edit-icon" data-edit="init" title="改先攻杂项加值">✎</span></div><div class="val num" id="init-val">+0</div></div>
+      <div class="stat-box editable" data-edit="ac" title="改基础 AC 与杂项加值"><div class="label">AC</div><div class="val num" id="ac-val">10</div></div>
+      <div class="stat-box editable" data-edit="dc" title="改法术 DC 杂项加值"><div class="label">DC</div><div class="val num" id="dc-val">—</div></div>
+      <div class="stat-box"><div class="label">速度</div><div class="val num editable" id="speed-val" data-edit="speed" title="改速度">30</div><div class="sub editable" id="size-val" data-edit="size" title="改体型">中型</div></div>
       <div class="stat-box" data-roll="perception"><div class="label">被动察觉</div><div class="val num" id="pp-val">10</div></div>
-      <div class="stat-box"><div class="label">HD</div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
+      <div class="stat-box"><div class="label">HD <span class="edit-icon" data-edit="hd" title="改 HD 当前/上限">✎</span></div><div class="val num"><span id="hd-cur">0</span>/<span id="hd-max">0</span></div><div class="sub" id="hd-size">d8</div></div>
     </div>
   </section>
 
@@ -229,6 +284,7 @@ details summary:hover{color:var(--accent)}
     <div class="modal-row"><span>英雄激励：</span><span class="insp-toggle" id="insp-toggle">无</span></div>
     <div class="modal-row death-saves"><span>死豁：</span><span>成<span id="ds-success-pips"></span></span><span>败<span id="ds-fail-pips"></span></span></div>
     <div class="modal-row"><span>专注：</span><span id="conc-display"></span></div>
+    <div class="modal-row"><span>增益：</span><div class="buff-grid" id="buff-grid"></div></div>
     <div class="modal-row"><span>状态：</span><div class="status-grid" id="status-grid"></div></div>
     <div class="modal-row"><span>抗性：</span><span id="resistance" style="color:var(--text-dim)">—</span></div>
   </section>
@@ -309,7 +365,8 @@ details summary:hover{color:var(--accent)}
     "background": "向导",
     "inspiration": false,
     "viewIndex": -1,
-    "charId": "鹿衔-78376933"
+    "charId": "鹿衔-78376933",
+    "rev": 1
   },
   "abilities": {
     "str": {
@@ -1140,7 +1197,24 @@ const RULES={
     '强击':'Graze：若攻击未命中，仍造成等于关键属性调整值的同类型伤害。',
     '弹道':'Topple/类似——见原文'
   },
-  conditions:['失明','魅惑','聋哑','失能','惊恐','被擒抱','麻痹','石化','中毒','俯卧','束缚','震慑','昏迷','濒死','虚弱','隐形','蒙蔽','晕眩'],
+  conditions:['目盲','魅惑','耳聋','力竭','恐慌','受擒','失能','隐形','麻痹','石化','倒地','中毒','束缚','震慑','昏迷'],
+  conditionDescriptions:{
+    '目盲':{en:'Blinded',body:'<strong>看不见。</strong>你无法视物，且会自动失败于任何需要视觉的属性检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势，而你进行的攻击检定具有劣势。'},
+    '魅惑':{en:'Charmed',body:'<strong>无法伤害魅惑源。</strong>你无法攻击魅惑源，也无法将其作为伤害性能力或魔法效应的对象。<br><strong>社交优势。</strong>魅惑源对你进行的任何有关社交的属性检定均具有优势。'},
+    '耳聋':{en:'Deafened',body:'<strong>听不见。</strong>你无法听声，且会自动失败于任何依赖听觉的属性检定。'},
+    '力竭':{en:'Exhaustion',body:'<strong>力竭等级。</strong>此状态可叠加。每次你获得此状态，力竭等级都增加1级。当你力竭等级累加到6级你将死亡。<br><strong>D20检定影响。</strong>当你进行一次D20检定时，此次检定将减去你力竭等级2倍的值。<br><strong>速度降低。</strong>你的速度减少等于你力竭等级5倍尺。<br><strong>移除力竭等级。</strong>你可以依靠完成长休来降低1级力竭等级。当你力竭等级降至0时，此状态结束。'},
+    '恐慌':{en:'Frightened',body:'<strong>属性检定与攻击影响。</strong>只要恐惧源在你的视线范围内，你进行的属性检定与攻击检定就具有劣势。<br><strong>无法靠近。</strong>你无法自愿地向靠近恐惧源的方向移动。'},
+    '受擒':{en:'Grappled',body:'<strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>除擒抱者外，你对其他任何目标进行的攻击检定都具有劣势。<br><strong>带动。</strong>擒抱者移动时，其可以拖拽或承载你，但其每移动1尺都需要为此额外消耗1尺移动力。若你的体型为微型或你的体型小于擒抱者两级以上，擒抱者拖拽/承载你将不需要额外消耗移动力。'},
+    '失能':{en:'Incapacitated',body:'<strong>无法行动。</strong>你无法执行任何动作、附赠动作以及反应。<br><strong>无法专注。</strong>你的专注将被打断。<br><strong>无法说话。</strong>你无法说话。<br><strong>措手不及。</strong>如果你在陷入失能状态期间投掷先攻，你的先攻检定将具有劣势。'},
+    '隐形':{en:'Invisible',body:'<strong>出其不意。</strong>如果你在投掷先攻时处于隐形状态，你的先攻检定将具有优势。<br><strong>隐蔽。</strong>任何需要能够看见目标的效应都不会影响到你，除非效应的源头能通过某种方式看到你。你所着装或携带的一切装备也同样会被隐蔽起来。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有劣势，而你进行的攻击检定具有优势。如果一个生物能以某种方式看见你，那么你在面对该生物时不会获得这一增益。'},
+    '麻痹':{en:'Paralyzed',body:'<strong>失能。</strong>你陷入失能状态。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>自动重击。</strong>若攻击者位于你5尺内，其任何命中你的攻击检定都会变为重击。'},
+    '石化':{en:'Petrified',body:'<strong>化为非活动材质。</strong>你与你穿着或携带的所有非魔法物品将被变化为坚固的、非活动的材质（通常是石头）。你的重量变为原本的十倍，且你将停止老化。<br><strong>失能。</strong>你陷入失能状态。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>伤害全抗。</strong>你具有所有伤害的抗性。<br><strong>中毒免疫。</strong>你具有中毒状态的免疫。'},
+    '倒地':{en:'Prone',body:'<strong>阻碍移动。</strong>你唯二的移动选项是匍匐移动或是消耗你速度一半数值（向下取整）的移动力起立，并由此终止这一状态。如果你的速度为0，你无法起立。<br><strong>攻击影响。</strong>你进行的攻击检定具有劣势。若攻击者位于你5尺内，其以你为目标的攻击检定具有优势；若攻击者不位于你5尺内，其以你为目标的攻击检定具有劣势。'},
+    '中毒':{en:'Poisoned',body:'<strong>属性检定与攻击影响。</strong>你进行的攻击检定与属性检定具有劣势。'},
+    '束缚':{en:'Restrained',body:'<strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势，而你进行的攻击检定具有劣势。<br><strong>豁免影响。</strong>你进行的敏捷豁免检定具有劣势。'},
+    '震慑':{en:'Stunned',body:'<strong>失能。</strong>你陷入失能状态。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。'},
+    '昏迷':{en:'Unconscious',body:'<strong>迟钝。</strong>你陷入失能状态与倒地状态，你手上持握的东西也会全数掉落。此状态结束时，倒地状态并不会因此结束。<br><strong>速度归零。</strong>你的速度变为0，且无法被增加。<br><strong>攻击影响。</strong>以你为目标的攻击检定具有优势。<br><strong>豁免影响。</strong>你自动失败于力量豁免检定与敏捷豁免检定。<br><strong>自动重击。</strong>若攻击者位于你5尺内，其任何命中你的攻击检定都会变为重击。<br><strong>无知觉。</strong>你无法感知到你周遭的事物。'}
+  },
   classes:{
     '法师':{hd:6,primary:['int'],casterType:'full'},
     '术士':{hd:6,primary:['cha'],casterType:'full'},
@@ -1170,9 +1244,9 @@ const DEFAULT_CHAR={
     wis:{score:12,saveProf:true,saveBonus:0},
     cha:{score:10,saveProf:false,saveBonus:0}
   },
-  combat:{hpMax:32,hpCur:32,hpTemp:0,hdMax:5,hdCur:5,acBase:13,acBonus:0,
+  combat:{hpMax:32,hpCur:32,hpTemp:0,hdMax:5,hdCur:5,acBase:12,acBonus:0,
     speed:30,size:'中型',initBonus:0,deathSaves:{success:[false,false,false],fail:[false,false,false]},
-    resistance:'',immunity:'',advantage:'',statusEffects:[],concentration:null},
+    resistance:'',immunity:'',advantage:'',statusEffects:[],concentration:null,buffs:[]},
   skills:{
     arcana:{prof:'prof',bonus:0},
     history:{prof:'prof',bonus:0},
@@ -1193,14 +1267,22 @@ const DEFAULT_CHAR={
       {name:'防护',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',desc:'反应：让一次攻击者投出劣势。'}
     ],
     spells:[
+      {lvl:1,name:'法师护甲',school:'防护',ct:'1动作',range:'触摸',comp:'V,S,M',dur:'8 小时',prepared:true,ritual:false,conc:false,
+       desc:'触碰一个未着装护甲的自愿生物，使其基础 AC 变为 13 + 敏调，持续 8 小时；穿上护甲则法术终止。',
+       buff:{durationText:'8 小时',modifiers:{acOverride:'13+dex'}}},
       {lvl:1,name:'魔法飞弹',school:'唤法',ct:'1动作',range:'120尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'3d4+3',desc:'产生3支飞弹，每支1d4+1力场伤害自动命中。升环每环+1支（升4环投4d4+4，依此类推；当前按钮按基础3环投）。'},
-      {lvl:1,name:'护盾',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',prepared:true,ritual:false,conc:false,desc:'反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。'},
+      {lvl:1,name:'护盾',school:'防护',ct:'反应',range:'自身',comp:'V,S',dur:'1轮',prepared:true,ritual:false,conc:false,
+       desc:'反应：被攻击或被魔法飞弹时 AC+5 至下回合开始，并免疫魔法飞弹。',
+       buff:{durationText:'1 轮（手动 ✕ 取消）',modifiers:{acBonus:5}}},
       {lvl:1,name:'医疗',school:'防护',ct:'1动作',range:'60尺',comp:'V,S',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'1d8+3',desc:'治疗目标 1d8+施法属性(INT 3) HP。升环每环+1d8。'},
       {lvl:1,name:'感知敌意',school:'占卜',ct:'1动作',range:'自身(30尺)',comp:'V,S',dur:'专注10分钟',prepared:true,ritual:false,conc:true,desc:'察觉范围内每个生物的敌意意图（不确定理由）。'},
       {lvl:2,name:'雾步',school:'咒法',ct:'1附赠动作',range:'自身',comp:'V',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'传送至30尺内可见地点。'},
       {lvl:2,name:'镜影术',school:'幻术',ct:'1动作',range:'自身',comp:'V,S',dur:'1分钟',prepared:true,ritual:false,conc:false,desc:'产生3个分身，攻击者随机命中分身（DC基于复制数）。'},
       {lvl:2,name:'看不见的仆役',school:'咒法',ct:'1动作',range:'60尺',comp:'V,S,M',dur:'1小时',prepared:true,ritual:true,conc:false,desc:'召唤无形仆役执行简单任务。'},
       {lvl:3,name:'火球术',school:'唤法',ct:'1动作',range:'150尺',comp:'V,S,M',dur:'瞬间',prepared:true,ritual:false,conc:false,damage:'8d6',desc:'150尺远某点，20尺半径球内每个生物受 8d6 火焰伤害，敏捷豁免减半。升环每环+1d6。'},
+      {lvl:3,name:'加速术',school:'变化',ct:'1动作',range:'30尺',comp:'V,S,M',dur:'专注，至多 1 分钟',prepared:true,ritual:false,conc:true,
+       desc:'目标速度翻倍、AC +2、敏豁优势；每回合可多作出 1 个额外动作，仅限于：攻击（一次攻击）/ 疾走 / 撤离 / 躲藏 / 操作。法术终止时目标失能且速度为 0，至其下一回合结束。',
+       buff:{durationText:'1 分钟（专注）',desc:'+2 AC（自动）。速度翻倍 / 敏豁优势 / 额外动作请手动管理。',modifiers:{acBonus:2}}},
       {lvl:3,name:'反制法术',school:'防护',ct:'反应',range:'60尺',comp:'S',dur:'瞬间',prepared:true,ritual:false,conc:false,desc:'反应：使一个目标的施法尝试失败（3环及以下自动；更高环要 DC10+环数 法术能力检定）。'}
     ],
     spellPoints:{cur:0,max:0}
@@ -1210,7 +1292,7 @@ const DEFAULT_CHAR={
   ],
   specialRolls:[],
   equipment:{
-    armor:{name:'法师铠护身(法术)',ac:13,dexLimit:null,weight:0,attuned:false,equipped:true},
+    armor:{name:'',ac:0,dexLimit:null,weight:0,attuned:false,equipped:false},
     shield:{name:'',ac:0,weight:0,attuned:false,equipped:false},
     items:[
       {name:'法术书',weight:3,qty:1,attuned:false,desc:'记录已知法术'},
@@ -1404,21 +1486,77 @@ function normalizeOne(c){
       ds[k]=[0,1,2].map(i=>i<n);
     }
   }
+  // 兜底 buffs 数组（老卡 / 未填者）
+  if(c.combat&&!Array.isArray(c.combat.buffs))c.combat.buffs=[];
 }
 function normalize(c){
   normalizeOne(c);
   for(const comp of c.companions||[])normalizeOne(comp);
   return c;
 }
+/* 临场状态嫁接：当文件被 AI 重新编写(meta.rev 提升)时，以文件的"定义"
+   (等级/专长/装备/法术/最大HP/攻击…)为准，但把玩家浏览器里的"临场状态"
+   (当前HP/已用资源/法术位/死豁/专注/buff/状态/骰史/伴生血量)嫁接回来。 */
+function mergeLiveState(embedded,cached){
+  const base=JSON.parse(JSON.stringify(embedded));
+  const ec=base.combat||(base.combat={}),cc=cached.combat||{};
+  if(typeof cc.hpCur==='number')ec.hpCur=(typeof ec.hpMax==='number')?Math.min(cc.hpCur,ec.hpMax):cc.hpCur;
+  if(typeof cc.hpTemp==='number')ec.hpTemp=cc.hpTemp;
+  if(typeof cc.hdCur==='number')ec.hdCur=(typeof ec.hdMax==='number')?Math.min(cc.hdCur,ec.hdMax):cc.hdCur;
+  if(cc.deathSaves)ec.deathSaves=cc.deathSaves;
+  if(Array.isArray(cc.statusEffects))ec.statusEffects=cc.statusEffects;
+  if('concentration' in cc)ec.concentration=cc.concentration;
+  if(Array.isArray(cc.buffs))ec.buffs=cc.buffs;
+  base.meta=base.meta||{};
+  if(cached.meta&&typeof cached.meta.inspiration==='boolean')base.meta.inspiration=cached.meta.inspiration;
+  if(cached.meta&&typeof cached.meta.viewIndex==='number')base.meta.viewIndex=cached.meta.viewIndex;
+  const resample=(arr,mx)=>Array.from({length:mx},(_,i)=>!!(arr&&arr[i]));
+  const cRes={};for(const r of cached.classResources||[])if(r&&r.key)cRes[r.key]=r;
+  for(const r of base.classResources||[]){
+    const o=cRes[r.key];
+    if(o&&Array.isArray(o.used))r.used=resample(o.used,Array.isArray(r.used)?r.used.length:(r.max||0));
+  }
+  const es=base.spellcasting&&base.spellcasting.slots,csl=cached.spellcasting&&cached.spellcasting.slots;
+  if(es&&csl)for(const lv of Object.keys(es)){
+    const o=csl[lv];
+    if(o&&Array.isArray(o.used)&&Array.isArray(es[lv].used))es[lv].used=resample(o.used,es[lv].used.length);
+  }
+  const bsp=base.spellcasting&&base.spellcasting.spellPoints,csp=cached.spellcasting&&cached.spellcasting.spellPoints;
+  if(bsp&&csp&&typeof csp.cur==='number')bsp.cur=Math.min(csp.cur,bsp.max||0);
+  if(Array.isArray(cached.rollHistory))base.rollHistory=cached.rollHistory;
+  if(Array.isArray(base.companions)&&Array.isArray(cached.companions)){
+    const cm={};for(const cp of cached.companions)if(cp&&cp.name)cm[cp.name]=cp;
+    for(const cp of base.companions){
+      const o=cm[cp.name];if(!o)continue;
+      if(o.combat&&cp.combat){
+        if(typeof o.combat.hpCur==='number')cp.combat.hpCur=(typeof cp.combat.hpMax==='number')?Math.min(o.combat.hpCur,cp.combat.hpMax):o.combat.hpCur;
+        if(typeof o.combat.hpTemp==='number')cp.combat.hpTemp=o.combat.hpTemp;
+        if(Array.isArray(o.combat.statusEffects))cp.combat.statusEffects=o.combat.statusEffects;
+      }
+      if('active' in o)cp.active=o.active;
+    }
+  }
+  return base;
+}
 function loadChar(){
-  const initial=getEmbeddedChar();
-  const charId=ensureCharId(initial);
-  let c=initial;
+  const embedded=getEmbeddedChar();
+  const charId=ensureCharId(embedded);
+  let cached=null;
   try{
     const s=localStorage.getItem('dnd5r-char:'+charId);
-    if(s)c=JSON.parse(s);
+    if(s)cached=JSON.parse(s);
   }catch(e){}
-  return normalize(c);
+  if(!cached)return normalize(embedded);
+  const embRev=(embedded.meta&&+embedded.meta.rev)||0;
+  const cacRev=(cached.meta&&+cached.meta.rev)||0;
+  if(embRev>cacRev){
+    // 文件已被重新编写：以文件定义为准，嫁接玩家临场状态，对齐版本
+    const merged=mergeLiveState(embedded,cached);
+    merged.meta=merged.meta||{};merged.meta.rev=embRev;
+    window.__sheetMerged=true;
+    return normalize(merged);
+  }
+  return normalize(cached);
 }
 function saveChar(){
   try{localStorage.setItem('dnd5r-char:'+ensureCharId(char),JSON.stringify(char))}catch(e){}
@@ -1462,7 +1600,117 @@ function skillBonus(c,sk){
   else if(c.skills.jackOfAllTrades)b+=Math.floor(pb/2);
   return b+(d.bonus||0)+(c.skills.globalBonus||0)
 }
-function ac(c){let a=c.combat.acBase+(c.combat.acBonus||0);const sh=c.equipment&&c.equipment.shield;if(sh&&sh.equipped&&sh.ac)a+=sh.ac;return a}
+/* === BUFF helpers ===
+   buffs 仅作用于主体 char（companion 不享）。
+   modifiers 字段约定见 SKILL.md。
+*/
+function activeBuffs(c){
+  if(!c||c!==char)return [];  // companion / wildShape 不享主体 buff
+  return (char.combat&&char.combat.buffs)||[];
+}
+function genBuffId(){return 'b-'+Math.random().toString(36).slice(2,9)}
+function parseAcOverride(c,formula){
+  // 支持 '13+dex' / '10+wis' / '13+dex+wis' / 纯数字
+  if(typeof formula==='number')return formula;
+  const s=String(formula).replace(/\s/g,'');
+  const m=s.match(/^(\d+)((?:[+-][a-z]{3})*)$/i);
+  if(!m)return null;
+  let v=+m[1];
+  const rest=m[2]||'';
+  const parts=rest.match(/[+-][a-z]{3}/gi)||[];
+  for(const p of parts){
+    const sign=p[0]==='-'?-1:1;
+    const ab=p.slice(1).toLowerCase();
+    const a=c.abilities[ab];
+    if(!a)return null;
+    v+=sign*abMod(a.score);
+  }
+  return v;
+}
+function addBuff(b){
+  if(!char.combat.buffs)char.combat.buffs=[];
+  if(!b.id)b.id=genBuffId();
+  char.combat.buffs.push(b);
+  saveChar();
+}
+function removeBuff(id){
+  if(!char.combat.buffs)return;
+  char.combat.buffs=char.combat.buffs.filter(b=>b.id!==id);
+  saveChar();
+}
+/* concentration 释放/中断时，清掉所有挂在该 spellName 上的 conc buff */
+function clearBuffsForConc(spellName){
+  if(!char.combat.buffs)return;
+  const before=char.combat.buffs.length;
+  char.combat.buffs=char.combat.buffs.filter(b=>!(b.conc&&b.spellName===spellName));
+  return before!==char.combat.buffs.length;
+}
+/* 给定 roll context（kind/ability），返回适用 buff modifiers 列表。
+   kind: 'attack' | 'save' | 'check' | 'skill' | 'init'  （skill/init 当作 check 处理）
+   ability: 'str'|'dex'|...（save/check 才有意义）*/
+function applicableBuffs(ctx){
+  const buffs=activeBuffs(char);
+  const kind=ctx&&ctx.kind;
+  const ab=ctx&&ctx.ability;
+  const checkLike=k=>k==='check'||k==='skill'||k==='init';
+  const out=[];
+  for(const b of buffs){
+    const m=b.modifiers||{};
+    const lines=[];
+    // 平加值
+    if(kind==='attack'&&m.attackBonus){lines.push({kind:'flat',label:`+${m.attackBonus} 命中`,delta:m.attackBonus,continuous:true})}
+    if(kind==='save'&&m.saveBonus){
+      const sb=m.saveBonus;
+      const v=(typeof sb==='number')?sb:(sb&&(sb.all||sb[ab])||0);
+      if(v)lines.push({kind:'flat',label:`+${v} 豁免`,delta:v,continuous:true});
+    }
+    if(checkLike(kind)&&m.checkBonus){
+      const cb=m.checkBonus;
+      const v=(typeof cb==='number')?cb:(cb&&(cb.all||cb[ab])||0);
+      if(v)lines.push({kind:'flat',label:`+${v} 检定`,delta:v,continuous:true});
+    }
+    // 持续加骰
+    if(kind==='attack'&&m.attackDice)lines.push({kind:'dice',die:m.attackDice,label:`+${m.attackDice} 命中`,continuous:true});
+    if(kind==='save'&&m.saveDice)lines.push({kind:'dice',die:m.saveDice,label:`+${m.saveDice} 豁免`,continuous:true});
+    if(checkLike(kind)&&m.checkDice)lines.push({kind:'dice',die:m.checkDice,label:`+${m.checkDice} 检定`,continuous:true});
+    // 一次性骰
+    if(m.oneShot){
+      const os=m.oneShot;
+      const ap=os.applies||['attack','save','check'];
+      const matchOneShot=
+        (kind==='attack'&&ap.includes('attack'))||
+        (kind==='save'&&ap.includes('save'))||
+        (checkLike(kind)&&ap.includes('check'));
+      if(matchOneShot)lines.push({kind:'oneShot',die:os.die||'d4',label:`+${os.die||'d4'} 一次性`,continuous:false});
+    }
+    if(lines.length)out.push({buff:b,lines});
+  }
+  return out;
+}
+function ac(c){
+  let base=c.combat.acBase;
+  // buff acOverride 优先：覆盖 acBase（仅主体享）
+  if(c===char){
+    for(const b of activeBuffs(c)){
+      const ov=b.modifiers&&b.modifiers.acOverride;
+      if(ov!=null){
+        const v=parseAcOverride(c,ov);
+        if(v!=null){base=v;break}
+      }
+    }
+  }
+  let a=base+(c.combat.acBonus||0);
+  const sh=c.equipment&&c.equipment.shield;
+  if(sh&&sh.equipped&&sh.ac)a+=sh.ac;
+  // buff acBonus 累加
+  if(c===char){
+    for(const b of activeBuffs(c)){
+      const ab=b.modifiers&&b.modifiers.acBonus;
+      if(ab)a+=ab;
+    }
+  }
+  return a;
+}
 function spellDC(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return 8+profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraDcBonus||0)}
 function spellAttack(c){const sa=c.spellcasting&&c.spellcasting.castingAbility;if(!sa)return null;return profBonus(c)+abMod(c.abilities[sa].score)+(c.spellcasting.extraAttackBonus||0)}
 function passivePerception(c){return 10+skillBonus(c,'perception')}
@@ -1533,7 +1781,7 @@ function getUpcastDamage(spell,castLvl){
   }
   return baseDmg;
 }
-function rollD20WithAdv(m){const a=rollDie(20),b=rollDie(20);if(m==='adv')return{chosen:Math.max(a,b),both:[a,b],mode:m};if(m==='dis')return{chosen:Math.min(a,b),both:[a,b],mode:m};return{chosen:a,both:[a],mode:m}}
+function rollD20WithAdv(m,extraAdv){extraAdv=extraAdv||0;if(m==='adv'){const n=2+extraAdv,dice=[];for(let i=0;i<n;i++)dice.push(rollDie(20));return{chosen:Math.max(...dice),both:dice,mode:m}}if(m==='dis'){const a=rollDie(20),b=rollDie(20);return{chosen:Math.min(a,b),both:[a,b],mode:m}}const a=rollDie(20);return{chosen:a,both:[a],mode:m}}
 function pushHistory(label,total,detail){char.rollHistory=char.rollHistory||[];char.rollHistory.unshift({label,total,detail,t:Date.now()});char.rollHistory=char.rollHistory.slice(0,30);saveChar()}
 
 /* === 模态框 === */
@@ -1585,12 +1833,18 @@ function renderCombat(){
   const bar=document.getElementById('hp-bar-fg');
   bar.style.width=pct+'%';
   bar.className='hp-bar-fg'+(pct<25?' crit':pct<50?' low':'');
-  document.getElementById('init-val').textContent=fmt(initiative(c));
-  document.getElementById('ac-val').textContent=ac(c);
+  const initEl=document.getElementById('init-val');
+  initEl.textContent=fmt(initiative(c));
+  initEl.classList.toggle('has-override',!!(c.combat.initBonus));
+  const acEl=document.getElementById('ac-val');
+  acEl.textContent=ac(c);
+  acEl.classList.toggle('has-override',!!(c.combat.acBonus));
   // DC / HD 主体专属，companion 视图显示 —
   if(isMain){
     const dc=spellDC(char);
-    document.getElementById('dc-val').textContent=dc!=null?dc:'—';
+    const dcEl=document.getElementById('dc-val');
+    dcEl.textContent=dc!=null?dc:'—';
+    dcEl.classList.toggle('has-override',!!(char.spellcasting&&char.spellcasting.extraDcBonus));
     document.getElementById('hd-cur').textContent=char.combat.hdCur;
     document.getElementById('hd-max').textContent=char.combat.hdMax;
     // 在 hd-cur 和 hd-max 之间的 "/" 是模板里硬写的；这里把它显示出来
@@ -1598,7 +1852,9 @@ function renderCombat(){
     if(hdMaxEl.previousSibling&&hdMaxEl.previousSibling.nodeType===3)hdMaxEl.previousSibling.textContent='/';
     document.getElementById('hd-size').textContent=hdSummary(char);
   }else{
-    document.getElementById('dc-val').textContent='—';
+    const dcEl=document.getElementById('dc-val');
+    dcEl.textContent='—';
+    dcEl.classList.remove('has-override');
     document.getElementById('hd-cur').textContent='—';
     document.getElementById('hd-max').textContent='';
     const hdMaxEl=document.getElementById('hd-max');
@@ -1620,9 +1876,13 @@ function renderStatus(){
   document.getElementById('ds-success-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.success[i]?' success':''}" data-ds="success" data-i="${i}"></span>`).join('');
   document.getElementById('ds-fail-pips').innerHTML=[0,1,2].map(i=>`<span class="death-pip${ds.fail[i]?' fail':''}" data-ds="fail" data-i="${i}"></span>`).join('');
   const sg=document.getElementById('status-grid');
-  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag" data-status-rm="${s}">${s} ✕</span>`).join('');
+  const tags=(char.combat.statusEffects||[]).map(s=>`<span class="status-tag has-x"><span class="status-name" data-status-info="${s}" title="查看效果">${s}</span><span class="status-x" data-status-rm="${s}" title="移除该状态">✕</span></span>`).join('');
   sg.innerHTML=tags+`<span class="status-tag add" id="add-status">+ 添加</span>`;
-  document.getElementById('resistance').textContent=char.combat.resistance||'—';
+  const resEl=document.getElementById('resistance');
+  resEl.textContent=char.combat.resistance||'—';
+  resEl.classList.add('editable');
+  resEl.dataset.edit='resistance';
+  resEl.title='点击编辑抗性/免疫/易伤';
   // 专注
   const cd=document.getElementById('conc-display');
   const conc=char.combat.concentration;
@@ -1632,6 +1892,59 @@ function renderStatus(){
   }else{
     cd.innerHTML='<span class="conc-empty">—</span>';
   }
+  // 增益（BUFF）
+  const bg=document.getElementById('buff-grid');
+  const buffs=char.combat.buffs||[];
+  let bgHTML;
+  if(!buffs.length){
+    bgHTML='<span class="buff-empty">—</span>';
+  }else{
+    bgHTML=buffs.map(b=>{
+      const tip=[];
+      if(b.castLvl)tip.push(`${b.castLvl}环`);
+      if(b.durationText)tip.push(b.durationText);
+      // 区分自身 vs 他人来源
+      const src=b.source||'自身';
+      const fromOther=src!=='自身';
+      tip.push(fromOther?`来自 ${src}`:src);
+      const summary=summarizeMods(b.modifiers||{});
+      const titleAttr=(b.desc||'').replace(/"/g,'&quot;').replace(/<[^>]+>/g,'');
+      return `<span class="buff-chip ${b.conc?'conc':''}${fromOther?' from-other':''}" title="${titleAttr}">
+        <span class="name">${b.conc?'⊙ ':''}${fromOther?'↩ ':''}${b.name}</span>
+        ${summary?`<span class="meta">${summary}</span>`:''}
+        <span class="meta">· ${tip.join(' · ')}</span>
+        <span class="x" data-buff-rm="${b.id}" title="取消该 BUFF">✕</span>
+      </span>`;
+    }).join('');
+  }
+  bg.innerHTML=bgHTML+`<span class="status-tag add" id="btn-buff-import" title="粘贴他人发给你的 dnd5buff:... 串导入 BUFF" style="margin-left:6px;color:var(--good);border-color:var(--good)">+ 导入</span>`;
+}
+/* 把 modifiers 摘要成短字符串，给 chip 当 meta */
+function summarizeMods(m){
+  const out=[];
+  if(m.acOverride!=null)out.push(`AC=${m.acOverride}`);
+  if(m.acBonus)out.push(`AC+${m.acBonus}`);
+  if(m.attackBonus)out.push(`命+${m.attackBonus}`);
+  if(m.attackDice)out.push(`命+${m.attackDice}`);
+  if(m.saveBonus){
+    const sb=m.saveBonus;
+    if(typeof sb==='number')out.push(`豁+${sb}`);
+    else if(sb.all)out.push(`豁+${sb.all}`);
+    else out.push('豁(部分)');
+  }
+  if(m.saveDice)out.push(`豁+${m.saveDice}`);
+  if(m.checkBonus){
+    const cb=m.checkBonus;
+    if(typeof cb==='number')out.push(`检+${cb}`);
+    else if(cb.all)out.push(`检+${cb.all}`);
+    else out.push('检(部分)');
+  }
+  if(m.checkDice)out.push(`检+${m.checkDice}`);
+  if(m.oneShot){
+    const ap=(m.oneShot.applies||['attack','save','check']).map(x=>x==='attack'?'命':x==='save'?'豁':'检').join('/');
+    out.push(`${ap}+${m.oneShot.die||'d4'}(一次)`);
+  }
+  return out.join(' ');
 }
 
 function renderAbilities(){
@@ -1639,11 +1952,12 @@ function renderAbilities(){
   const grid=document.getElementById('ab-grid');
   grid.innerHTML=RULES.abilities.map(ab=>{
     const a=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0},m=abMod(a.score),sb=saveBonus(c,ab);
+    const saveOv=(a.saveBonus||0)!==0?' has-override':'';
     return `<div class="ab-box" data-roll="ability" data-ab="${ab}">
       <div class="label">${RULES.abilityNames[ab]}</div>
       <div class="mod num">${fmt(m)}</div>
       <div class="score num" data-edit-ab="${ab}">${a.score}</div>
-      <div class="save${a.saveProf?' prof':''} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}</div>
+      <div class="save${a.saveProf?' prof':''}${saveOv} num" data-roll="save" data-ab="${ab}">豁 ${fmt(sb)}<span class="edit-icon" data-edit-save="${ab}" title="改豁免熟练/加值">✎</span></div>
     </div>`;
   }).join('');
 }
@@ -1652,17 +1966,21 @@ function renderSkills(){
   const c=activeChar();
   const skills=c.skills||{};
   const list=document.getElementById('skill-list');
-  list.innerHTML=RULES.skills.map(s=>{
+  const gbl=skills.globalBonus||0;
+  const gblTag=`<div style="display:flex;justify-content:flex-end;font-size:11px;color:var(--text-dim);padding:2px 4px"><span class="editable${gbl?' has-override':''}" data-edit="globalSkill" title="全局技能加值（所有技能 +X）">全局加值 ${fmt(gbl)} ✎</span></div>`;
+  list.innerHTML=gblTag+RULES.skills.map(s=>{
     const d=skills[s.key]||{prof:'none',bonus:0};
     let mark='',cls='';
     if(d.prof==='prof'){mark='●';cls='prof'}
     else if(d.prof==='expert'){mark='◆';cls='expert'}
     else if(d.prof==='half'){mark='◐';cls='half'}
+    const ov=(d.bonus||0)!==0?' has-override':'';
     return `<div class="skill-row" data-roll="skill" data-skill="${s.key}">
       <span class="prof-toggle ${cls}" data-toggle-prof="${s.key}">${mark}</span>
       <span class="skill-name">${s.name}</span>
       <span class="skill-ability">${RULES.abilityNames[s.ability].slice(0,1)}</span>
-      <span class="skill-bonus num">${fmt(skillBonus(c,s.key))}</span>
+      <span class="skill-bonus num${ov}">${fmt(skillBonus(c,s.key))}</span>
+      <span class="edit-icon" data-edit-skill="${s.key}" title="改该技能杂项加值">✎</span>
     </div>`;
   }).join('');
 }
@@ -1677,11 +1995,12 @@ function renderAttacks(){
     const atk=m+pb+(a.attackBonus||0);
     const dmgMod=m+(a.damageBonus||0);
     const dmg=`${a.damage}${dmgMod?fmt(dmgMod):''}`;
+    const hasOv=(a.attackBonus||0)!==0||(a.damageBonus||0)!==0;
     return `<div class="attack-row" data-roll="attack" data-i="${i}">
-      <div class="name">${a.name}${a.attuned?' ✦':''}</div>
+      <div class="name">${a.name}${a.attuned?' ✦':''}<span class="edit-icon" data-edit-attack="${i}" title="改命中/伤害加值">✎</span></div>
       <div class="stats">
-        <span>命中 <strong>${fmt(atk)}</strong></span>
-        <span>伤害 <strong>${dmg}</strong> ${a.damageType}</span>
+        <span>命中 <strong class="${hasOv?'has-override':''}">${fmt(atk)}</strong></span>
+        <span>伤害 <strong class="${hasOv?'has-override':''}">${dmg}</strong> ${a.damageType}</span>
         ${a.mastery?`<span class="mastery">精通：${a.mastery}</span>`:''}
       </div>
       <div class="stats" style="font-size:11px">${a.properties||''}</div>
@@ -1713,7 +2032,9 @@ function renderSpells(){
   const sg=document.getElementById('slot-grid');
   const list=document.getElementById('spell-list');
   if(!sc||!sc.castingAbility){meta.textContent='此角色无施法能力';sg.innerHTML='';list.innerHTML='';return}
-  meta.textContent=`DC ${spellDC(char)} · 攻 ${fmt(spellAttack(char))} (${RULES.abilityNames[sc.castingAbility]})`;
+  const dcOv=(sc.extraDcBonus||0)!==0?' has-override':'';
+  const atkOv=(sc.extraAttackBonus||0)!==0?' has-override':'';
+  meta.innerHTML=`DC <span class="editable${dcOv}" data-edit="spellDc" title="改法术 DC 加值">${spellDC(char)}</span> · 攻 <span class="editable${atkOv}" data-edit="spellAtk" title="改法术攻击加值">${fmt(spellAttack(char))}</span> (${RULES.abilityNames[sc.castingAbility]})`;
   sg.innerHTML=[1,2,3,4,5,6,7,8,9].map(lv=>{
     const s=sc.slots[lv]||{used:[],max:0};
     if(s.max===0)return `<div class="slot-col"><div class="level">${lv}</div><div class="slots" style="opacity:.3">—</div></div>`;
@@ -1913,10 +2234,80 @@ function renderNotes(){
   document.getElementById('notes-input').value=txt;
 }
 
-/* === 投骰对话框 === */
+/* === 投骰对话框 ===
+   ctx：{kind:'attack'|'save'|'check'|'skill'|'init', ability?:'str'|...}
+   未传 ctx 时不应用 buff（保留旧调用兼容）。 */
 let rollCtx=null;
-function showRollDialog(label,baseBonus){
+/* 把适用 buff 渲成可切换的 line 列表；返回 {html, flat, selected, applyAndConsume} */
+function buildBuffPicker(ctx){
+  const apps=applicableBuffs(ctx);
+  const flat=[];
+  apps.forEach(a=>a.lines.forEach(l=>flat.push({buff:a.buff,line:l})));
+  // 默认：持续 ON、一次性 OFF
+  const selected=flat.map(f=>!!f.line.continuous);
+  const html=flat.length?`<div style="margin:8px 0 4px;font-size:12px;color:var(--text-dim)">适用增益（点击切换）：</div>`+
+    flat.map((f,i)=>{
+      const oneShot=f.line.kind==='oneShot';
+      const conc=!!f.buff.conc;
+      return `<div class="buff-line ${selected[i]?'on':''} ${conc?'conc':''} ${oneShot?'oneshot':''}" data-buff-toggle="${i}">
+        <span class="check"></span>
+        <span class="bn">${f.buff.name}</span>
+        <span class="info">${f.line.label}${oneShot?' · 用后清除':''}${conc?' · 专注':''}</span>
+      </div>`;
+    }).join(''):'';
+  function bind(){
+    document.querySelectorAll('[data-buff-toggle]').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const i=parseInt(el.dataset.buffToggle);
+        selected[i]=!selected[i];
+        el.classList.toggle('on',selected[i]);
+      });
+    });
+  }
+  /* 按当前 selected 投骰 / 加值；返回 {bonus,details,consumeIds} */
+  function compute(){
+    let bonus=0;const details=[];const consumeIds=new Set();
+    flat.forEach((f,i)=>{
+      if(!selected[i])return;
+      if(f.line.kind==='flat'){
+        bonus+=f.line.delta;
+        details.push(`${f.buff.name}(+${f.line.delta})`);
+      }else if(f.line.kind==='dice'||f.line.kind==='oneShot'){
+        const m=String(f.line.die||'d4').match(/^d(\d+)$/i);
+        if(!m)return;
+        const sides=+m[1];const v=rollDie(sides);
+        bonus+=v;
+        details.push(`${f.buff.name}(${f.line.die}=${v})`);
+        if(f.line.kind==='oneShot')consumeIds.add(f.buff.id);
+      }
+    });
+    return {bonus,details,consumeIds};
+  }
+  /* 调用方拿到 result.consumeIds 后调此函数清掉 */
+  function consume(consumeIds){
+    if(!consumeIds||!consumeIds.size)return;
+    const concSpellsToRelease=[];
+    char.combat.buffs=(char.combat.buffs||[]).filter(b=>{
+      if(consumeIds.has(b.id)){
+        if(b.conc&&b.spellName)concSpellsToRelease.push(b.spellName);
+        return false;
+      }
+      return true;
+    });
+    for(const sp of concSpellsToRelease){
+      const cur=char.combat.concentration;
+      if(cur&&cur.spellName===sp){
+        char.combat.concentration=null;
+        pushHistory('释放专注',0,`${sp} 一次性效果触发后结束`);
+      }
+    }
+    saveChar();renderStatus();renderCombat();
+  }
+  return {html,bind,compute,consume,hasAny:flat.length>0};
+}
+function showRollDialog(label,baseBonus,ctx){
   rollCtx={label,baseBonus,mode:'normal',extra:0};
+  const picker=buildBuffPicker(ctx||{});
   openModal(`<h3>${label}</h3>
     <div class="modal-row"><span>基础加值：<strong class="num" id="rb">${fmt(baseBonus)}</strong></span>
       <span style="margin-left:auto">微调：</span>
@@ -1931,11 +2322,13 @@ function showRollDialog(label,baseBonus){
         <button data-mode="dis">劣势</button>
       </div>
     </div>
+    ${picker.html}
     <div id="roll-result"></div>
     <div class="modal-buttons">
       <button onclick="closeModal()">取消</button>
       <button class="primary" id="btn-do-roll">投！</button>
     </div>`);
+  picker.bind();
   document.querySelectorAll('[data-extra]').forEach(b=>b.addEventListener('click',()=>{
     rollCtx.extra+=parseInt(b.dataset.extra);
     document.getElementById('re').textContent=fmt(rollCtx.extra);
@@ -1948,11 +2341,15 @@ function showRollDialog(label,baseBonus){
   }));
   document.getElementById('btn-do-roll').addEventListener('click',()=>{
     const r=rollD20WithAdv(rollCtx.mode);
-    const total=r.chosen+rollCtx.baseBonus+rollCtx.extra;
+    const buff=picker.compute();
+    const total=r.chosen+rollCtx.baseBonus+rollCtx.extra+buff.bonus;
     const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
-    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}`;
-    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    const buffStr=buff.details.length?' '+buff.details.join(' '):'';
+    const verdict=r.chosen===20?'<div class="verdict nat20">天然 20</div>':r.chosen===1?'<div class="verdict nat1">天然 1</div>':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${rollCtx.mode==='adv'?'(优)':rollCtx.mode==='dis'?'(劣)':''} ${fmt(rollCtx.baseBonus+rollCtx.extra)}${buffStr}`;
+    document.getElementById('roll-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div>${verdict}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(rollCtx.label,total,detail.replace(/<[^>]+>/g,''));
+    picker.consume(buff.consumeIds);
   });
 }
 
@@ -1965,6 +2362,7 @@ function showAttackDialog(idx){
   const atkBonus=m+profBonus(char)+(a.attackBonus||0);
   const dmgMod=m+(a.damageBonus||0);
   let amode='normal';
+  const picker=buildBuffPicker({kind:'attack',ability:a.ability});
   openModal(`<h3>攻击：${a.name}</h3>
     <div class="modal-row" style="font-size:13px">命中 <strong>${fmt(atkBonus)}</strong> ｜ 伤害 <strong>${a.damage}${dmgMod?fmt(dmgMod):''}</strong> ${a.damageType}</div>
     ${a.mastery?`<div class="modal-row" style="font-size:12px;color:var(--gold);background:var(--panel-hi);padding:6px;border-radius:3px"><strong>精通【${a.mastery}】</strong>：${RULES.weaponMastery[a.mastery]||''}</div>`:''}
@@ -1975,6 +2373,7 @@ function showAttackDialog(idx){
         <button data-amode="dis">劣势</button>
       </div>
     </div>
+    ${picker.html}
     <div id="atk-result"></div>
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
@@ -1982,18 +2381,32 @@ function showAttackDialog(idx){
       <button id="btn-dmg">投伤害</button>
       <button id="btn-crit">暴击伤害</button>
     </div>`);
+  picker.bind();
   document.querySelectorAll('[data-amode]').forEach(b=>b.addEventListener('click',()=>{
     amode=b.dataset.amode;
     document.querySelectorAll('[data-amode]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
   }));
   document.getElementById('btn-atk').addEventListener('click',()=>{
-    const r=rollD20WithAdv(amode);
-    const total=r.chosen+atkBonus;
-    const cls=r.chosen===20?'nat20':r.chosen===1?'nat1':'';
-    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${fmt(atkBonus)}${r.chosen===20?' 暴击!':''}`;
-    document.getElementById('atk-result').innerHTML=`<div class="roll-result"><div class="total">${total}</div><div class="roll-detail">${detail}</div></div>`;
+    const extraAdv=a.advReroll?1:0;                 // 精灵之准：优势时多掷一枚 d20 取最高（阈值不变）
+    const r=rollD20WithAdv(amode,extraAdv);
+    const buff=picker.compute();
+    const total=r.chosen+atkBonus+buff.bonus;
+    const gCrit=(c.combat&&c.combat.critMin)||20;
+    const effCrit=Math.min(gCrit,a.critMin||20);    // 全局与武器取更低门槛（斗士 19/18、魔法武器）
+    const isNat20=r.chosen===20,isNat1=r.chosen===1,isCrit=r.chosen>=effCrit;
+    const cls=isCrit?'nat20':isNat1?'nat1':'';
+    const buffStr=buff.details.length?' '+buff.details.join(' '):'';
+    const advTag=amode==='adv'?(extraAdv?'(优·精灵之准 3d20)':'(优)'):amode==='dis'?'(劣)':'';
+    const detail=`D20: ${r.both.map(d=>d===r.chosen?`<strong class="${cls}">${d}</strong>`:`<s>${d}</s>`).join(' / ')} ${advTag} ${fmt(atkBonus)}${buffStr} = ${total}`;
+    let head;
+    if(isNat1)head='<div class="total nat1">大失败</div><div class="verdict nat1">必失 · 失手</div>';
+    else if(isNat20)head='<div class="total nat20">大成功</div><div class="verdict nat20">必中 · 重击（点“暴击伤害”翻倍骰）</div>';
+    else if(isCrit)head=`<div class="total">${total}</div><div class="verdict nat20">进入重击范围（命中则点“暴击伤害”）</div>`;
+    else head=`<div class="total">${total}</div>`;
+    document.getElementById('atk-result').innerHTML=`<div class="roll-result">${head}<div class="roll-detail">${detail}</div></div>`;
     pushHistory(`攻击-${a.name}`,total,detail.replace(/<[^>]+>/g,''));
+    picker.consume(buff.consumeIds);
   });
   document.getElementById('btn-dmg').addEventListener('click',()=>{
     const r=rollExpr(a.damage);
@@ -2035,6 +2448,15 @@ function showSpellDialog(spell){
     else if(mat.kind==='valuable')matLine=`<div class="material-line valuable">💎 <strong>必备材料：</strong>${mat.desc}（${mat.gp} GP，不消耗）<br><span style="font-weight:normal;font-size:11px">价值高于 1 GP，奥术法器/成分包<u>无法</u>替代，需实际持有。</span></div>`;
     else matLine=`<div class="material-line normal">材料：${mat.desc}${mat.focusable?'<span style="font-size:11px"> · 可由奥术法器/成分包替代</span>':''}</div>`;
   }
+  const hasBuff=!!spell.buff;
+  // 施法距离 '自身' / '自身(N尺)' / 'Self' 表示规则上只能给自己施 → disable「他人」
+  const isSelfOnly=hasBuff&&/^(自身|Self)/i.test(spell.range||'');
+  const buffTargetRow=hasBuff?`<div class="modal-row"><span>BUFF 目标：</span>
+    <div class="adv-toggle">
+      <button class="active" data-buff-target="self">自身</button>
+      <button data-buff-target="other" ${isSelfOnly?'disabled title="此法术施法距离为「'+spell.range+'」，规则上只能给自己施加"':'title="不挂到自己卡上，导出分享串给队友"'} ${isSelfOnly?'style="opacity:.4;cursor:not-allowed"':''}>他人${isSelfOnly?' 🚫':'（导出）'}</button>
+    </div>
+  </div>`:'';
   openModal(`<h3>${isCantrip?'戏法':spell.lvl+'环'}：${spell.name}</h3>
     <div class="modal-row" style="font-size:12px;color:var(--text-dim)">
       <span>${spell.school||''}</span><span>·</span>
@@ -2048,11 +2470,13 @@ function showSpellDialog(spell){
     ${matLine}
     <div style="margin:10px 0;font-size:13px;line-height:1.6">${spell.desc||''}</div>
     ${!isCantrip?`<div class="modal-row"><span>消耗法术位：</span><select id="slot-sel">${slotOpts}</select></div>`:''}
+    ${buffTargetRow}
     <div id="cast-result"></div>
     <div class="modal-buttons">
       <button onclick="closeModal()">关闭</button>
       <button id="btn-roll-dmg">${spell.damage?`投 ${spell.damage}`:'投伤害骰…'}</button>
       ${spell.summonSource?`<button id="btn-spell-summon" title="${summonVerb(spell.summonSource)}一个 ${spell.summonSource} 形态">${summonVerb(spell.summonSource)}…</button>`:''}
+      ${isCantrip&&spell.buff?`<button class="primary" id="btn-cast-cantrip-buff" title="施加增益到自身">施加 BUFF</button>`:''}
       ${!isCantrip&&spell.ritual?`<button id="btn-cast-ritual" title="花 10 分钟以仪式施展，不消耗法术位">仪式（不扣位）</button>`:''}
       ${!isCantrip?`<button class="primary" id="btn-cast">施放（扣位）</button>`:''}
     </div>`);
@@ -2072,6 +2496,17 @@ function showSpellDialog(spell){
     const sel=document.getElementById('slot-sel');
     if(sel)sel.addEventListener('change',refreshDmgBtn);
     refreshDmgBtn();
+  }
+  // BUFF 目标切换：'self' (默认) | 'other'。仅当 spell.buff 存在时显示了切换按钮。
+  // 施法距离=自身的法术 isSelfOnly=true → 「他人」按钮 disabled，强制 self
+  let buffTarget='self';
+  if(hasBuff){
+    document.querySelectorAll('[data-buff-target]').forEach(b=>b.addEventListener('click',()=>{
+      if(b.hasAttribute('disabled'))return;
+      buffTarget=b.dataset.buffTarget;
+      document.querySelectorAll('[data-buff-target]').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    }));
   }
   document.getElementById('btn-roll-dmg').addEventListener('click',()=>{
     let expr=currentDmgExpr();
@@ -2103,20 +2538,55 @@ function showSpellDialog(spell){
       // 专注追踪：先做替换确认，再扣位
       if(spell.conc&&!setConcentration(spell,lv))return;
       s.used[idx]=true;
-      saveChar();renderSpells();renderStatus();
-      pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}${spell.conc?' · 专注':''}`);
-      closeModal();
+      const toOther=hasBuff&&buffTarget==='other';
+      if(toOther){
+        // 不挂自己 buffs，弹分享串
+        saveChar();renderSpells();renderStatus();renderCombat();
+        pushHistory(`施放-${spell.name}（给他人）`,lv,`消耗 ${lv} 环法术位${extra}${spell.conc?' · 专注由你维持':''} · 待复制串`);
+        showBuffExportDialog(spell,lv);
+      }else{
+        pushSpellBuff(spell,lv);
+        saveChar();renderSpells();renderStatus();renderCombat();
+        pushHistory(`施放-${spell.name}`,lv,`消耗 ${lv} 环法术位${extra}${spell.conc?' · 专注':''}${spell.buff?' · BUFF 已施加':''}`);
+        closeModal();
+      }
     });
     // 仪式施法（不扣位，10 分钟）
     const ritualBtn=document.getElementById('btn-cast-ritual');
     if(ritualBtn){
       ritualBtn.addEventListener('click',()=>{
         if(spell.conc&&!setConcentration(spell,spell.lvl))return;
-        saveChar();renderStatus();
-        pushHistory(`仪式施法-${spell.name}`,spell.lvl,`花 10 分钟以仪式施展，不消耗法术位${spell.conc?' · 专注':''}`);
-        closeModal();
+        const toOther=hasBuff&&buffTarget==='other';
+        if(toOther){
+          saveChar();renderStatus();renderCombat();
+          pushHistory(`仪式施法-${spell.name}（给他人）`,spell.lvl,`不扣位${spell.conc?' · 专注由你维持':''} · 待复制串`);
+          showBuffExportDialog(spell,spell.lvl);
+        }else{
+          pushSpellBuff(spell,spell.lvl);
+          saveChar();renderStatus();renderCombat();
+          pushHistory(`仪式施法-${spell.name}`,spell.lvl,`花 10 分钟以仪式施展，不消耗法术位${spell.conc?' · 专注':''}${spell.buff?' · BUFF 已施加':''}`);
+          closeModal();
+        }
       });
     }
+  }
+  // 戏法施加 BUFF（无需扣位）
+  const cantripBuffBtn=document.getElementById('btn-cast-cantrip-buff');
+  if(cantripBuffBtn){
+    cantripBuffBtn.addEventListener('click',()=>{
+      if(spell.conc&&!setConcentration(spell,0))return;
+      const toOther=buffTarget==='other';
+      if(toOther){
+        saveChar();renderStatus();renderCombat();
+        pushHistory(`施放-${spell.name}（给他人）`,0,`戏法${spell.conc?' · 专注由你维持':''} · 待复制串`);
+        showBuffExportDialog(spell,0);
+      }else{
+        pushSpellBuff(spell,0);
+        saveChar();renderStatus();renderCombat();
+        pushHistory(`施放-${spell.name}`,0,`戏法 BUFF${spell.conc?' · 专注':''}`);
+        closeModal();
+      }
+    });
   }
   // 召唤按钮（戏法或法术皆可）：直接 picker；激活由 picker 内部 click 处理
   const summonBtn=document.getElementById('btn-spell-summon');
@@ -2133,9 +2603,135 @@ function setConcentration(spell,castLvl){
   const cur=char.combat.concentration;
   if(cur&&cur.spellName){
     if(!confirm(`你当前正在专注 ${cur.spellName}${cur.spellLvl?` (${cur.spellLvl}环)`:''}。\n施展 ${spell.name} 将取消该专注。\n\n确认？`))return false;
+    // 替换专注：先清掉与旧 conc 关联的 buff
+    clearBuffsForConc(cur.spellName);
   }
   char.combat.concentration={spellName:spell.name,spellLvl:castLvl||spell.lvl||0};
   return true;
+}
+/* === BUFF 跨卡分享（P2）===
+   分享串格式：'dnd5buff:' + base64(UTF-8(JSON))
+   payload schema:
+     { v:1, originId, from, name, spellName, castLvl, conc, durationText, desc, modifiers }
+   originId = `${senderName}-${ts}-${rand}` 用于接收方防重复导入。
+*/
+function encodeBuffShare(payload){
+  try{
+    const json=JSON.stringify(payload);
+    // UTF-8 安全 base64
+    const b64=btoa(unescape(encodeURIComponent(json)));
+    return 'dnd5buff:'+b64;
+  }catch(e){console.warn('encodeBuffShare failed',e);return null}
+}
+function decodeBuffShare(str){
+  if(!str)return null;
+  const s=String(str).trim();
+  if(!s.startsWith('dnd5buff:'))return null;
+  try{
+    const b64=s.slice('dnd5buff:'.length).replace(/\s+/g,'');
+    const json=decodeURIComponent(escape(atob(b64)));
+    const obj=JSON.parse(json);
+    if(obj&&obj.v===1&&obj.name&&typeof obj.modifiers==='object')return obj;
+  }catch(e){console.warn('decodeBuffShare failed',e)}
+  return null;
+}
+function buildSharePayload(spell,castLvl){
+  const senderName=(char.meta&&char.meta.name)||'某人';
+  const b=spell.buff||{};
+  return {
+    v:1,
+    originId:`${senderName}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+    from:senderName,
+    name:b.name||spell.name,
+    spellName:spell.name,
+    castLvl:castLvl||spell.lvl||0,
+    conc:!!spell.conc,
+    durationText:b.durationText||spell.dur||'',
+    desc:b.desc||spell.desc||'',
+    modifiers:b.modifiers||{}
+  };
+}
+
+/* 把 spell.buff 落地到 char.combat.buffs（同名先去重）。无 buff 字段时空操作。 */
+function pushSpellBuff(spell,castLvl){
+  if(!spell||!spell.buff)return;
+  const b=spell.buff;
+  if(!Array.isArray(char.combat.buffs))char.combat.buffs=[];
+  // 同名 spell 先去重：避免重复施放法师护甲叠加多条
+  char.combat.buffs=char.combat.buffs.filter(x=>x.spellName!==spell.name);
+  char.combat.buffs.push({
+    id:genBuffId(),
+    name:b.name||spell.name,
+    source:'自身',
+    spellName:spell.name,
+    castLvl:castLvl||spell.lvl||0,
+    conc:!!spell.conc,
+    durationText:b.durationText||spell.dur||'',
+    desc:b.desc||spell.desc||'',
+    modifiers:b.modifiers||{}
+  });
+  saveChar();
+}
+
+/* 给"他人"路径：弹复制串对话框 */
+function showBuffExportDialog(spell,castLvl){
+  if(!spell||!spell.buff)return;
+  const payload=buildSharePayload(spell,castLvl);
+  const str=encodeBuffShare(payload);
+  if(!str){alert('生成分享串失败');return}
+  const concWarn=spell.conc?`<div style="font-size:12px;color:var(--gold);background:rgba(200,160,50,.1);border-left:3px solid var(--gold);padding:6px;margin:8px 0;line-height:1.5">⚠ 此法术需要专注。专注由你（${payload.from}）维持——你这边释放专注后，<u>对方那边的 BUFF 不会自动消失</u>，需要你在群里口头告诉 ta「BUFF 失效了」让 ta 自己 ✕。</div>`:'';
+  openModal(`<h3>分享 BUFF：${payload.name}</h3>
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.5">把下面这段串复制发到群里，对方点【+ 导入】粘贴即可挂上。</div>
+    ${concWarn}
+    <textarea id="buff-export-ta" readonly style="width:100%;height:120px;font-family:monospace;font-size:11px;word-break:break-all;line-height:1.4"></textarea>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:6px">target=${payload.name} · ${castLvl||spell.lvl||0}环 · originId=${payload.originId.slice(0,32)}…</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">关闭</button>
+      <button class="primary" id="btn-copy-buff-share">复制</button>
+    </div>`);
+  document.getElementById('buff-export-ta').value=str;
+  document.getElementById('btn-copy-buff-share').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(str);alert('已复制')}
+    catch(e){document.getElementById('buff-export-ta').select();document.execCommand('copy');alert('已复制（兼容模式）')}
+  });
+}
+
+/* 接收方：粘贴串导入 */
+function showBuffImportDialog(){
+  openModal(`<h3>导入 BUFF</h3>
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.5">把别人发给你的 <code>dnd5buff:...</code> 串粘贴到下面。</div>
+    <textarea id="buff-import-ta" placeholder="dnd5buff:eyJ2IjoxLC..." style="width:100%;height:100px;font-family:monospace;font-size:11px;margin-top:6px"></textarea>
+    <div id="buff-import-result" style="margin-top:8px;font-size:13px"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button class="primary" id="btn-do-import-buff">导入</button>
+    </div>`);
+  document.getElementById('btn-do-import-buff').addEventListener('click',()=>{
+    const txt=document.getElementById('buff-import-ta').value.trim();
+    const result=document.getElementById('buff-import-result');
+    const obj=decodeBuffShare(txt);
+    if(!obj){result.innerHTML='<span style="color:var(--bad)">❌ 解析失败：不是有效的 dnd5buff: 串</span>';return}
+    if(!Array.isArray(char.combat.buffs))char.combat.buffs=[];
+    if(obj.originId&&char.combat.buffs.find(b=>b.originId===obj.originId)){
+      result.innerHTML=`<span style="color:var(--gold)">⚠ 已导入过此 BUFF（来自 ${obj.from||'?'}），未重复添加</span>`;return;
+    }
+    char.combat.buffs.push({
+      id:genBuffId(),
+      name:obj.name,
+      source:obj.from||'他人',
+      spellName:obj.spellName||obj.name,
+      castLvl:obj.castLvl||0,
+      conc:!!obj.conc,
+      durationText:obj.durationText||'',
+      desc:obj.desc||'',
+      modifiers:obj.modifiers||{},
+      originId:obj.originId||null
+    });
+    saveChar();renderStatus();renderCombat();
+    pushHistory('导入 BUFF',0,`${obj.name}（来自 ${obj.from||'?'}）`);
+    result.innerHTML=`<span style="color:var(--good)">✓ 已挂载 ${obj.name}（来自 ${obj.from||'?'}）</span>`;
+    setTimeout(closeModal,800);
+  });
 }
 
 function doConcentrationSave(){
@@ -2152,12 +2748,13 @@ function doConcentrationSave(){
   const detail=`D20: ${r} ${fmt(conSave)} = ${total} vs DC${dc} → ${success?'成功':'失败'}`;
   pushHistory(`维持专注-${cur.spellName}`,total,`伤害 ${dmg} → ${detail}`);
   if(!success){
+    clearBuffsForConc(cur.spellName);
     char.combat.concentration=null;
     alert(`💥 豁免失败！\n专注 ${cur.spellName} 已结束。\n\n${detail}`);
   }else{
     alert(`✓ 豁免成功，继续专注 ${cur.spellName}。\n\n${detail}`);
   }
-  saveChar();renderStatus();
+  saveChar();renderStatus();renderCombat();
 }
 
 /* === HP 对话框 === */
@@ -2216,6 +2813,199 @@ function showHPDialog(){
   });
 }
 
+/* === 状态详情 === */
+function showStatusInfo(name){
+  const d=RULES.conditionDescriptions[name];
+  const body=d?`<h3>${name} <span style="color:var(--text-dim);font-size:13px;font-weight:normal">${d.en}</span></h3>
+    <div style="margin:10px 0;font-size:13px;line-height:1.7">${d.body}</div>`:`<h3>${name}</h3>
+    <div style="margin:10px 0;font-size:13px;color:var(--text-dim)">没有该状态的规则文本。</div>`;
+  openModal(`${body}
+    <div class="modal-buttons">
+      <button data-status-rm="${name}" onclick="closeModal()">移除该状态</button>
+      <button onclick="closeModal()">关闭</button>
+    </div>`);
+}
+
+/* === 数值编辑器 ===
+   原则：5e 的"加值字段"已在数据模型里（acBonus / initBonus / saveBonus / skill.bonus / attackBonus 等），
+   点显示值打开 prompt/modal 改它们，render() 自然把所有派生值重算一遍。
+*/
+/* 自定义"prompt"模态：避免 iOS / 微信内置浏览器把原生 prompt 标题显示成 (null)。
+   opts: {type:'number'|'text', hint:'说明文本', placeholder:''} */
+function promptModal(title,current,onOK,opts){
+  opts=opts||{};
+  const type=opts.type||'number';
+  const hint=opts.hint||'';
+  const placeholder=opts.placeholder||'';
+  const cur=String(current==null?'':current).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  openModal(`<h3>${title}</h3>
+    ${hint?`<div style="color:var(--text-dim);font-size:12px;line-height:1.5;margin-bottom:10px;white-space:pre-line">${hint}</div>`:''}
+    <div class="modal-row" style="display:block">
+      <input id="pm-input" type="${type}" value="${cur}" placeholder="${placeholder}" style="width:100%;font-size:16px;padding:10px;box-sizing:border-box;text-align:left">
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="pm-ok" class="primary">确定</button>
+    </div>`);
+  const input=document.getElementById('pm-input');
+  setTimeout(()=>{input.focus();try{input.select()}catch(e){}},80);
+  const submit=()=>{
+    const v=input.value;
+    closeModal();
+    onOK(v);
+  };
+  document.getElementById('pm-ok').addEventListener('click',submit);
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();submit()}
+  });
+}
+function editAC(){
+  const c=activeChar();
+  const base=c.combat.acBase||10;
+  const bonus=c.combat.acBonus||0;
+  openModal(`<h3>编辑 AC</h3>
+    <div class="modal-row"><span>基础 AC：</span><input id="ac-base-i" type="number" value="${base}" style="width:80px"></div>
+    <div class="modal-row"><span>杂项加值：</span><input id="ac-bonus-i" type="number" value="${bonus}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">当前实际 AC（含盾/BUFF）：${ac(c)}<br>基础是裸 AC（如皮甲 11+敏），加值是杂项（戒指、专长等）。</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-ac-save" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-ac-save').addEventListener('click',()=>{
+    c.combat.acBase=parseInt(document.getElementById('ac-base-i').value)||0;
+    c.combat.acBonus=parseInt(document.getElementById('ac-bonus-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+function editInit(){
+  const c=activeChar();
+  const dexMod=abMod((c.abilities.dex||{score:10}).score);
+  const cur=c.combat.initBonus||0;
+  promptModal('先攻杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    c.combat.initBonus=n;saveChar();render();
+  },{hint:`敏调=${fmt(dexMod)}, 当前加值=${fmt(cur)}, 总先攻=${fmt(initiative(c))}`});
+}
+function editSpellDC(){
+  const sc=char.spellcasting;
+  if(!sc||!sc.castingAbility){alert('该角色无施法能力');return}
+  const cur=sc.extraDcBonus||0;
+  const sa=sc.castingAbility,sm=abMod(char.abilities[sa].score),pb=profBonus(char);
+  promptModal('法术 DC 杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    sc.extraDcBonus=n;saveChar();render();
+  },{hint:`基础 = 8 + 熟练${fmt(pb)} + ${RULES.abilityNames[sa]}调${fmt(sm)} + 加值\n当前加值=${fmt(cur)}, 当前 DC=${spellDC(char)}`});
+}
+function editSpellAttack(){
+  const sc=char.spellcasting;
+  if(!sc||!sc.castingAbility){alert('该角色无施法能力');return}
+  const cur=sc.extraAttackBonus||0;
+  const sa=sc.castingAbility,sm=abMod(char.abilities[sa].score),pb=profBonus(char);
+  promptModal('法术攻击杂项加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    sc.extraAttackBonus=n;saveChar();render();
+  },{hint:`基础 = 熟练${fmt(pb)} + ${RULES.abilityNames[sa]}调${fmt(sm)} + 加值\n当前加值=${fmt(cur)}, 当前命中=${fmt(spellAttack(char))}`});
+}
+function editSpeed(){
+  const c=activeChar();
+  promptModal('速度（尺）',c.combat.speed||30,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)||n<0){alert('请输入非负整数');return}
+    c.combat.speed=n;saveChar();render();
+  });
+}
+function editSize(){
+  const c=activeChar();
+  promptModal('体型',c.combat.size||'中型',(v)=>{
+    if(v==null||!v.trim())return;
+    c.combat.size=v.trim();saveChar();render();
+  },{type:'text',hint:'微型 / 超小型 / 小型 / 中型 / 大型 / 超大型 / 巨型'});
+}
+function editHd(){
+  openModal(`<h3>编辑 HD</h3>
+    <div class="modal-row"><span>当前 HD：</span><input id="hd-cur-i" type="number" value="${char.combat.hdCur||0}" style="width:80px"></div>
+    <div class="modal-row"><span>HD 上限：</span><input id="hd-max-i" type="number" value="${char.combat.hdMax||0}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">骰大小由职业等级决定（${hdSummary(char)}），不在此处改。</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-hd-save" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-hd-save').addEventListener('click',()=>{
+    const mx=Math.max(0,parseInt(document.getElementById('hd-max-i').value)||0);
+    const cu=Math.max(0,parseInt(document.getElementById('hd-cur-i').value)||0);
+    char.combat.hdMax=mx;
+    char.combat.hdCur=Math.min(cu,mx);
+    saveChar();render();closeModal();
+  });
+}
+function editResistance(){
+  promptModal('抗性/免疫/易伤',char.combat.resistance||'',(v)=>{
+    if(v==null)return;
+    char.combat.resistance=v.trim();saveChar();renderStatus();
+  },{type:'text',hint:'自由文本；留空清除',placeholder:'如：中毒（矮人韧性）'});
+}
+function editSave(ab){
+  const a=char.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
+  char.abilities[ab]=a;
+  const m=abMod(a.score),pb=profBonus(char);
+  openModal(`<h3>编辑 ${RULES.abilityNames[ab]}豁免</h3>
+    <div class="modal-row"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="save-prof-i" ${a.saveProf?'checked':''}> 熟练（+${pb}）</label></div>
+    <div class="modal-row"><span>杂项加值：</span><input id="save-bonus-i" type="number" value="${a.saveBonus||0}" style="width:80px"></div>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">${RULES.abilityNames[ab]}调${fmt(m)} + 熟练${a.saveProf?fmt(pb):'+0'} + 加值${fmt(a.saveBonus||0)} = 当前 ${fmt(saveBonus(char,ab))}</div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-save-ed" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-save-ed').addEventListener('click',()=>{
+    a.saveProf=document.getElementById('save-prof-i').checked;
+    a.saveBonus=parseInt(document.getElementById('save-bonus-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+function editSkillBonus(sk){
+  const skMeta=RULES.skills.find(s=>s.key===sk);
+  if(!skMeta)return;
+  char.skills=char.skills||{};
+  const d=char.skills[sk]||{prof:'none',bonus:0};
+  char.skills[sk]=d;
+  const cur=d.bonus||0;
+  promptModal(`${skMeta.name}杂项加值`,cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    d.bonus=n;saveChar();render();
+  },{hint:`当前加值=${fmt(cur)}, 当前总加值=${fmt(skillBonus(char,sk))}`});
+}
+function editGlobalSkillBonus(){
+  char.skills=char.skills||{};
+  const cur=char.skills.globalBonus||0;
+  promptModal('全局技能加值',cur,(v)=>{
+    if(v==null||v==='')return;
+    const n=parseInt(v);if(isNaN(n)){alert('请输入整数');return}
+    char.skills.globalBonus=n;saveChar();render();
+  },{hint:`所有技能 +X\n当前=${fmt(cur)}`});
+}
+function editAttackBonus(i){
+  const a=(char.attacks||[])[i];if(!a)return;
+  const ab=char.abilities[a.ability]||{score:10};
+  const m=abMod(ab.score),pb=profBonus(char);
+  openModal(`<h3>编辑「${a.name}」加值</h3>
+    <div class="modal-row" style="color:var(--text-dim);font-size:12px">基础命中 = ${RULES.abilityNames[a.ability]}调${fmt(m)} + 熟练${fmt(pb)}；基础伤害 = ${a.damage} + ${RULES.abilityNames[a.ability]}调${fmt(m)}</div>
+    <div class="modal-row"><span>命中加值：</span><input id="atk-b-i" type="number" value="${a.attackBonus||0}" style="width:80px"></div>
+    <div class="modal-row"><span>伤害加值：</span><input id="dmg-b-i" type="number" value="${a.damageBonus||0}" style="width:80px"></div>
+    <div class="modal-buttons">
+      <button onclick="closeModal()">取消</button>
+      <button id="btn-atk-ed" class="primary">保存</button>
+    </div>`);
+  document.getElementById('btn-atk-ed').addEventListener('click',()=>{
+    a.attackBonus=parseInt(document.getElementById('atk-b-i').value)||0;
+    a.damageBonus=parseInt(document.getElementById('dmg-b-i').value)||0;
+    saveChar();render();closeModal();
+  });
+}
+
 /* === 状态选择器 === */
 function showStatusPicker(){
   openModal(`<h3>添加状态</h3>
@@ -2269,8 +3059,10 @@ document.addEventListener('click',e=>{
   if(t.matches('[data-edit-name]')){
     e.stopPropagation();
     // 主体名编辑（companion tab 时点 header 名字仍编辑主体名）
-    const v=prompt('角色名：',char.meta.name||'');
-    if(v!=null&&v.trim()){char.meta.name=v.trim();saveChar();render()}
+    promptModal('角色名',char.meta.name||'',(v)=>{
+      if(v==null||!v.trim())return;
+      char.meta.name=v.trim();saveChar();render();
+    },{type:'text'});
     return;
   }
   if(t.matches('[data-edit-ab]')){
@@ -2278,11 +3070,41 @@ document.addEventListener('click',e=>{
     const c=activeChar();
     const ab=t.dataset.editAb;
     const cur=c.abilities[ab]?c.abilities[ab].score:10;
-    const v=prompt(`${RULES.abilityNames[ab]}属性分数：`,cur);
-    if(v!=null){const n=parseInt(v);if(!isNaN(n)&&n>=1&&n<=30){
+    promptModal(`${RULES.abilityNames[ab]}属性分数`,cur,(v)=>{
+      if(v==null||v==='')return;
+      const n=parseInt(v);
+      if(isNaN(n)||n<1||n>30){alert('请输入 1-30 之间的整数');return}
       c.abilities[ab]=c.abilities[ab]||{score:10,saveProf:false,saveBonus:0};
       c.abilities[ab].score=n;saveChar();render();
-    }}
+    },{hint:'1 - 30 之间整数'});
+    return;
+  }
+  if(t.matches('[data-edit-save]')){
+    e.stopPropagation();
+    editSave(t.dataset.editSave);return;
+  }
+  if(t.matches('[data-edit-skill]')){
+    e.stopPropagation();
+    editSkillBonus(t.dataset.editSkill);return;
+  }
+  if(t.matches('[data-edit-attack]')){
+    e.stopPropagation();
+    editAttackBonus(parseInt(t.dataset.editAttack));return;
+  }
+  const editEl=t.closest('[data-edit]');
+  if(editEl){
+    e.stopPropagation();
+    const k=editEl.dataset.edit;
+    if(k==='init')editInit();
+    else if(k==='ac')editAC();
+    else if(k==='dc')editSpellDC();
+    else if(k==='speed')editSpeed();
+    else if(k==='size')editSize();
+    else if(k==='hd')editHd();
+    else if(k==='resistance')editResistance();
+    else if(k==='spellDc')editSpellDC();
+    else if(k==='spellAtk')editSpellAttack();
+    else if(k==='globalSkill')editGlobalSkillBonus();
     return;
   }
   if(t.matches('.slot-pip')){
@@ -2310,11 +3132,36 @@ document.addEventListener('click',e=>{
   if(t.id==='insp-toggle'){char.meta.inspiration=!char.meta.inspiration;saveChar();renderStatus();return}
   if(t.id==='btn-conc-release'){
     const c=char.combat.concentration;
-    if(c)pushHistory('释放专注',0,`主动释放对 ${c.spellName} 的专注`);
-    char.combat.concentration=null;saveChar();renderStatus();return;
+    if(c){
+      pushHistory('释放专注',0,`主动释放对 ${c.spellName} 的专注`);
+      clearBuffsForConc(c.spellName);
+    }
+    char.combat.concentration=null;saveChar();renderStatus();renderCombat();return;
+  }
+  if(t.matches('[data-buff-rm]')){
+    e.stopPropagation();
+    const id=t.dataset.buffRm;
+    const b=(char.combat.buffs||[]).find(x=>x.id===id);
+    if(!b)return;
+    // 若是当前专注的 buff，同时释放专注
+    if(b.conc&&b.spellName){
+      const cur=char.combat.concentration;
+      if(cur&&cur.spellName===b.spellName){
+        char.combat.concentration=null;
+        pushHistory('释放专注',0,`取消 ${b.name} 同时释放专注`);
+      }
+    }
+    pushHistory('取消 BUFF',0,b.name);
+    removeBuff(id);
+    renderStatus();renderCombat();
+    return;
   }
   if(t.id==='btn-conc-save'){doConcentrationSave();return}
   if(t.id==='add-status'){showStatusPicker();return}
+  if(t.id==='btn-buff-import'){showBuffImportDialog();return}
+  if(t.matches('[data-status-info]')){
+    showStatusInfo(t.dataset.statusInfo);return;
+  }
   if(t.matches('[data-status-rm]')){
     const s=t.dataset.statusRm;
     char.combat.statusEffects=(char.combat.statusEffects||[]).filter(x=>x!==s);
@@ -2323,21 +3170,21 @@ document.addEventListener('click',e=>{
   if(t.closest('[data-roll="save"]')){
     const c=activeChar();
     const ab=t.closest('[data-roll="save"]').dataset.ab;
-    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(c,ab));return;
+    showRollDialog(`${RULES.abilityNames[ab]}豁免`,saveBonus(c,ab),{kind:'save',ability:ab});return;
   }
   if(t.closest('[data-roll="ability"]')){
     const c=activeChar();
     const ab=t.closest('[data-roll="ability"]').dataset.ab;
-    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod((c.abilities[ab]||{score:10}).score));return;
+    showRollDialog(`${RULES.abilityNames[ab]}检定`,abMod((c.abilities[ab]||{score:10}).score),{kind:'check',ability:ab});return;
   }
   if(t.closest('[data-roll="skill"]')){
     const c=activeChar();
     const sk=t.closest('[data-roll="skill"]').dataset.skill;
-    const skName=RULES.skills.find(s=>s.key===sk).name;
-    showRollDialog(`${skName}检定`,skillBonus(c,sk));return;
+    const skMeta=RULES.skills.find(s=>s.key===sk);
+    showRollDialog(`${skMeta.name}检定`,skillBonus(c,sk),{kind:'skill',ability:skMeta.ability});return;
   }
-  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(activeChar()));return}
-  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(activeChar(),'perception'));return}
+  if(t.closest('[data-roll="initiative"]')){showRollDialog('先攻',initiative(activeChar()),{kind:'init',ability:'dex'});return}
+  if(t.closest('[data-roll="perception"]')){showRollDialog('察觉检定',skillBonus(activeChar(),'perception'),{kind:'skill',ability:'wis'});return}
   if(t.closest('[data-roll="attack"]')){
     const i=parseInt(t.closest('[data-roll="attack"]').dataset.i);
     showAttackDialog(i);return;
@@ -2424,12 +3271,14 @@ function shortRest(){
 
 /* === 长休 === */
 function longRest(){
-  if(!confirm('长休 8 小时？\n- 主体 + 全部伴生 HP 全满\n- 主体 HD 恢复半数（向下取整，至少 1）\n- 主体全部法术位回满\n- 主体 + 伴生的「长休/短休」资源恢复\n- 主体重置死亡豁免'))return;
+  if(!confirm('长休 8 小时？\n- 主体 + 全部伴生 HP 全满\n- 主体 HD 恢复半数（向下取整，至少 1）\n- 主体全部法术位回满\n- 主体 + 伴生的「长休/短休」资源恢复\n- 主体重置死亡豁免\n- 清空全部 BUFF 与专注'))return;
   // 主体
   char.combat.hpCur=char.combat.hpMax;
   char.combat.hpTemp=0;
   char.combat.hdCur=Math.min(char.combat.hdMax,char.combat.hdCur+Math.max(1,Math.floor(char.combat.hdMax/2)));
   char.combat.deathSaves={success:[false,false,false],fail:[false,false,false]};
+  char.combat.buffs=[];
+  char.combat.concentration=null;
   if(char.spellcasting&&char.spellcasting.slots){
     for(const lv of Object.keys(char.spellcasting.slots)){
       const s=char.spellcasting.slots[lv];
@@ -2515,11 +3364,88 @@ function diceBotCmd(){
   });
 }
 
+/* === 强制清缓存重载（AI 升级/改卡后没生效时的逃生阀）=== */
+function forceReloadFromFile(){
+  const id=ensureCharId(char);
+  if(!confirm('将清除本机缓存并按文件里的最新定义重新载入本卡。\n\n会丢弃（这些只存在浏览器缓存里）：当前 HP、已用资源/法术位、死豁、专注、buff、临时状态、骰史，以及你直接在卡面上做过的手动改动。\n文件里的等级/属性/装备/法术等定义会原样载入。\n\n用于「AI 升级或改了卡，但页面没变化」。此操作不可撤销，确认？'))return;
+  try{localStorage.removeItem('dnd5r-char:'+id)}catch(e){}
+  location.reload();
+}
+
+/* === 通用骰盘（本地即时投任意骰，自动记入骰史）=== */
+function openDiceTray(){
+  let qty=1,mod=0,adv='normal';
+  const DICE=[4,6,8,10,12,20,100];
+  openModal(`<h3>🎲 骰盘</h3>
+    <div style="font-size:12px;color:var(--text-dim);margin:-6px 0 10px">随手投任意骰，结果自动记入骰史</div>
+    <div class="dt-quick" id="dt-quick">${DICE.map(s=>`<button class="dt-die" data-die="${s}">d${s}</button>`).join('')}</div>
+    <div class="dt-controls">
+      <span class="dt-ctl">数量 <button class="dt-step" data-q="-1">−</button><b id="dt-qty">1</b><button class="dt-step" data-q="1">+</button></span>
+      <span class="dt-ctl">修正 <button class="dt-step" data-m="-1">−</button><b id="dt-mod">+0</b><button class="dt-step" data-m="1">+</button></span>
+      <span class="dt-ctl" title="仅作用于单颗 d20">
+        <button class="dt-advbtn active" data-adv="normal">普通</button>
+        <button class="dt-advbtn" data-adv="adv">优势</button>
+        <button class="dt-advbtn" data-adv="dis">劣势</button>
+      </span>
+    </div>
+    <div class="dt-expr">
+      <input id="dt-input" type="text" placeholder="表达式：2d6+3、1d20、3·(1d4+1)…" autocomplete="off" spellcheck="false">
+      <button class="primary" id="dt-roll">投</button>
+    </div>
+    <div class="dt-result" id="dt-result"><span class="dt-hint">点上方骰子，或输入表达式开投</span></div>
+    <div class="dt-recent" id="dt-recent"></div>
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+  const qEl=document.getElementById('dt-qty'),mEl=document.getElementById('dt-mod'),
+        resEl=document.getElementById('dt-result'),recEl=document.getElementById('dt-recent'),
+        inEl=document.getElementById('dt-input');
+  function syncCtl(){qEl.textContent=qty;mEl.textContent=fmt(mod);}
+  function renderRecent(){
+    const items=(char.rollHistory||[]).filter(h=>String(h.label).indexOf('🎲')===0).slice(0,6);
+    recEl.innerHTML=items.length?('<div class="dt-recent-t">最近</div>'+items.map(h=>`<div class="dt-recent-i"><span>${h.label} = ${h.detail||''}</span><b>${h.total}</b></div>`).join('')):'';
+  }
+  function show(label,total,detail){
+    resEl.innerHTML=`<div class="dt-total">${total}</div><div class="dt-sub">${label} = ${detail}</div>`;
+    pushHistory('🎲 '+label,total,detail);
+    renderRecent();
+  }
+  function quickRoll(sides){
+    if(sides===20&&adv!=='normal'){
+      const r=rollD20WithAdv(adv==='adv'?'adv':'dis'),total=r.chosen+mod;
+      show(`d20 ${adv==='adv'?'优势':'劣势'}${mod?fmt(mod):''}`,total,`[${r.both.join(', ')}]→${r.chosen}${mod?fmt(mod):''}`);
+    }else{
+      const rd=rollDice(qty,sides),total=rd.total+mod;
+      show(`${qty}d${sides}${mod?fmt(mod):''}`,total,`[${rd.rolls.join(', ')}]${mod?fmt(mod):''}`);
+    }
+  }
+  function exprRoll(){
+    let e=inEl.value.trim();if(!e)return;
+    e=e.replace(/^d(\d)/i,'1d$1');
+    const r=rollExpr(e);
+    if(!r){alert('解析失败："'+inEl.value+'"\n支持：1d20、2d6+3、8d6、3·(1d4+1)');return;}
+    show(e,r.total,r.detail||`[${r.rolls.join(', ')}]${r.mod?fmt(r.mod):''}`);
+  }
+  document.getElementById('dt-quick').addEventListener('click',e=>{const b=e.target.closest('[data-die]');if(b)quickRoll(+b.dataset.die);});
+  document.querySelectorAll('.dt-step').forEach(b=>b.addEventListener('click',()=>{
+    if(b.dataset.q)qty=Math.max(1,Math.min(20,qty+(+b.dataset.q)));
+    if(b.dataset.m)mod+=(+b.dataset.m);
+    syncCtl();
+  }));
+  document.querySelectorAll('.dt-advbtn').forEach(b=>b.addEventListener('click',()=>{
+    adv=b.dataset.adv;
+    document.querySelectorAll('.dt-advbtn').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  document.getElementById('dt-roll').addEventListener('click',exprRoll);
+  inEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();exprRoll();}});
+  renderRecent();setTimeout(()=>{try{inEl.focus()}catch(e){}},30);
+}
+
 /* === 顶部按钮绑定 === */
 document.getElementById('btn-rest-short').addEventListener('click',shortRest);
 document.getElementById('btn-rest-long').addEventListener('click',longRest);
 document.getElementById('btn-history').addEventListener('click',showHistory);
+document.getElementById('btn-dice-tray').addEventListener('click',openDiceTray);
 document.getElementById('btn-dice-cmd').addEventListener('click',diceBotCmd);
+document.getElementById('btn-reload').addEventListener('click',forceReloadFromFile);
 document.getElementById('btn-theme').addEventListener('click',()=>{
   const cur=document.body.dataset.theme||'dark';
   document.body.dataset.theme=cur==='dark'?'light':'dark';
@@ -2528,6 +3454,16 @@ document.getElementById('btn-theme').addEventListener('click',()=>{
 
 /* === 启动 === */
 char=loadChar();
+if(window.__sheetMerged){
+  saveChar();  // 合并结果落盘：版本对齐，下次不再重复合并
+  setTimeout(()=>{
+    const b=document.createElement('div');
+    b.textContent='卡牌已更新到最新版本，并保留了你当前的 HP / 资源 / 状态。点此关闭。';
+    b.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--gold);color:#1a1a1a;padding:8px 14px;border-radius:6px;font-size:13px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.45);max-width:92%;cursor:pointer';
+    b.onclick=()=>b.remove();document.body.appendChild(b);
+    setTimeout(()=>{if(b&&b.remove)b.remove()},9000);
+  },300);
+}
 // 恢复上次的 tab 视图
 {
   const idx=(char.meta&&typeof char.meta.viewIndex==='number')?char.meta.viewIndex:-1;
