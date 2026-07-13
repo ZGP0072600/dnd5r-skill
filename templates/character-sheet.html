@@ -158,6 +158,24 @@ main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr}
 .modal h3{margin:0 0 10px;color:var(--accent)}
 .modal-row{margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.dt-quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.dt-die{flex:1 1 52px;font-weight:bold;font-size:15px}
+.dt-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:10px;font-size:13px}
+.dt-ctl{display:inline-flex;align-items:center;gap:5px}
+.dt-ctl>b{min-width:26px;text-align:center;color:var(--gold)}
+.dt-step{width:28px;min-height:28px;padding:0;font-size:16px;line-height:1}
+.dt-advbtn{padding:4px 10px;min-height:auto;color:var(--text-dim)}
+.dt-advbtn.active,.dt-advbtn.active:hover{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:bold}
+.dt-expr{display:flex;gap:6px;margin-bottom:10px}
+.dt-expr input{flex:1;font-family:monospace;font-size:14px}
+.dt-result{text-align:center;padding:14px 10px;background:var(--panel-hi);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;min-height:64px;display:flex;flex-direction:column;justify-content:center}
+.dt-total{font-size:36px;font-weight:bold;color:var(--gold);line-height:1.05}
+.dt-sub{font-size:12px;color:var(--text-dim);margin-top:5px;font-family:monospace;word-break:break-all}
+.dt-hint{font-size:13px;color:var(--text-dim)}
+.dt-recent-t{font-size:11px;color:var(--text-dim);margin:4px 0 2px}
+.dt-recent-i{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-bottom:1px dashed var(--border)}
+.dt-recent-i span{font-family:monospace;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-recent-i b{color:var(--gold);flex:none}
 .roll-result{font-size:24px;text-align:center;padding:14px;background:var(--panel-hi);border-radius:4px;margin:10px 0}
 .roll-result .total{color:var(--accent);font-weight:bold;font-size:32px}
 .roll-result .nat20{color:var(--good)}
@@ -229,8 +247,10 @@ details summary:hover{color:var(--accent)}
     <button id="btn-rest-short">短休</button>
     <button id="btn-rest-long">长休</button>
     <button id="btn-history">骰史</button>
+    <button id="btn-dice-tray">🎲 骰盘</button>
     <button id="btn-dice-cmd">骰娘</button>
     <button id="btn-theme">主题</button>
+    <button id="btn-reload" title="清除本机缓存、按文件最新定义重载（AI 升级/改卡后页面没变化时点这里）">⟳ 重载</button>
   </div>
 </header>
 
@@ -2534,11 +2554,88 @@ function diceBotCmd(){
   });
 }
 
+/* === 强制清缓存重载（AI 升级/改卡后没生效时的逃生阀）=== */
+function forceReloadFromFile(){
+  const id=ensureCharId(char);
+  if(!confirm('将清除本机缓存并按文件里的最新定义重新载入本卡。\n\n会丢弃（这些只存在浏览器缓存里）：当前 HP、已用资源/法术位、死豁、专注、buff、临时状态、骰史，以及你直接在卡面上做过的手动改动。\n文件里的等级/属性/装备/法术等定义会原样载入。\n\n用于「AI 升级或改了卡，但页面没变化」。此操作不可撤销，确认？'))return;
+  try{localStorage.removeItem('dnd5r-char:'+id)}catch(e){}
+  location.reload();
+}
+
+/* === 通用骰盘（本地即时投任意骰，自动记入骰史）=== */
+function openDiceTray(){
+  let qty=1,mod=0,adv='normal';
+  const DICE=[4,6,8,10,12,20,100];
+  openModal(`<h3>🎲 骰盘</h3>
+    <div style="font-size:12px;color:var(--text-dim);margin:-6px 0 10px">随手投任意骰，结果自动记入骰史</div>
+    <div class="dt-quick" id="dt-quick">${DICE.map(s=>`<button class="dt-die" data-die="${s}">d${s}</button>`).join('')}</div>
+    <div class="dt-controls">
+      <span class="dt-ctl">数量 <button class="dt-step" data-q="-1">−</button><b id="dt-qty">1</b><button class="dt-step" data-q="1">+</button></span>
+      <span class="dt-ctl">修正 <button class="dt-step" data-m="-1">−</button><b id="dt-mod">+0</b><button class="dt-step" data-m="1">+</button></span>
+      <span class="dt-ctl" title="仅作用于单颗 d20">
+        <button class="dt-advbtn active" data-adv="normal">普通</button>
+        <button class="dt-advbtn" data-adv="adv">优势</button>
+        <button class="dt-advbtn" data-adv="dis">劣势</button>
+      </span>
+    </div>
+    <div class="dt-expr">
+      <input id="dt-input" type="text" placeholder="表达式：2d6+3、1d20、3·(1d4+1)…" autocomplete="off" spellcheck="false">
+      <button class="primary" id="dt-roll">投</button>
+    </div>
+    <div class="dt-result" id="dt-result"><span class="dt-hint">点上方骰子，或输入表达式开投</span></div>
+    <div class="dt-recent" id="dt-recent"></div>
+    <div class="modal-buttons"><button onclick="closeModal()">关闭</button></div>`);
+  const qEl=document.getElementById('dt-qty'),mEl=document.getElementById('dt-mod'),
+        resEl=document.getElementById('dt-result'),recEl=document.getElementById('dt-recent'),
+        inEl=document.getElementById('dt-input');
+  function syncCtl(){qEl.textContent=qty;mEl.textContent=fmt(mod);}
+  function renderRecent(){
+    const items=(char.rollHistory||[]).filter(h=>String(h.label).indexOf('🎲')===0).slice(0,6);
+    recEl.innerHTML=items.length?('<div class="dt-recent-t">最近</div>'+items.map(h=>`<div class="dt-recent-i"><span>${h.label} = ${h.detail||''}</span><b>${h.total}</b></div>`).join('')):'';
+  }
+  function show(label,total,detail){
+    resEl.innerHTML=`<div class="dt-total">${total}</div><div class="dt-sub">${label} = ${detail}</div>`;
+    pushHistory('🎲 '+label,total,detail);
+    renderRecent();
+  }
+  function quickRoll(sides){
+    if(sides===20&&adv!=='normal'){
+      const r=rollD20WithAdv(adv==='adv'?'adv':'dis'),total=r.chosen+mod;
+      show(`d20 ${adv==='adv'?'优势':'劣势'}${mod?fmt(mod):''}`,total,`[${r.both.join(', ')}]→${r.chosen}${mod?fmt(mod):''}`);
+    }else{
+      const rd=rollDice(qty,sides),total=rd.total+mod;
+      show(`${qty}d${sides}${mod?fmt(mod):''}`,total,`[${rd.rolls.join(', ')}]${mod?fmt(mod):''}`);
+    }
+  }
+  function exprRoll(){
+    let e=inEl.value.trim();if(!e)return;
+    e=e.replace(/^d(\d)/i,'1d$1');
+    const r=rollExpr(e);
+    if(!r){alert('解析失败："'+inEl.value+'"\n支持：1d20、2d6+3、8d6、3·(1d4+1)');return;}
+    show(e,r.total,r.detail||`[${r.rolls.join(', ')}]${r.mod?fmt(r.mod):''}`);
+  }
+  document.getElementById('dt-quick').addEventListener('click',e=>{const b=e.target.closest('[data-die]');if(b)quickRoll(+b.dataset.die);});
+  document.querySelectorAll('.dt-step').forEach(b=>b.addEventListener('click',()=>{
+    if(b.dataset.q)qty=Math.max(1,Math.min(20,qty+(+b.dataset.q)));
+    if(b.dataset.m)mod+=(+b.dataset.m);
+    syncCtl();
+  }));
+  document.querySelectorAll('.dt-advbtn').forEach(b=>b.addEventListener('click',()=>{
+    adv=b.dataset.adv;
+    document.querySelectorAll('.dt-advbtn').forEach(x=>x.classList.toggle('active',x===b));
+  }));
+  document.getElementById('dt-roll').addEventListener('click',exprRoll);
+  inEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();exprRoll();}});
+  renderRecent();setTimeout(()=>{try{inEl.focus()}catch(e){}},30);
+}
+
 /* === 顶部按钮绑定 === */
 document.getElementById('btn-rest-short').addEventListener('click',shortRest);
 document.getElementById('btn-rest-long').addEventListener('click',longRest);
 document.getElementById('btn-history').addEventListener('click',showHistory);
+document.getElementById('btn-dice-tray').addEventListener('click',openDiceTray);
 document.getElementById('btn-dice-cmd').addEventListener('click',diceBotCmd);
+document.getElementById('btn-reload').addEventListener('click',forceReloadFromFile);
 document.getElementById('btn-theme').addEventListener('click',()=>{
   const cur=document.body.dataset.theme||'dark';
   document.body.dataset.theme=cur==='dark'?'light':'dark';
