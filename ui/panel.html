@@ -1641,9 +1641,16 @@
   }
 
   function renderCampaignCard(c) {
+    var enterBtn = el('button', { class: 'btn-sm', text: '进入' });
+    enterBtn.onclick = (function (cn) {
+      return function () {
+        if (typeof skillPanel !== 'undefined') skillPanel.send('进入战役「' + cn + '」并点亮面板：请运行 python tools/load-session.py --data-base .fathom-panels/dnd5r "' + cn + '"（取最新存档、无存档则起裸 session），再按 G7 / 沙盒恢复流程续上当前进度。');
+      };
+    })(c.name);
     var header = el('div', { class: 'campaign-card-header' }, [
       el('span', { class: 'campaign-card-name', text: c.name }),
-      c.lastPlayed ? el('span', { class: 'campaign-card-last', text: '上次：' + c.lastPlayed }) : null
+      c.lastPlayed ? el('span', { class: 'campaign-card-last', text: '上次：' + c.lastPlayed }) : null,
+      enterBtn
     ].filter(Boolean));
 
     var meta = [c.dmStyle, c.module].filter(Boolean).join('  ·  ');
@@ -1799,7 +1806,7 @@
               var metaSpan = meta ? el('span', { style: 'font-size:11px;color:var(--text-mute);white-space:nowrap;flex-shrink:0', text: meta }) : null;
               var startBtn = el('button', { class: 'btn-sm', text: '开桌' });
               startBtn.onclick = (function (mn) {
-                return function () { if (typeof skillPanel !== 'undefined') skillPanel.send('带我跑「' + mn + '」模组'); };
+                return function () { if (typeof skillPanel !== 'undefined') skillPanel.send('开桌带团：模组「' + mn + '」。请先运行 tools/new-campaign.py 建好战役骨架并点亮面板（--mode G --module 该模组，战役名先起个合理默认），再按工作流 G1 继续（DM 风格 / 房规 / 车卡 / 开场照常问我）。'); };
               })(m.name);
               var row = el('div', {
                 style: 'display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;' + (i > 0 ? 'border-top:1px solid var(--border)' : '')
@@ -1810,7 +1817,7 @@
       };
       box.appendChild(toggleBtn);
       box.appendChild(moduleList);
-      box.appendChild(mkBtn('🏞 开沙盒', '我们开沙盒模式'));
+      box.appendChild(mkBtn('🏞 开沙盒', '开沙盒：请先运行 tools/new-campaign.py 建好沙盒战役骨架并点亮面板（--mode I，战役名先起个合理默认），再按工作流 I1 的沙盒五问继续。'));
     }
     return box;
   }
